@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
 
-add_definitions(-std=c++11 -pthread -v)
+add_definitions(-std=c++11 -pthread) #-v = verbose
 
 enable_testing()
 
@@ -44,15 +44,8 @@ include_directories("/opt/epics/modules/areaDetector/ADCore/include" "/opt/epics
 
 link_directories("/opt/local/lib" "/usr/local/lib" "/opt/epics/modules/areaDetector/ADCore/lib/darwin-x86" "/opt/epics/modules/asyn/lib/darwin-x86" "/opt/epics/base-3.15.5/lib/darwin-x86")
 
-add_executable(unit_tests ${TEST_FILES} "${plugin_SRC}jsoncpp.cpp" "${plugin_SRC}KafkaProducer.cpp" "${plugin_SRC}ParamUtility.cpp" "${driver_SRC}/KafkaConsumer.cpp")
+add_executable(unit_tests ${TEST_FILES} "${plugin_SRC}jsoncpp.cpp" "${plugin_SRC}KafkaProducer.cpp" "${plugin_SRC}ParamUtility.cpp" "${plugin_SRC}NDArraySerializer.cpp" "${driver_SRC}/KafkaConsumer.cpp")
 
-find_library (LIBSTDCXX NAMES stdc++)
-add_compile_options(-stdlib=libstdc++)
-
-
-# set(needed_features cxx_strong_enums cxx_constexpr)
-# target_compile_features(LogTests PRIVATE ${needed_features})
-
-target_link_libraries(unit_tests gtest gmock_main NDPlugin ADBase asyn Com rdkafka++ rdkafka pthread z crypto ${LIBSTDCXX} c++)
+target_link_libraries(unit_tests gtest gmock_main NDPlugin ADBase asyn Com rdkafka++ rdkafka pthread)
 
 add_test(TestAll unit_tests)
