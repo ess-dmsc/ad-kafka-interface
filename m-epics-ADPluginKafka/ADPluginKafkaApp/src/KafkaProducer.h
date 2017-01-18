@@ -9,6 +9,7 @@
 #pragma once
 
 #include <thread>
+#include <mutex>
 #include <atomic>
 #include <librdkafka/rdkafkacpp.h>
 #include <iostream>
