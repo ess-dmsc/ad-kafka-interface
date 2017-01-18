@@ -74,10 +74,10 @@ else()
     link_directories("$ENV{EPICS_MODULES_PATH}/calc/3.6.1/${E_VER}/lib/${E_OS}")
     link_directories("$ENV{EPICS_MODULES_PATH}/seq/2.1.10/${E_VER}/lib/${E_OS}")
     
-    find_library(hdf5_LIB NAMES hdf5)
-    find_library(jpeg_LIB NAMES jpeg)
-    find_library(tiff_LIB NAMES tiff)
-    find_library(z_LIB NAMES z)
+    find_package(HDF5 REQUIRED)
+    find_package(JPEG REQUIRED)
+    find_package(TIFF REQUIRED)
+    find_package(ZLIB REQUIRED)
 endif()
 
 include_directories("$ENV{EPICS_BASE}/include")
@@ -90,7 +90,7 @@ add_executable(unit_tests ${TEST_FILES} "${plugin_SRC}jsoncpp.cpp" "${plugin_SRC
 if (${APPLE})
     target_link_libraries(unit_tests gtest gmock_main NDPlugin ADBase asyn Com ${rdkafka_LIB} ${rdkafkacpp_LIB})
 else()
-    target_link_libraries(unit_tests gtest gmock_main xml sz busy calc seq ca dbIoc registryIoc ${z_LIB} ${tiff_LIB} ${jpeg_LIB} ${hdf5_LIB} normativeTypesCPP pvAccessCPP pvDataCPP pvDatabaseCPP adcore asyn Com ${rdkafka_LIB} ${rdkafkacpp_LIB})
+    target_link_libraries(unit_tests gtest gmock_main xml sz busy calc seq ca dbIoc registryIoc ${ZLIB_LIBRARY} ${TIFF_LIBRARY} ${JPEG_LIBRARY} ${HDF5_LIBRARY} normativeTypesCPP pvAccessCPP pvDataCPP pvDatabaseCPP adcore asyn Com ${rdkafka_LIB} ${rdkafkacpp_LIB})
 endif()
 
 add_test(TestAll unit_tests)
