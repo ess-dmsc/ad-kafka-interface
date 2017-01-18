@@ -18,7 +18,7 @@ node('eee') {
         }
 
         stage("Run unit tests") {
-            sh "./unit_tests/AllUnitTests --gtest_output=xml:AllResultsUnitTests.xml"
+            sh "./unit_tests/unit_tests --gtest_output=xml:AllResultsUnitTests.xml"
             junit '*Tests.xml'
         }
  
