@@ -49,7 +49,7 @@ public:
 class KafkaConsumerEnv : public ::testing::Test {
 public:
     static void SetUpTestCase() {
-        std::string portName("someName");
+        std::string portName("someNameSecond");
         int queueSize = 10;
         int blockingCallbacks = 0;
         std::string NDArrayPort("NDArrayPortName");

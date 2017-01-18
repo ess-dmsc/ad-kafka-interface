@@ -27,7 +27,7 @@ public:
 class ParamUtility : public ::testing::Test {
 public:
     static void SetUpTestCase() {
-        std::string portName("someName");
+        std::string portName("someNameAgain");
         int queueSize = 10;
         int blockingCallbacks = 0;
         std::string NDArrayPort("NDArrayPortName");
