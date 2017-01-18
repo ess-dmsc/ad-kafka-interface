@@ -2,7 +2,7 @@
  * ADKafkaInterface Jenkinsfile
  */
 
-node {
+node('eee') {
 
     stage("Checkout projects") {
         checkout scm
