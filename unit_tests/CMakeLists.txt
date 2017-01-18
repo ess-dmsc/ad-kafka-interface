@@ -33,13 +33,18 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
 endif()
 
 
-include_directories("../KafkaPluginApp/src/" ".")
+file(GLOB TEST_FILES "./*.cpp")
+
+set(plugin_SRC "../m-epics-ADPluginKafka/ADPluginKafkaApp/src/")
+set(driver_SRC "../m-epics-ADKafka/ADKafkaApp/src/")
+
+include_directories(${plugin_SRC} ${driver_SRC} ".")
 
 include_directories("/opt/epics/modules/areaDetector/ADCore/include" "/opt/epics/base-3.15.5/include" "/opt/epics/base-3.15.5/include/compiler/clang/" "/opt/epics/base-3.15.5/include/os/Darwin/" "/opt/epics/modules/asyn/include/")
 
 link_directories("/opt/local/lib" "/usr/local/lib" "/opt/epics/modules/areaDetector/ADCore/lib/darwin-x86" "/opt/epics/modules/asyn/lib/darwin-x86" "/opt/epics/base-3.15.5/lib/darwin-x86")
 
-add_executable(unit_tests "RunTests.cpp" "KafkaProducerTest.cpp" "../KafkaPluginApp/src/jsoncpp.cpp" "../KafkaPluginApp/src/KafkaProducer.cpp" "../KafkaPluginApp/src/ParamUtility.cpp")
+add_executable(unit_tests ${TEST_FILES} "${plugin_SRC}jsoncpp.cpp" "${plugin_SRC}KafkaProducer.cpp" "${plugin_SRC}ParamUtility.cpp" "${driver_SRC}/KafkaConsumer.cpp")
 
 find_library (LIBSTDCXX NAMES stdc++)
 add_compile_options(-stdlib=libstdc++)
