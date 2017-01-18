@@ -38,14 +38,41 @@ file(GLOB TEST_FILES "./*.cpp")
 set(plugin_SRC "../m-epics-ADPluginKafka/ADPluginKafkaApp/src/")
 set(driver_SRC "../m-epics-ADKafka/ADKafkaApp/src/")
 
-include_directories(${plugin_SRC} ${driver_SRC} ".")
+find_path(rdkafka_INC NAMES librdkafka/rdkafka.h librdkafka/rdkafkacpp.h PATHS /usr/local/include)
 
-include_directories("/opt/epics/modules/areaDetector/ADCore/include" "/opt/epics/base-3.15.5/include" "/opt/epics/base-3.15.5/include/compiler/clang/" "/opt/epics/base-3.15.5/include/os/Darwin/" "/opt/epics/modules/asyn/include/")
+find_path(flatbuffers_INC NAMES flatbuffers/flatbuffers.h PATHS /usr/local/include)
 
-link_directories("/opt/local/lib" "/usr/local/lib" "/opt/epics/modules/areaDetector/ADCore/lib/darwin-x86" "/opt/epics/modules/asyn/lib/darwin-x86" "/opt/epics/base-3.15.5/lib/darwin-x86")
+include_directories(${plugin_SRC} ${driver_SRC} ${rdkafka_INC} ${flatbuffers_INC} ".")
+
+if (NOT DEFINED ENV{EPICS_BASE})
+    message(FATAL_ERROR "Missing environment variable \"EPICS_BASE\".")
+endif()
+
+if (NOT DEFINED ENV{EPICS_MODULES_PATH})
+    message(FATAL_ERROR "Missing environment variable \"EPICS_MODULES_PATH\".")
+endif()
+
+if (${APPLE})
+    message(STATUS "MacOS X detected, making relevant assumptions about file locations.")
+    include_directories("$ENV{EPICS_MODULES_PATH}/areaDetector/ADCore/include/" "$ENV{EPICS_BASE}/include/compiler/clang/" "$ENV{EPICS_BASE}/include/os/Darwin/" "$ENV{EPICS_MODULES_PATH}/asyn/include/")
+    
+    link_directories("$ENV{EPICS_MODULES_PATH}/areaDetector/ADCore/lib/darwin-x86" "$ENV{EPICS_MODULES_PATH}/asyn/lib/darwin-x86" "$ENV{EPICS_BASE}/lib/darwin-x86")
+else()
+    set(E_VER "3.14.12.5")
+    set(E_OS "centos7-x86_64")
+    message(STATUS "Assuming Linux machine running the ESS EPICS environment.")
+    include_directories("$ENV{EPICS_MODULES_PATH}/adcore/2.5.1/${E_VER}/include/" "$ENV{EPICS_BASE}/include/compiler/gcc/" "$ENV{EPICS_BASE}/include/os/Linux/" "$ENV{EPICS_MODULES_PATH}/asyn/4.27.0/${E_VER}/include/")
+    
+    link_directories("$ENV{EPICS_MODULES_PATH}/adcore/2.5.1/${E_VER}/lib/${E_OS}" "$ENV{EPICS_MODULES_PATH}/asyn/4.27.0/${E_VER}/lib/${E_OS}" "$ENV{EPICS_BASE}/lib/${E_OS}")
+endif()
+
+include_directories("$ENV{EPICS_BASE}/include")
+
+find_library(rdkafka_LIB NAMES rdkafka PATHS /usr/local/lib)
+find_library(rdkafkacpp_LIB NAMES rdkafka++ PATHS /usr/local/lib)
 
 add_executable(unit_tests ${TEST_FILES} "${plugin_SRC}jsoncpp.cpp" "${plugin_SRC}KafkaProducer.cpp" "${plugin_SRC}ParamUtility.cpp" "${plugin_SRC}NDArraySerializer.cpp" "${driver_SRC}/KafkaConsumer.cpp")
 
-target_link_libraries(unit_tests gtest gmock_main NDPlugin ADBase asyn Com rdkafka++ rdkafka pthread)
+target_link_libraries(unit_tests gtest gmock_main NDPlugin ADBase asyn Com ${rdkafka_LIB} ${rdkafkacpp_LIB})
 
 add_test(TestAll unit_tests)
