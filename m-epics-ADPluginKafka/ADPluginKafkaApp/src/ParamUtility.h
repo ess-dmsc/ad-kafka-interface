@@ -9,6 +9,7 @@
 #include <NDPluginDriver.h>
 #include <string>
 #include <map>
+#include <memory>
 
 class PV_param {
 public:
