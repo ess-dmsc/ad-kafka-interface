@@ -119,9 +119,12 @@ namespace KafkaInterface {
     TEST_F(KafkaConsumerEnv, WaitTest) {
         KafkaConsumer cons("some_addr", "some_topic");
         auto start = std::chrono::steady_clock::now();
-        KafkaMessage *msg = cons.WaitForPkg(1000);
+        
+        int waitTime = 1000;
+        
+        KafkaMessage *msg = cons.WaitForPkg(waitTime);
         auto duration = std::chrono::duration_cast< TimeT>(std::chrono::steady_clock::now() - start);
-        ASSERT_GE(duration.count(), 1000);
+        ASSERT_GE(duration.count(), waitTime - 10);
         ASSERT_EQ(msg, nullptr);
         delete msg;
     }

@@ -81,10 +81,10 @@ public:
     template<typename T>
     void* GenerateAttrDataT(T min, T max) {
         if (std::is_same<T, std::double_t>::value or std::is_same<T, std::float_t>::value) {
-            std::uniform_real_distribution<T> valueDist(double(min), double(max));
+            std::uniform_real_distribution<> valueDist(min, max);
             return (void*) new T(valueDist(eng));
         }
-        std::uniform_int_distribution<T> valueDist(int(min), int(max));
+        std::uniform_int_distribution<> valueDist(min, max);
         return (void*) new T(valueDist(eng));
     }
     
