@@ -64,6 +64,20 @@ else()
     include_directories("$ENV{EPICS_MODULES_PATH}/adcore/2.5.1/${E_VER}/include/" "$ENV{EPICS_BASE}/include/compiler/gcc/" "$ENV{EPICS_BASE}/include/os/Linux/" "$ENV{EPICS_MODULES_PATH}/asyn/4.27.0/${E_VER}/include/")
     
     link_directories("$ENV{EPICS_MODULES_PATH}/adcore/2.5.1/${E_VER}/lib/${E_OS}" "$ENV{EPICS_MODULES_PATH}/asyn/4.27.0/${E_VER}/lib/${E_OS}" "$ENV{EPICS_BASE}/lib/${E_OS}")
+    link_directories("$ENV{EPICS_MODULES_PATH}/pvDataCPP/6.0.0/${E_VER}/lib/${E_OS}")
+    link_directories("$ENV{EPICS_MODULES_PATH}/pvDatabaseCPP/4.2.0/${E_VER}/lib/${E_OS}")
+    link_directories("$ENV{EPICS_MODULES_PATH}/pvAccessCPP/5.0.0/${E_VER}/lib/${E_OS}")
+    link_directories("$ENV{EPICS_MODULES_PATH}/normativeTypesCPP/5.1.0/${E_VER}/lib/${E_OS}")
+    link_directories("$ENV{EPICS_MODULES_PATH}/xml/2.9.2/${E_VER}/lib/${E_OS}")
+    link_directories("$ENV{EPICS_MODULES_PATH}/sz/2.1.0/${E_VER}/lib/${E_OS}")
+    link_directories("$ENV{EPICS_MODULES_PATH}/busy/1.6.0/${E_VER}/lib/${E_OS}")
+    link_directories("$ENV{EPICS_MODULES_PATH}/calc/3.6.1/${E_VER}/lib/${E_OS}")
+    link_directories("$ENV{EPICS_MODULES_PATH}/seq/2.1.10/${E_VER}/lib/${E_OS}")
+    
+    find_library(hdf5_LIB NAMES hdf5)
+    find_library(jpeg_LIB NAMES jpeg)
+    find_library(tiff_LIB NAMES tiff)
+    find_library(z_LIB NAMES z)
 endif()
 
 include_directories("$ENV{EPICS_BASE}/include")
@@ -73,6 +87,10 @@ find_library(rdkafkacpp_LIB NAMES rdkafka++ PATHS /usr/local/lib)
 
 add_executable(unit_tests ${TEST_FILES} "${plugin_SRC}jsoncpp.cpp" "${plugin_SRC}KafkaProducer.cpp" "${plugin_SRC}ParamUtility.cpp" "${plugin_SRC}NDArraySerializer.cpp" "${driver_SRC}/KafkaConsumer.cpp")
 
-target_link_libraries(unit_tests gtest gmock_main NDPlugin ADBase asyn Com ${rdkafka_LIB} ${rdkafkacpp_LIB})
+if (${APPLE})
+    target_link_libraries(unit_tests gtest gmock_main NDPlugin ADBase asyn Com ${rdkafka_LIB} ${rdkafkacpp_LIB})
+else()
+    target_link_libraries(unit_tests gtest gmock_main xml sz busy calc seq ca dbIoc registryIoc ${z_LIB} ${tiff_LIB} ${jpeg_LIB} ${hdf5_LIB} normativeTypesCPP pvAccessCPP pvDataCPP pvDatabaseCPP adcore asyn Com ${rdkafka_LIB} ${rdkafkacpp_LIB})
+endif()
 
 add_test(TestAll unit_tests)
