@@ -74,8 +74,6 @@ else()
     link_directories("$ENV{EPICS_MODULES_PATH}/calc/3.6.1/${E_VER}/lib/${E_OS}")
     link_directories("$ENV{EPICS_MODULES_PATH}/seq/2.1.10/${E_VER}/lib/${E_OS}")
     
-    set(CMAKE_LIBRARY_PATH "/usr/lib64")
-    
     find_package(HDF5 REQUIRED)
     find_package(JPEG REQUIRED)
     find_package(TIFF REQUIRED)
