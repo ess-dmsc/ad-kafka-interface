@@ -247,4 +247,9 @@ namespace KafkaInterface {
         EXPECT_CALL(prod, MakeConnection()).Times(Exactly(1));
         prod.SetStatsTime(100);
     }
+    
+    TEST_F(KafkaProducerEnv, TestNrOfParams) {
+        KafkaProducer prod("some_addr", "some_topic");
+        ASSERT_EQ(prod.GetParams().size(), prod.GetNumberOfPVs());
+    }
 }

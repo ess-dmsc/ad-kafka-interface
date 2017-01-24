@@ -55,6 +55,8 @@ namespace KafkaInterface {
          * \todo Complete documentation.
          */
         virtual bool SendKafkaPacket(unsigned char *buffer, size_t buffer_size);
+        
+        static int GetNumberOfPVs();
     protected:
         size_t maxMessageSize; // In bytes
         int msgQueueSize;

@@ -260,4 +260,9 @@ namespace KafkaInterface {
         cons.SetConStatParent(KafkaConsumerStandIn::ConStat::ERROR, "some message");
         Mock::VerifyAndClear(plugin);
     }
+    
+    TEST_F(KafkaConsumerEnv, TestNrOfParams) {
+        KafkaConsumer prod("some_addr", "some_topic");
+        ASSERT_EQ(prod.GetParams().size(), prod.GetNumberOfPVs());
+    }
 }

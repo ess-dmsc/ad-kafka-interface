@@ -76,5 +76,20 @@ class epicsShareClass KafkaPlugin : public NDPluginDriver {
     std::map<std::string,PV_param> paramList;
     int MIN_PARAM_INDEX;
     
-
+    enum PV {
+        stats_time,
+        max_msg_size,
+        con_status,
+        con_msg,
+        msgs_in_queue,
+        count,
+    };
+    
+    std::vector<PV_param> paramsList = {
+        PV_param("KAFKA_STATS_INT", asynParamInt32), //stats_time
+        PV_param("KAFKA_MAX_MSG_SIZE", asynParamInt32), //max_msg_size
+        PV_param("KAFKA_CONNECTION_STATUS", asynParamInt32), //con_status
+        PV_param("KAFKA_CONNECTION_MESSAGE", asynParamOctet), //con_msg
+        PV_param("KAFKA_UNSENT_PACKETS", asynParamInt32), //msgs_in_queue
+    };
 };

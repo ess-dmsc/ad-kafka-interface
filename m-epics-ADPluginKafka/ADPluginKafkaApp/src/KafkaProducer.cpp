@@ -11,6 +11,10 @@
 
 namespace KafkaInterface {
     
+    int KafkaProducer::GetNumberOfPVs() {
+        return PV::count;
+    }
+    
     KafkaProducer::KafkaProducer(std::string topic, std::string broker) : errorState(false), doFlush(true), topic(nullptr), producer(nullptr), conf(nullptr), tconf(nullptr), flushTimeout(500), maxMessageSize(1000000), topicName(topic), brokerAddrStr(broker), runThread(false), paramCallback(nullptr), msgQueueSize(10) {
         InitRdKafka();
         MakeConnection();
