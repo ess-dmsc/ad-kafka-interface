@@ -11,10 +11,11 @@
 
 #include <NDPluginDriver.h>
 #include <map>
-
+#include "KafkaProducer.h"
+#include "NDArraySerializer.h"
 #include "ParamUtility.h"
 
-
+using namespace KafkaInterface;
 /** @brief areaDetector plugin that produces Kafka messages and sends them to a broker.
  * This class is an areaDetector plugin which can be used to transmit data from an
  * areaDetector to a Kafka broker. The data is packed in a flatbuffer.
@@ -34,7 +35,6 @@ class epicsShareClass KafkaPlugin : public NDPluginDriver {
 	 * @param[in] NDArrayPort Name of asyn port driver for initial source of NDArray callbacks.
 	 * @param[in] NDArrayAddr asyn port driver address for initial source of NDArray callbacks.
 	 * @param[in] maxAddr The maximum  number of asyn addr addresses this driver supports. 1 is minimum.
-	 * @param[in] numParams The number of parameters that the derived class supports.
 	 * @param[in] maxBuffers The maximum number of NDArray buffers that the NDArrayPool for this driver is 
 	 *            allowed to allocate. Set this to -1 to allow an unlimited number of buffers.
 	 * @param[in] maxMemory The maximum amount of memory that the NDArrayPool for this driver is 
@@ -73,23 +73,18 @@ class epicsShareClass KafkaPlugin : public NDPluginDriver {
     asynStatus writeOctet(asynUser *pasynUser, const char *value, size_t nChars, size_t *nActual);
 
   protected:
-    std::map<std::string,PV_param> paramList;
     int MIN_PARAM_INDEX;
+    KafkaProducer prod;
+    NDArraySerializer serializer;
     
     enum PV {
-        stats_time,
-        max_msg_size,
-        con_status,
-        con_msg,
-        msgs_in_queue,
+        kafka_addr,
+        kafka_topic,
         count,
     };
     
     std::vector<PV_param> paramsList = {
-        PV_param("KAFKA_STATS_INT", asynParamInt32), //stats_time
-        PV_param("KAFKA_MAX_MSG_SIZE", asynParamInt32), //max_msg_size
-        PV_param("KAFKA_CONNECTION_STATUS", asynParamInt32), //con_status
-        PV_param("KAFKA_CONNECTION_MESSAGE", asynParamOctet), //con_msg
-        PV_param("KAFKA_UNSENT_PACKETS", asynParamInt32), //msgs_in_queue
+        PV_param("KAFKA_BROKER_ADDRESS", asynParamOctet), //kafka_addr
+        PV_param("KAFKA_TOPIC", asynParamInt32), //kafka_topic
     };
 };

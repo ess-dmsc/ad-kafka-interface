@@ -47,7 +47,7 @@ public:
     
     virtual bool SetStatsTime(int time);
     
-    virtual std::vector<PV_param> GetParams();
+    virtual std::vector<PV_param> &GetParams();
     
     static int GetNumberOfPVs();
 protected:

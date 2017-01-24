@@ -28,7 +28,8 @@ namespace KafkaInterface {
         
         ~KafkaProducer();
         
-        virtual std::vector<PV_param> GetParams();
+        virtual std::vector<PV_param> &GetParams();
+        
         
         virtual void RegisterParamCallbackClass(NDPluginDriver *ptr);
         

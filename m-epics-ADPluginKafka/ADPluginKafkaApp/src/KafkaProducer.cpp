@@ -368,7 +368,7 @@ namespace KafkaInterface {
         }
     }
     
-    std::vector<PV_param> KafkaProducer::GetParams() {
+    std::vector<PV_param> &KafkaProducer::GetParams() {
         return paramsList;
     }
     

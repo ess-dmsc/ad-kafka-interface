@@ -85,7 +85,7 @@ namespace KafkaInterface {
         }
     }
     
-    std::vector<PV_param> KafkaConsumer::GetParams() {
+    std::vector<PV_param> &KafkaConsumer::GetParams() {
         return paramsList;
     }
     
