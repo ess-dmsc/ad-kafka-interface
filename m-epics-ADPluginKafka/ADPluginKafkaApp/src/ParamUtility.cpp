@@ -16,14 +16,14 @@ PV_param::PV_param() : desc("Not used"), type(asynParamType::asynParamNotDefined
     
 }
 
-int InitPvParams(NDPluginDriver *ptr, std::map<std::string, PV_param> &params) {
+int InitPvParams(NDPluginDriver *ptr, std::vector<PV_param> &params) {
     int minParamIndex = -1;
     for (auto &p : params) {
-        ptr->createParam(p.second.desc.c_str(), p.second.type, p.second.index.get());
+        ptr->createParam(p.desc.c_str(), p.type, p.index.get());
         if (-1 == minParamIndex) {
-            minParamIndex = *p.second.index;
-        } else if (minParamIndex > *p.second.index) {
-            minParamIndex = *p.second.index;
+            minParamIndex = *p.index;
+        } else if (minParamIndex > *p.index) {
+            minParamIndex = *p.index;
         }
     }
     return minParamIndex;

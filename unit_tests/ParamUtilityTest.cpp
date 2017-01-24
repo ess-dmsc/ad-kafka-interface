@@ -10,7 +10,7 @@
 #include <gmock/gmock.h>
 #include <NDPluginDriver.h>
 #include <string>
-#include <map>
+#include <vector>
 #include <iostream>
 #include "ParamUtility.h"
 
@@ -67,12 +67,11 @@ MATCHER_P(CharToStringMatcher, matchStr, "") {
 }
 
 TEST_F(ParamUtility, InitPvTest) {
-    std::map<std::string, PV_param> testParams;
+    std::vector<PV_param> testParams;
     std::string cKey;
     for (int i = 0; i < 7; i++) {
-        cKey = "param_key_" + std::to_string(i);
-        testParams.insert(std::pair<std::string,PV_param>(cKey, PV_param("PARAM_DESC_" + std::to_string(i), asynParamType(i), i + 64)));
-        EXPECT_CALL(*plugin, createParam(CharToStringMatcher(testParams[cKey].desc), testParams[cKey].type, testParams[cKey].index.get())).Times(testing::Exactly(1));
+        testParams.push_back(PV_param("PARAM_DESC_" + std::to_string(i), asynParamType(i), i + 64));
+        EXPECT_CALL(*plugin, createParam(CharToStringMatcher(testParams[i].desc), testParams[i].type, testParams[i].index.get())).Times(testing::Exactly(1));
     }
     InitPvParams(plugin, testParams);
 }

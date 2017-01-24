@@ -9,6 +9,10 @@
 #include "KafkaConsumer.h"
 namespace KafkaInterface {
     
+    int KafkaConsumer::GetNumberOfPVs() {
+        return PV::count;
+    }
+    
     KafkaMessage::KafkaMessage(RdKafka::Message *msg) : msg(msg) {
         
     }
@@ -81,7 +85,7 @@ namespace KafkaInterface {
         }
     }
     
-    std::map<std::string, PV_param> KafkaConsumer::GetParams() {
+    std::vector<PV_param> KafkaConsumer::GetParams() {
         return paramsList;
     }
     
@@ -160,7 +164,7 @@ namespace KafkaInterface {
             SetConStat(tempStat, statString);
         }
         int unsentMessages = root["msg_cnt"].asInt();
-        setParam(paramCallback, paramsList.at("queued"), unsentMessages);
+        setParam(paramCallback, paramsList[PV::msgs_in_queue], unsentMessages);
     }
     
     std::int64_t KafkaConsumer::GetCurrentOffset() {
@@ -235,8 +239,8 @@ namespace KafkaInterface {
     
     void KafkaConsumer::SetConStat(ConStat stat, std::string msg) {
         //std::cout << int(stat) << " : " << msg << std::endl;
-        setParam(paramCallback, paramsList.at("status"), int(stat));
-        setParam(paramCallback, paramsList.at("message"), msg);
+        setParam(paramCallback, paramsList[PV::con_status], int(stat));
+        setParam(paramCallback, paramsList[PV::con_msg], msg);
     }
     
     void KafkaConsumer::RegisterParamCallbackClass(NDPluginDriver *ptr) {

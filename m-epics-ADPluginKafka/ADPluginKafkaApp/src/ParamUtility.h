@@ -8,7 +8,7 @@
 
 #include <NDPluginDriver.h>
 #include <string>
-#include <map>
+#include <vector>
 #include <memory>
 
 class PV_param {
@@ -20,7 +20,7 @@ public:
     std::shared_ptr<int> index;
 };
 
-int InitPvParams(NDPluginDriver *ptr, std::map<std::string, PV_param> &param);
+int InitPvParams(NDPluginDriver *ptr, std::vector<PV_param> &param);
 
 asynStatus setParam(NDPluginDriver *ptr, const PV_param &p, const std::string value);
 asynStatus setParam(NDPluginDriver *ptr, const PV_param &p, const int value);

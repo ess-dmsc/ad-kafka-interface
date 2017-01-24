@@ -20,6 +20,7 @@ public:
     using KafkaInterface::KafkaConsumer::kafka_stats_interval;
     using KafkaInterface::KafkaConsumer::consumer;
     using KafkaInterface::KafkaConsumer::paramCallback;
+    using KafkaInterface::KafkaConsumer::PV;
     void SetConStatParent(KafkaConsumerStandIn::ConStat stat, std::string msg) {KafkaInterface::KafkaConsumer::SetConStat(stat, msg);};
     bool MakeConnectionParent() {return KafkaInterface::KafkaConsumer::MakeConnection();};
     MOCK_METHOD1(ParseStatusString, void(std::string));
@@ -135,10 +136,10 @@ namespace KafkaInterface {
         cons.RegisterParamCallbackClass(plugin);
         int ctr = 1;
         for (auto p : params) {
-            *p.second.index = ctr;
+            *p.index = ctr;
             ctr++;
         }
-        int queueIndex = *params["queued"].index;
+        int queueIndex = *params[KafkaConsumerStandIn::PV::msgs_in_queue].index;
         EXPECT_CALL(*plugin, setIntegerParam(_,_)).Times(AtLeast(1));
         EXPECT_CALL(*plugin, setIntegerParam(Eq(queueIndex),_)).Times(AtLeast(1));
         KafkaMessage *msg = cons.WaitForPkg(1000);
@@ -153,10 +154,10 @@ namespace KafkaInterface {
         cons.RegisterParamCallbackClass(plugin);
         int ctr = 1;
         for (auto p : params) {
-            *p.second.index = ctr;
+            *p.index = ctr;
             ctr++;
         }
-        int statusIndex = *params["status"].index;
+        int statusIndex = *params[KafkaConsumerStandIn::PV::con_status].index;
         EXPECT_CALL(*plugin, setIntegerParam(_,_)).Times(AtLeast(1));
         EXPECT_CALL(*plugin, setIntegerParam(Eq(statusIndex),_)).Times(AtLeast(1));
         KafkaMessage *msg = cons.WaitForPkg(1000);
@@ -248,11 +249,11 @@ namespace KafkaInterface {
         auto params = cons.GetParams();
         int ctr = 1;
         for (auto p : params) {
-            *p.second.index = ctr;
+            *p.index = ctr;
             ctr++;
         }
-        int messageIndex = *params["message"].index;
-        int statusIndex = *params["status"].index;
+        int messageIndex = *params[KafkaConsumerStandIn::PV::con_msg].index;
+        int statusIndex = *params[KafkaConsumerStandIn::PV::con_status].index;
         cons.RegisterParamCallbackClass(plugin);
         EXPECT_CALL(*plugin, setIntegerParam(Eq(statusIndex), Eq(int(KafkaConsumerStandIn::ConStat::ERROR)))).Times(Exactly(1));
         EXPECT_CALL(*plugin, setStringParam(Eq(messageIndex), _)).Times(Exactly(1));

@@ -72,7 +72,7 @@ namespace KafkaInterface {
             return false;
         }
         maxMessageSize = msgSize;
-        setParam(paramCallback, paramsList["msg_size"], int(msgSize));
+        setParam(paramCallback, paramsList[PV::max_msg_size], int(msgSize));
         ShutDownTopic();
         ShutDownProducer();
         MakeConnection();
@@ -156,8 +156,8 @@ namespace KafkaInterface {
     
     void KafkaProducer::SetConStat(KafkaProducer::ConStat stat, std::string msg) {
         //std::cout << int(stat) << " : " << msg << std::endl;
-        setParam(paramCallback, paramsList.at("status"), int(stat));
-        setParam(paramCallback, paramsList.at("message"), msg);
+        setParam(paramCallback, paramsList.at(PV::con_status), int(stat));
+        setParam(paramCallback, paramsList.at(PV::con_msg), msg);
     }
     
     void KafkaProducer::ParseStatusString(std::string msg) {
@@ -183,7 +183,7 @@ namespace KafkaInterface {
             SetConStat(tempStat, statString);
         }
         int unsentMessages = root["msg_cnt"].asInt();
-        setParam(paramCallback, paramsList.at("queued"), unsentMessages);
+        setParam(paramCallback, paramsList.at(PV::msgs_in_queue), unsentMessages);
     }
     
     void KafkaProducer::AttemptFlushAtReconnect(bool flush, int flushTime) {
@@ -236,7 +236,7 @@ namespace KafkaInterface {
             SetConStat(KafkaProducer::ConStat::ERROR, "Unable to set statistics interval.");
             return false;
         }
-        setParam(paramCallback, paramsList["stats_tm"], time);
+        setParam(paramCallback, paramsList[PV::stats_time], time);
         ShutDownTopic();
         ShutDownProducer();
         MakeConnection();
@@ -364,7 +364,7 @@ namespace KafkaInterface {
         }
     }
     
-    std::map<std::string, PV_param> KafkaProducer::GetParams() {
+    std::vector<PV_param> KafkaProducer::GetParams() {
         return paramsList;
     }
     

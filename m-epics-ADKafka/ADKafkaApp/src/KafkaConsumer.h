@@ -10,7 +10,6 @@
 
 #include <librdkafka/rdkafkacpp.h>
 #include <string>
-#include <map>
 #include <vector>
 #include "ParamUtility.h"
 #include "json.h"
@@ -48,7 +47,9 @@ public:
     
     virtual bool SetStatsTime(int time);
     
-    virtual std::map<std::string, PV_param> GetParams();
+    virtual std::vector<PV_param> GetParams();
+    
+    static int GetNumberOfPVs();
 protected:
     bool errorState = false;
     
@@ -96,13 +97,23 @@ protected:
     Json::Value root, brokers;
     Json::Reader reader;
     
-    std::map<std::string,PV_param> paramsList = {
-        {"stats_tm", PV_param("KAFKA_STATS_INT", asynParamInt32)},
-        {"msg_size", PV_param("KAFKA_MAX_MSG_SIZE", asynParamInt32)},
-        {"status", PV_param("KAFKA_CONNECTION_STATUS", asynParamInt32)},
-        {"message", PV_param("KAFKA_CONNECTION_MESSAGE", asynParamOctet)},
-        {"offset", PV_param("KAFKA_MESSAGE_OFFSET", asynParamInt32)},
-        {"queued", PV_param("KAFKA_UNPROCCESSED_MESSAGES", asynParamInt32)},
+    enum PV {
+        stats_time,
+        max_msg_size,
+        con_status,
+        con_msg,
+        msg_offset,
+        msgs_in_queue,
+        count,
+    };
+    
+    std::vector<PV_param> paramsList = {
+        PV_param("KAFKA_STATS_TIME", asynParamInt32), //stats_time
+        PV_param("KAFKA_MAX_MSG_SIZE", asynParamInt32), //max_msg_size
+        PV_param("KAFKA_CONNECTION_STATUS", asynParamInt32), //con_status
+        PV_param("KAFKA_CONNECTION_MESSAGE", asynParamOctet), //con_msg
+        PV_param("KAFKA_MESSAGE_OFFSET", asynParamInt32), //msg_offset
+        PV_param("KAFKA_UNPROCCESSED_MESSAGES", asynParamInt32), //msgs_in_queue
     };
 };
 }

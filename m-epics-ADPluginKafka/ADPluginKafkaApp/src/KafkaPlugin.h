@@ -17,7 +17,7 @@
 
 /** @brief areaDetector plugin that produces Kafka messages and sends them to a broker.
  * This class is an areaDetector plugin which can be used to transmit data from an
- * areaDetector to a Kafka broker. The data is packed in a flatbuffer before serialization.
+ * areaDetector to a Kafka broker. The data is packed in a flatbuffer.
  */
 class epicsShareClass KafkaPlugin : public NDPluginDriver {
   public:
@@ -75,7 +75,6 @@ class epicsShareClass KafkaPlugin : public NDPluginDriver {
   protected:
     std::map<std::string,PV_param> paramList;
     int MIN_PARAM_INDEX;
-  private:
     
 
 };

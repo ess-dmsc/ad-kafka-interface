@@ -19,6 +19,7 @@ namespace KafkaInterface {
         using KafkaProducer::errorState;
         using KafkaProducer::ConStat;
         using KafkaProducer::kafka_stats_interval;
+        using KafkaProducer::PV;
         void SetConStatParent(KafkaProducerStandIn::ConStat stat, std::string msg) {KafkaProducer::SetConStat(stat, msg);};
         bool MakeConnectionParent() {return KafkaProducer::MakeConnection();};
         MOCK_METHOD0(MakeConnection, bool(void));
@@ -149,10 +150,10 @@ namespace KafkaInterface {
     TEST_F(KafkaProducerEnv, ParamCallSuccess) {
         KafkaProducerStandIn prod("some_addr", "some_topic");
         prod.errorState = true;
-        std::map<std::string, PV_param> params = prod.GetParams();
+        std::vector<PV_param> params = prod.GetParams();
         int ctr = 1;
         for (auto p : params) {
-            *p.second.index = ctr;
+            *p.index = ctr;
             ctr++;
         }
         ON_CALL(prod, SetConStat(_, _)).WillByDefault(Invoke(&prod, &KafkaProducerStandIn::SetConStatParent));
@@ -166,14 +167,14 @@ namespace KafkaInterface {
     TEST_F(KafkaProducerEnv, MaxMessagesInQueue) {
         KafkaProducerStandIn prod("some_addr", "some_topic");
         ON_CALL(prod, MakeConnection()).WillByDefault(Invoke(&prod, &KafkaProducerStandIn::MakeConnectionParent));
-        std::map<std::string, PV_param> params = prod.GetParams();
+        std::vector<PV_param> params = prod.GetParams();
         int ctr = 1;
         for (auto const &p : params) {
-            *p.second.index.get() = ctr;
+            *p.index.get() = ctr;
             ctr++;
         }
         int sendMsgs = 10;
-        int msg_queued = *params["queued"].index.get();
+        int msg_queued = *params[KafkaProducerStandIn::PV::msgs_in_queue].index.get();
         ON_CALL(prod, SetConStat(_, _)).WillByDefault(Invoke(&prod, &KafkaProducerStandIn::SetConStatParent));
         prod.RegisterParamCallbackClass(plugin);
         prod.SetMessageQueueLength(sendMsgs);
@@ -193,14 +194,14 @@ namespace KafkaInterface {
     TEST_F(KafkaProducerEnv, TooManyMessagesInQueue) {
         KafkaProducerStandIn prod("some_addr", "some_topic");
         ON_CALL(prod, MakeConnection()).WillByDefault(Invoke(&prod, &KafkaProducerStandIn::MakeConnectionParent));
-        std::map<std::string, PV_param> params = prod.GetParams();
+        std::vector<PV_param> params = prod.GetParams();
         int ctr = 1;
         for (auto const &p : params) {
-            *p.second.index.get() = ctr;
+            *p.index.get() = ctr;
             ctr++;
         }
         int sendMsgs = 11;
-        int msg_queued = *params["queued"].index.get();
+        int msg_queued = *params[KafkaProducerStandIn::PV::msgs_in_queue].index.get();
         ON_CALL(prod, SetConStat(_, _)).WillByDefault(Invoke(&prod, &KafkaProducerStandIn::SetConStatParent));
         prod.RegisterParamCallbackClass(plugin);
         prod.SetMessageQueueLength(sendMsgs);

@@ -8,11 +8,11 @@
 
 #pragma once
 
+#include <vector>
 #include <thread>
 #include <mutex>
 #include <atomic>
 #include <librdkafka/rdkafkacpp.h>
-#include <iostream>
 #include "ParamUtility.h"
 #include "NDPluginDriver.h"
 #include "json.h"
@@ -28,7 +28,7 @@ namespace KafkaInterface {
         
         ~KafkaProducer();
         
-        virtual std::map<std::string, PV_param> GetParams();
+        virtual std::vector<PV_param> GetParams();
         
         virtual void RegisterParamCallbackClass(NDPluginDriver *ptr);
         
@@ -137,12 +137,21 @@ namespace KafkaInterface {
         
         std::atomic_bool runThread;
         
-        std::map<std::string,PV_param> paramsList = {
-            {"stats_tm", PV_param("KAFKA_STATS_INT", asynParamInt32)},
-            {"msg_size", PV_param("KAFKA_MAX_MSG_SIZE", asynParamInt32)},
-            {"status", PV_param("KAFKA_CONNECTION_STATUS", asynParamInt32)},
-            {"message", PV_param("KAFKA_CONNECTION_MESSAGE", asynParamOctet)},
-            {"queued", PV_param("KAFKA_UNSENT_PACKETS", asynParamInt32)},
+        enum PV {
+            stats_time,
+            max_msg_size,
+            con_status,
+            con_msg,
+            msgs_in_queue,
+            count,
+        };
+        
+        std::vector<PV_param> paramsList = {
+            PV_param("KAFKA_STATS_INT", asynParamInt32), //stats_time
+            PV_param("KAFKA_MAX_MSG_SIZE", asynParamInt32), //max_msg_size
+            PV_param("KAFKA_CONNECTION_STATUS", asynParamInt32), //con_status
+            PV_param("KAFKA_CONNECTION_MESSAGE", asynParamOctet), //con_msg
+            PV_param("KAFKA_UNSENT_PACKETS", asynParamInt32), //msgs_in_queue
         };
     };
 }
