@@ -71,8 +71,12 @@ class epicsShareClass KafkaPlugin : public NDPluginDriver {
      * @param[out] nActual Number of characters actually written.
      */
     asynStatus writeOctet(asynUser *pasynUser, const char *value, size_t nChars, size_t *nActual);
+    
+    
+    asynStatus writeInt32(asynUser *pasynUser, epicsInt32 value);
 
   protected:
+    static const int intMask = asynInt32ArrayMask | asynOctetMask | asynGenericPointerMask;
     int MIN_PARAM_INDEX;
     KafkaProducer prod;
     NDArraySerializer serializer;
@@ -87,7 +91,7 @@ class epicsShareClass KafkaPlugin : public NDPluginDriver {
     
     std::vector<PV_param> paramsList = {
         PV_param("KAFKA_BROKER_ADDRESS", asynParamOctet), //kafka_addr
-        PV_param("KAFKA_TOPIC", asynParamInt32), //kafka_topic
+        PV_param("KAFKA_TOPIC", asynParamOctet), //kafka_topic
         PV_param("KAFKA_STATS_INT_MS", asynParamInt32), //stats_time
         PV_param("KAFKA_QUEUE_SIZE", asynParamInt32), //stats_time
     };

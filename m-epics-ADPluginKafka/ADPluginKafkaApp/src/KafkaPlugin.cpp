@@ -21,19 +21,19 @@ static const char *driverName = "KafkaPlugin";
 void KafkaPlugin::processCallbacks(NDArray *pArray) {
     //@todo Check the order of these calls and if all of them are needed.
     NDArrayInfo_t arrayInfo;
-    asynStandardInterfaces *pInterfaces = this->getAsynStdInterfaces();
     
     NDPluginDriver::processCallbacks(pArray);
     
     pArray->getInfo(&arrayInfo);
     
-    this->unlock();
     unsigned char *bufferPtr;
     size_t bufferSize;
+    this->unlock();
     serializer.SerializeData(*pArray, bufferPtr, bufferSize);
+    this->lock();
     prod.SendKafkaPacket(bufferPtr, bufferSize);
     
-    this->lock();
+    
     //@todo I need to check what is happening here
     if (this->pArrays[0])
         this->pArrays[0]->release();
@@ -53,17 +53,10 @@ asynStatus KafkaPlugin::writeOctet(asynUser *pasynUser, const char *value, size_
     if (status != asynSuccess)
         return (status);
     
-    // Set the parameter in the parameter library.
-    
-    //-------- This line here is wrong!!!!!!
-    //status = setParam(this, paramList.at("addr"), std::string(value));
-    
-    //status = (asynStatus)setStringParam(addr, function, (char *)value);
     if (status != asynSuccess)
         return (status);
     
     std::string tempStr;
-    // If a new Kafka paramater is received, destroy and re-create everything
     if (function == *paramsList.at(PV::kafka_addr).index) {
         tempStr = std::string(value, nChars);
         prod.SetBrokerAddr(tempStr);
@@ -71,12 +64,11 @@ asynStatus KafkaPlugin::writeOctet(asynUser *pasynUser, const char *value, size_
         tempStr = std::string(value, nChars);
         prod.SetTopic(tempStr);
     } else if (function < MIN_PARAM_INDEX) {
-        // If this parameter belongs to a base class call its method
         status = NDPluginDriver::writeOctet(pasynUser, value, nChars, nActual);
     }
     
     // Do callbacks so higher layers see any changes
-    callParamCallbacks(addr, addr);
+    status = (asynStatus) callParamCallbacks(addr, addr);
     
     //@todo Part of the EPICS message logging system, should be expanded or removed
     if (status) {
@@ -93,18 +85,46 @@ asynStatus KafkaPlugin::writeOctet(asynUser *pasynUser, const char *value, size_
     return status;
 }
 
+asynStatus KafkaPlugin::writeInt32(asynUser *pasynUser, epicsInt32 value) {
+    const int function = pasynUser->reason;
+    asynStatus status = asynSuccess;
+    static const char *functionName = "writeInt32";
+    
+    
+    /* Set the parameter in the parameter library. */
+    status = (asynStatus) setIntegerParam(function, value);
+    
+    if (function == *paramsList[stats_time].index) {
+        
+    } else if (function == *paramsList[queue_size].index) {
+        
+    } else {
+        /* If this parameter belongs to a base class call its method */
+        if (function < MIN_PARAM_INDEX)
+            status = NDPluginDriver::writeInt32(pasynUser, value);
+    }
+    
+    /* Do callbacks so higher layers see any changes */
+    status = (asynStatus) callParamCallbacks();
+    
+    if (status)
+        epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize,
+                      "%s:%s: status=%d, function=%d, value=%d",
+                      driverName, functionName, status, function, value);
+    else
+        asynPrint(pasynUser, ASYN_TRACEIO_DRIVER,
+                  "%s:%s: function=%d, value=%d\n",
+                  driverName, functionName, function, value);
+    return status;
+}
+
 KafkaPlugin::KafkaPlugin(const char *portName, int queueSize, int blockingCallbacks,
                          const char *NDArrayPort, int NDArrayAddr, size_t maxMemory, int priority,
                          int stackSize)
 // Invoke the base class constructor
 : NDPluginDriver(portName, queueSize, blockingCallbacks, NDArrayPort, NDArrayAddr, 1,
                  PV::count + KafkaProducer::GetNumberOfPVs(), 2, maxMemory,
-                 
-                 asynInt8ArrayMask | asynInt16ArrayMask | asynInt32ArrayMask |
-                 asynFloat32ArrayMask | asynFloat64ArrayMask,
-                 
-                 asynInt8ArrayMask | asynInt16ArrayMask | asynInt32ArrayMask |
-                 asynFloat32ArrayMask | asynFloat64ArrayMask,
+                 intMask, intMask,
                  0, 1, priority, stackSize) {
     
     MIN_PARAM_INDEX = InitPvParams(this, paramsList);
