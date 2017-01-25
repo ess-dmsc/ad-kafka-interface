@@ -273,4 +273,18 @@ namespace KafkaInterface {
         KafkaProducer prod("some_addr", "some_topic");
         ASSERT_EQ(prod.GetParams().size(), prod.GetNumberOfPVs());
     }
+    
+    TEST_F(KafkaProducerEnv, SetTopicIsSetTest) {
+        KafkaProducer prod("addr", "tpic");
+        std::string usedTopic = "some_test_topic";
+        prod.SetTopic(usedTopic);
+        ASSERT_EQ(usedTopic, prod.GetTopic());
+    }
+    
+    TEST_F(KafkaProducerEnv, SetAddressIsSetTest) {
+        KafkaProducer prod("addr", "tpic");
+        std::string usedAddr = "some_test_broker_addr";
+        prod.SetBrokerAddr(usedAddr);
+        ASSERT_EQ(usedAddr, prod.GetBrokerAddr());
+    }
 }

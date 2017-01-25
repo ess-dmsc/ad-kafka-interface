@@ -34,8 +34,10 @@ namespace KafkaInterface {
         virtual void RegisterParamCallbackClass(NDPluginDriver *ptr);
         
         virtual bool SetTopic(std::string topicName);
+        virtual std::string GetTopic();
         
         virtual bool SetBrokerAddr(std::string brokerAddr);
+        virtual std::string GetBrokerAddr();
         
         virtual bool SetMaxMessageSize(size_t msgSize);
         virtual size_t GetMaxMessageSize();

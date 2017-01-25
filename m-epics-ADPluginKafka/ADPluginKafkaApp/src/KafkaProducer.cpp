@@ -287,6 +287,10 @@ namespace KafkaInterface {
         return true;
     }
     
+    std::string KafkaProducer::GetTopic() {
+        return topicName;
+    }
+    
     bool KafkaProducer::SetBrokerAddr(std::string brokerAddr) {
         if (errorState or brokerAddr.size() == 0) {
             return false;
@@ -308,6 +312,10 @@ namespace KafkaInterface {
         }
         MakeConnection();
         return true;
+    }
+    
+    std::string KafkaProducer::GetBrokerAddr() {
+        return brokerAddrStr;
     }
     
     bool KafkaProducer::MakeConnection() {

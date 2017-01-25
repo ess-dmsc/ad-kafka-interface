@@ -47,7 +47,7 @@ class epicsShareClass KafkaPlugin : public NDPluginDriver {
 	 * @param[in] stackSize The stack size for the asyn port driver thread if ASYN_CANBLOCK is set in asynFlags.
 	 */
     KafkaPlugin(const char *portName, int queueSize, int blockingCallbacks, const char *NDArrayPort,
-                int NDArrayAddr, size_t maxMemory, int priority, int stackSize);
+                int NDArrayAddr, size_t maxMemory, int priority, int stackSize, const char *brokerAddress, const char *brokerTopic);
 				
     /** @brief Destructor.
 	 * Calls KafkaPlugin::DestroyKafkaConnection().

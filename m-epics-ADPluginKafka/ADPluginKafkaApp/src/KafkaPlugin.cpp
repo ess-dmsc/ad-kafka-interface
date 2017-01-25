@@ -28,11 +28,11 @@ void KafkaPlugin::processCallbacks(NDArray *pArray) {
     
     unsigned char *bufferPtr;
     size_t bufferSize;
-    this->unlock();
-    serializer.SerializeData(*pArray, bufferPtr, bufferSize);
-    this->lock();
-    prod.SendKafkaPacket(bufferPtr, bufferSize);
     
+    serializer.SerializeData(*pArray, bufferPtr, bufferSize);
+    this->unlock();
+    prod.SendKafkaPacket(bufferPtr, bufferSize);
+    this->lock();
     
     //@todo I need to check what is happening here
     if (this->pArrays[0])
@@ -120,15 +120,19 @@ asynStatus KafkaPlugin::writeInt32(asynUser *pasynUser, epicsInt32 value) {
 
 KafkaPlugin::KafkaPlugin(const char *portName, int queueSize, int blockingCallbacks,
                          const char *NDArrayPort, int NDArrayAddr, size_t maxMemory, int priority,
-                         int stackSize)
+                         int stackSize, const char *brokerAddress, const char *brokerTopic)
 // Invoke the base class constructor
 : NDPluginDriver(portName, queueSize, blockingCallbacks, NDArrayPort, NDArrayAddr, 1,
                  PV::count + KafkaProducer::GetNumberOfPVs(), 2, maxMemory,
                  intMask, intMask,
-                 0, 1, priority, stackSize) {
+                 0, 1, priority, stackSize), prod(brokerAddress, brokerTopic) {
     
     MIN_PARAM_INDEX = InitPvParams(this, paramsList);
+    
+    //The following three calls must be made in this particular order
     InitPvParams(this, prod.GetParams());
+    prod.RegisterParamCallbackClass(this);
+    prod.StartThread();
     
     
     setStringParam(NDPluginDriverPluginType, "KafkaPlugin");
@@ -149,9 +153,9 @@ KafkaPlugin::~KafkaPlugin() { }
 // Configuration routine.  Called directly, or from the iocsh function
 extern "C" int KafkaPluginConfigure(const char *portName, int queueSize, int blockingCallbacks,
                                     const char *NDArrayPort, int NDArrayAddr, size_t maxMemory,
-                                    int priority, int stackSize) {
+                                    int priority, int stackSize, const char *brokerAddress, const char *topic) {
     KafkaPlugin *pPlugin = new KafkaPlugin(portName, queueSize, blockingCallbacks, NDArrayPort,
-                                           NDArrayAddr, maxMemory, priority, stackSize);
+                                           NDArrayAddr, maxMemory, priority, stackSize, brokerAddress, topic);
     
     return (asynSuccess);
     return pPlugin->start();
@@ -166,12 +170,14 @@ static const iocshArg initArg4 = {"NDArrayAddr", iocshArgInt};
 static const iocshArg initArg5 = {"maxMemory", iocshArgInt};
 static const iocshArg initArg6 = {"priority", iocshArgInt};
 static const iocshArg initArg7 = {"stack size", iocshArgInt};
+static const iocshArg initArg8 = {"broker address", iocshArgString};
+static const iocshArg initArg9 = {"topic", iocshArgString};
 static const iocshArg *const initArgs[] = {&initArg0, &initArg1, &initArg2, &initArg3,
-    &initArg4, &initArg5, &initArg6, &initArg7};
-static const iocshFuncDef initFuncDef = {"KafkaPluginConfigure", 8, initArgs};
+    &initArg4, &initArg5, &initArg6, &initArg7, &initArg8, &initArg9};
+static const iocshFuncDef initFuncDef = {"KafkaPluginConfigure", 10, initArgs};
 static void initCallFunc(const iocshArgBuf *args) {
     KafkaPluginConfigure(args[0].sval, args[1].ival, args[2].ival, args[3].sval, args[4].ival,
-                         args[5].ival, args[6].ival, args[7].ival);
+                         args[5].ival, args[6].ival, args[7].ival, args[8].sval, args[9].sval);
 }
 
 extern "C" void KafkaPluginReg(void) { iocshRegister(&initFuncDef, initCallFunc); }
