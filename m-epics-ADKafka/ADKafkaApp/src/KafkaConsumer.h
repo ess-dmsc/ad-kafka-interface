@@ -45,7 +45,8 @@ public:
     
     virtual bool SetGroupId(std::string groupId);
     
-    virtual bool SetStatsTime(int time);
+    virtual bool SetStatsTimeMS(int time);
+    virtual int GetStatsTimeMS();
     
     virtual std::vector<PV_param> &GetParams();
     
@@ -78,7 +79,7 @@ protected:
     virtual void ParseStatusString(std::string msg);
     
     //Some configuration values
-    const int kafka_stats_interval = 500; //In ms
+    int kafka_stats_interval = 500; //In ms
     const int sleepTime = 50; //Milliseconds sleeping between poll()-calls
     
     void event_cb(RdKafka::Event &event);

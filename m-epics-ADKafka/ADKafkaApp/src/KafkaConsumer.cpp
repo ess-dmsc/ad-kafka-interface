@@ -247,17 +247,22 @@ namespace KafkaInterface {
         paramCallback = ptr;
     }
     
-    bool KafkaConsumer::SetStatsTime(int time) {
+    bool KafkaConsumer::SetStatsTimeMS(int time) {
         if (errorState or time <= 0) {
             return false;
         }
         RdKafka::Conf::ConfResult configResult;
-        configResult = conf->set("statistics.interval.ms", std::to_string(kafka_stats_interval), errstr);
+        configResult = conf->set("statistics.interval.ms", std::to_string(time), errstr);
         if (RdKafka::Conf::CONF_OK != configResult) {
             SetConStat(KafkaConsumer::ConStat::ERROR, "Unable to set statistics interval.");
             return false;
         }
+        kafka_stats_interval = time;
         MakeConnection();
         return true;
+    }
+    
+    int KafkaConsumer::GetStatsTimeMS() {
+        return kafka_stats_interval;
     }
 }

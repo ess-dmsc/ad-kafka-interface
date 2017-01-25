@@ -172,7 +172,7 @@ namespace KafkaInterface {
         ASSERT_FALSE(cons.SetTopic("some_topic_2"));
         ASSERT_FALSE(cons.SetBrokerAddr("some_topic_2"));
         ASSERT_FALSE(cons.SetGroupId("some_topic_2"));
-        ASSERT_FALSE(cons.SetStatsTime(100));
+        ASSERT_FALSE(cons.SetStatsTimeMS(100));
     }
     
     TEST_F(KafkaConsumerEnv, NoErrorStateTest) {
@@ -180,17 +180,17 @@ namespace KafkaInterface {
         ASSERT_TRUE(cons.SetTopic("some_topic_2"));
         ASSERT_TRUE(cons.SetBrokerAddr("some_topic_2"));
         ASSERT_TRUE(cons.SetGroupId("some_topic_2"));
-        ASSERT_TRUE(cons.SetStatsTime(100));
+        ASSERT_TRUE(cons.SetStatsTimeMS(100));
     }
     
     TEST_F(KafkaConsumerEnv, NegativeTimeTest) {
         KafkaConsumer cons("addr", "tpic");
-        ASSERT_FALSE(cons.SetStatsTime(-1));
+        ASSERT_FALSE(cons.SetStatsTimeMS(-1));
     }
     
     TEST_F(KafkaConsumerEnv, ZeroTimeTest) {
         KafkaConsumer cons("addr", "tpic");
-        ASSERT_FALSE(cons.SetStatsTime(0));
+        ASSERT_FALSE(cons.SetStatsTimeMS(0));
     }
     
     TEST_F(KafkaConsumerEnv, ZeroLengthGroupIdTest) {
@@ -241,7 +241,14 @@ namespace KafkaInterface {
     TEST_F(KafkaConsumerEnv, SetStatsTimeTest) {
         KafkaConsumerStandIn cons("addr", "tpic");
         EXPECT_CALL(cons, MakeConnection()).Times(Exactly(1));
-        cons.SetStatsTime(100);
+        cons.SetStatsTimeMS(100);
+    }
+    
+    TEST_F(KafkaConsumerEnv, SetStatsTimeValueTest) {
+        KafkaConsumer cons("addr", "tpic");
+        int usedTime = 100;
+        cons.SetStatsTimeMS(usedTime);
+        ASSERT_EQ(usedTime, cons.GetStatsTimeMS());
     }
     
     TEST_F(KafkaConsumerEnv, SetConStatTest) {

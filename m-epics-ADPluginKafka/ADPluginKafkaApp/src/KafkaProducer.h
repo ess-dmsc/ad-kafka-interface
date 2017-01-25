@@ -22,9 +22,9 @@ namespace KafkaInterface {
     class KafkaProducer : public RdKafka::EventCb {
         //@todo This class copies the data that is to be sent, make it so that it does not have to.
     public:
-        KafkaProducer(std::string topic, std::string broker);
+        KafkaProducer(std::string topic, std::string broker, int queueSize = 10);
         
-        KafkaProducer();
+        KafkaProducer(int queueSize = 10);
         
         ~KafkaProducer();
         
@@ -38,10 +38,13 @@ namespace KafkaInterface {
         virtual bool SetBrokerAddr(std::string brokerAddr);
         
         virtual bool SetMaxMessageSize(size_t msgSize);
+        virtual size_t GetMaxMessageSize();
         
         virtual bool SetMessageQueueLength(int queue);
+        virtual int GetMessageQueueLength();
         
-        virtual bool SetStatsTime(int time);
+        virtual bool SetStatsTimeMS(int time);
+        virtual int GetStatsTimeMS();
         
         virtual void AttemptFlushAtReconnect(bool flush, int flushTime);
         
@@ -105,7 +108,7 @@ namespace KafkaInterface {
         virtual void ParseStatusString(std::string msg);
         
         //Some configuration values
-        const int kafka_stats_interval = 500; //In ms
+        int kafka_stats_interval = 500; //In ms
         const int sleepTime = 50; //Milliseconds sleeping between poll()-calls
         
         mutable std::mutex brokerMutex;
@@ -141,20 +144,18 @@ namespace KafkaInterface {
         std::atomic_bool runThread;
         
         enum PV {
-            stats_time,
-            max_msg_size,
             con_status,
             con_msg,
             msgs_in_queue,
+            max_msg_size,
             count,
         };
         
         std::vector<PV_param> paramsList = {
-            PV_param("KAFKA_STATS_INT", asynParamInt32), //stats_time
-            PV_param("KAFKA_MAX_MSG_SIZE", asynParamInt32), //max_msg_size
             PV_param("KAFKA_CONNECTION_STATUS", asynParamInt32), //con_status
             PV_param("KAFKA_CONNECTION_MESSAGE", asynParamOctet), //con_msg
             PV_param("KAFKA_UNSENT_PACKETS", asynParamInt32), //msgs_in_queue
+            PV_param("KAFKA_MAX_MSG_SIZE", asynParamInt32), //max_msg_size
         };
     };
 }

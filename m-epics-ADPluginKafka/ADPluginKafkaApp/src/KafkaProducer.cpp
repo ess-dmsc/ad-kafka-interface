@@ -15,12 +15,12 @@ namespace KafkaInterface {
         return PV::count;
     }
     
-    KafkaProducer::KafkaProducer(std::string topic, std::string broker) : errorState(false), doFlush(true), topic(nullptr), producer(nullptr), conf(nullptr), tconf(nullptr), flushTimeout(500), maxMessageSize(1000000), topicName(topic), brokerAddrStr(broker), runThread(false), paramCallback(nullptr), msgQueueSize(10) {
+    KafkaProducer::KafkaProducer(std::string topic, std::string broker, int queueSize) : errorState(false), doFlush(true), topic(nullptr), producer(nullptr), conf(nullptr), tconf(nullptr), flushTimeout(500), maxMessageSize(1000000), topicName(topic), brokerAddrStr(broker), runThread(false), paramCallback(nullptr), msgQueueSize(queueSize) {
         InitRdKafka();
         MakeConnection();
     }
     
-    KafkaProducer::KafkaProducer() : errorState(false), doFlush(true), topic(nullptr), producer(nullptr), conf(nullptr), tconf(nullptr), flushTimeout(500), maxMessageSize(1000000), runThread(false), paramCallback(nullptr), msgQueueSize(10) {
+    KafkaProducer::KafkaProducer(int queueSize) : errorState(false), doFlush(true), topic(nullptr), producer(nullptr), conf(nullptr), tconf(nullptr), flushTimeout(500), maxMessageSize(1000000), runThread(false), paramCallback(nullptr), msgQueueSize(queueSize) {
         InitRdKafka();
     }
     
@@ -69,8 +69,8 @@ namespace KafkaInterface {
             return false;
         }
         RdKafka::Conf::ConfResult configResult1, configResult2;
-        configResult1 = conf->set("message.max.bytes", std::to_string(maxMessageSize), errstr);
-        configResult2 = conf->set("message.copy.max.bytes", std::to_string(maxMessageSize), errstr);
+        configResult1 = conf->set("message.max.bytes", std::to_string(msgSize), errstr);
+        configResult2 = conf->set("message.copy.max.bytes", std::to_string(msgSize), errstr);
         if (RdKafka::Conf::CONF_OK != configResult1 or RdKafka::Conf::CONF_OK != configResult2) {
             SetConStat(KafkaProducer::ConStat::ERROR, "Unable to set max message size.");
             return false;
@@ -81,6 +81,10 @@ namespace KafkaInterface {
         ShutDownProducer();
         MakeConnection();
         return true;
+    }
+    
+    size_t KafkaProducer::GetMaxMessageSize() {
+        return maxMessageSize;
     }
     
     
@@ -94,10 +98,15 @@ namespace KafkaInterface {
             SetConStat(KafkaProducer::ConStat::ERROR, "Unable to set message queue length.");
             return false;
         }
+        msgQueueSize = queue;
         ShutDownTopic();
         ShutDownProducer();
         MakeConnection();
         return true;
+    }
+    
+    int KafkaProducer::GetMessageQueueLength() {
+        return msgQueueSize;
     }
     
     bool KafkaProducer::SendKafkaPacket(unsigned char *buffer, size_t buffer_size) {
@@ -230,21 +239,26 @@ namespace KafkaInterface {
         }
     }
     
-    bool KafkaProducer::SetStatsTime(int time) {
+    bool KafkaProducer::SetStatsTimeMS(int time) {
         if (errorState or time <= 0) {
             return false;
         }
         RdKafka::Conf::ConfResult configResult;
-        configResult = conf->set("statistics.interval.ms", std::to_string(kafka_stats_interval), errstr);
+        configResult = conf->set("statistics.interval.ms", std::to_string(time), errstr);
         if (RdKafka::Conf::CONF_OK != configResult) {
             SetConStat(KafkaProducer::ConStat::ERROR, "Unable to set statistics interval.");
             return false;
         }
-        setParam(paramCallback, paramsList[PV::stats_time], time);
+        kafka_stats_interval = time;
+        //setParam(paramCallback, paramsList[PV::stats_time], time);
         ShutDownTopic();
         ShutDownProducer();
         MakeConnection();
         return true;
+    }
+    
+    int KafkaProducer::GetStatsTimeMS() {
+        return kafka_stats_interval;
     }
     
     bool KafkaProducer::SetTopic(std::string topicName) {

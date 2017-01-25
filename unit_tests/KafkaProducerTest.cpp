@@ -79,10 +79,10 @@ namespace KafkaInterface {
     
     TEST_F(KafkaProducerEnv, InitTest) {
         KafkaProducer prod;
-        ASSERT_TRUE(prod.SetMaxMessageSize(10));
+        ASSERT_TRUE(prod.SetMaxMessageSize(1000));
         ASSERT_FALSE(prod.SetMaxMessageSize(0));
-        ASSERT_TRUE(prod.SetStatsTime(10));
-        ASSERT_FALSE(prod.SetStatsTime(0));
+        ASSERT_TRUE(prod.SetStatsTimeMS(10));
+        ASSERT_FALSE(prod.SetStatsTimeMS(0));
         unsigned char tempStr[] = "some";
         ASSERT_FALSE(prod.SendKafkaPacket(tempStr, 4));
         ASSERT_FALSE(prod.SendKafkaPacket(tempStr, 0));
@@ -97,10 +97,10 @@ namespace KafkaInterface {
     
     TEST_F(KafkaProducerEnv, InitWithAddrAndTopic) {
         KafkaProducer prod("some_addr", "some_topic");
-        ASSERT_TRUE(prod.SetMaxMessageSize(10));
+        ASSERT_TRUE(prod.SetMaxMessageSize(1000));
         ASSERT_FALSE(prod.SetMaxMessageSize(0));
-        ASSERT_TRUE(prod.SetStatsTime(10));
-        ASSERT_FALSE(prod.SetStatsTime(0));
+        ASSERT_TRUE(prod.SetStatsTimeMS(10));
+        ASSERT_FALSE(prod.SetStatsTimeMS(0));
         unsigned char tempStr[] = "some";
         ASSERT_TRUE(prod.SendKafkaPacket(tempStr, 4));
         ASSERT_FALSE(prod.SendKafkaPacket(tempStr, 0));
@@ -113,10 +113,10 @@ namespace KafkaInterface {
         ASSERT_FALSE(prod.SetTopic(""));
         ASSERT_FALSE(prod.SetBrokerAddr("any_name"));
         ASSERT_FALSE(prod.SetBrokerAddr(""));
-        ASSERT_FALSE(prod.SetMaxMessageSize(10));
+        ASSERT_FALSE(prod.SetMaxMessageSize(1000));
         ASSERT_FALSE(prod.SetMaxMessageSize(0));
-        ASSERT_FALSE(prod.SetStatsTime(10));
-        ASSERT_FALSE(prod.SetStatsTime(0));
+        ASSERT_FALSE(prod.SetStatsTimeMS(10));
+        ASSERT_FALSE(prod.SetStatsTimeMS(0));
         unsigned char tempStr[] = "some";
         ASSERT_FALSE(prod.SendKafkaPacket(tempStr, 4));
         ASSERT_FALSE(prod.SendKafkaPacket(tempStr, 0));
@@ -245,7 +245,28 @@ namespace KafkaInterface {
     TEST_F(KafkaProducerEnv, SetStatsTimeReconnect) {
         KafkaProducerStandIn prod("some_addr", "some_topic");
         EXPECT_CALL(prod, MakeConnection()).Times(Exactly(1));
-        prod.SetStatsTime(100);
+        prod.SetStatsTimeMS(100);
+    }
+    
+    TEST_F(KafkaProducerEnv, SetStatsTimeValueTest) {
+        KafkaProducer prod("addr", "tpic");
+        int usedTime = 100;
+        prod.SetStatsTimeMS(usedTime);
+        ASSERT_EQ(usedTime, prod.GetStatsTimeMS());
+    }
+    
+    TEST_F(KafkaProducerEnv, SetQueueSizeValueTest) {
+        KafkaProducer prod("addr", "tpic");
+        int usedLength = 11;
+        prod.SetMessageQueueLength(usedLength);
+        ASSERT_EQ(usedLength, prod.GetMessageQueueLength());
+    }
+    
+    TEST_F(KafkaProducerEnv, SetMsgSizeValueTest) {
+        KafkaProducer prod("addr", "tpic");
+        int usedSize = 1111111;
+        prod.SetMaxMessageSize(usedSize);
+        ASSERT_EQ(usedSize, prod.GetMaxMessageSize());
     }
     
     TEST_F(KafkaProducerEnv, TestNrOfParams) {

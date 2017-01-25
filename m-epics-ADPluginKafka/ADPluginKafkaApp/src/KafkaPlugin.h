@@ -80,11 +80,15 @@ class epicsShareClass KafkaPlugin : public NDPluginDriver {
     enum PV {
         kafka_addr,
         kafka_topic,
+        stats_time,
+        queue_size,
         count,
     };
     
     std::vector<PV_param> paramsList = {
         PV_param("KAFKA_BROKER_ADDRESS", asynParamOctet), //kafka_addr
         PV_param("KAFKA_TOPIC", asynParamInt32), //kafka_topic
+        PV_param("KAFKA_STATS_INT_MS", asynParamInt32), //stats_time
+        PV_param("KAFKA_QUEUE_SIZE", asynParamInt32), //stats_time
     };
 };
