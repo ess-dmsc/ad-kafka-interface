@@ -38,6 +38,8 @@ file(GLOB TEST_FILES "./*.cpp")
 set(plugin_SRC "../m-epics-ADPluginKafka/ADPluginKafkaApp/src/")
 set(driver_SRC "../m-epics-ADKafka/ADKafkaApp/src/")
 
+file(GLOB PLUGIN_SRC_FILES "${plugin_SRC}*.cpp")
+
 find_path(rdkafka_INC NAMES librdkafka/rdkafka.h librdkafka/rdkafkacpp.h PATHS /usr/local/include)
 
 find_path(flatbuffers_INC NAMES flatbuffers/flatbuffers.h PATHS /usr/local/include)
@@ -85,7 +87,7 @@ include_directories("$ENV{EPICS_BASE}/include")
 find_library(rdkafka_LIB NAMES rdkafka PATHS /usr/local/lib)
 find_library(rdkafkacpp_LIB NAMES rdkafka++ PATHS /usr/local/lib)
 
-add_executable(unit_tests ${TEST_FILES} "${plugin_SRC}jsoncpp.cpp" "${plugin_SRC}KafkaProducer.cpp" "${plugin_SRC}ParamUtility.cpp" "${plugin_SRC}NDArraySerializer.cpp" "${driver_SRC}/KafkaConsumer.cpp")
+add_executable(unit_tests ${TEST_FILES} ${PLUGIN_SRC_FILES} "${driver_SRC}/KafkaConsumer.cpp")
 
 if (${APPLE})
     target_link_libraries(unit_tests gtest gmock_main NDPlugin ADBase asyn Com ${rdkafka_LIB} ${rdkafkacpp_LIB})
