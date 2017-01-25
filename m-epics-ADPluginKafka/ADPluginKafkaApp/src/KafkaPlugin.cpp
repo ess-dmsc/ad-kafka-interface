@@ -136,8 +136,8 @@ KafkaPlugin::KafkaPlugin(const char *portName, int queueSize, int blockingCallba
     
     
     setStringParam(NDPluginDriverPluginType, "KafkaPlugin");
-    setParam(this, paramsList.at(PV::kafka_addr), "");
-    setParam(this, paramsList.at(PV::kafka_topic), "");
+    setParam(this, paramsList.at(PV::kafka_addr), brokerAddress);
+    setParam(this, paramsList.at(PV::kafka_topic), brokerTopic);
     
     // Disable ArrayCallbacks.
     // This plugin currently does not do array callbacks, so make the setting
@@ -157,7 +157,7 @@ extern "C" int KafkaPluginConfigure(const char *portName, int queueSize, int blo
     KafkaPlugin *pPlugin = new KafkaPlugin(portName, queueSize, blockingCallbacks, NDArrayPort,
                                            NDArrayAddr, maxMemory, priority, stackSize, brokerAddress, topic);
     
-    return (asynSuccess);
+    //return (asynSuccess);
     return pPlugin->start();
 }
 

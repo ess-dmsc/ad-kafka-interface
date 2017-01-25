@@ -15,7 +15,7 @@ namespace KafkaInterface {
         return PV::count;
     }
     
-    KafkaProducer::KafkaProducer(std::string topic, std::string broker, int queueSize) : errorState(false), doFlush(true), topic(nullptr), producer(nullptr), conf(nullptr), tconf(nullptr), flushTimeout(500), maxMessageSize(1000000), topicName(topic), brokerAddrStr(broker), runThread(false), paramCallback(nullptr), msgQueueSize(queueSize) {
+    KafkaProducer::KafkaProducer(std::string broker, std::string topic, int queueSize) : errorState(false), doFlush(true), topic(nullptr), producer(nullptr), conf(nullptr), tconf(nullptr), flushTimeout(500), maxMessageSize(1000000), topicName(topic), brokerAddrStr(broker), runThread(false), paramCallback(nullptr), msgQueueSize(queueSize) {
         InitRdKafka();
         MakeConnection();
     }

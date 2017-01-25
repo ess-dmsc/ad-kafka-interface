@@ -22,18 +22,15 @@ using ::testing::Mock;
 using ::testing::Eq;
 using ::testing::AtLeast;
 
-class KafkaPluginStandInAlt2 : public KafkaPlugin {
-public:
-    KafkaPluginStandInAlt2() : KafkaPlugin("some_other_alternate_port_again", 10, 1, "some_arr_port", 1, 0, 1, 1, "some_broker", "some_topic") {};
-    using KafkaPlugin::prod;
-    using KafkaPlugin::paramsList;
-};
+std::string usedBrokerAddr = "some_broker";
+std::string usedTopic = "some_topic";
 
 class KafkaPluginStandInAlt1 : public KafkaPlugin {
 public:
-    KafkaPluginStandInAlt1(std::string portName) : KafkaPlugin(portName.c_str(), 10, 1, "some_arr_port", 1, 0, 1, 1, "some_broker", "some_topic") {};
+    KafkaPluginStandInAlt1(std::string portName) : KafkaPlugin(portName.c_str(), 10, 1, "some_arr_port", 1, 0, 1, 1, usedBrokerAddr.c_str(), usedTopic.c_str()) {};
     using KafkaPlugin::prod;
     using KafkaPlugin::paramsList;
+    using KafkaPlugin::PV;
     MOCK_METHOD2(setStringParam, asynStatus(int, const char*));
     MOCK_METHOD2(setIntegerParam, asynStatus(int, int));
 };
@@ -83,7 +80,21 @@ TEST_F(KafkaPluginEnv, ParamCallbackIsSetTest) {
 TEST_F(KafkaPluginEnv, ProducerThreadIsRunningTest) {
     std::chrono::milliseconds sleepTime(1000);
     KafkaPluginStandInAlt1 plugin("port_nr_21");
-    EXPECT_CALL(plugin, setIntegerParam(_, _)).Times(testing::AtLeast(1));
-    EXPECT_CALL(plugin, setIntegerParam(_, Eq(0))).Times(testing::AtLeast(1));
+    EXPECT_CALL(plugin, setIntegerParam(_, _)).Times(AtLeast(1));
+    EXPECT_CALL(plugin, setIntegerParam(_, Eq(0))).Times(AtLeast(1));
     std::this_thread::sleep_for(sleepTime);
+}
+
+TEST_F(KafkaPluginEnv, InitBrokerStringsTest) {
+    KafkaPluginStandInAlt1 plugin("port_nr_2tr");
+    ASSERT_EQ(usedBrokerAddr, plugin.prod.GetBrokerAddr());
+    ASSERT_EQ(usedTopic, plugin.prod.GetTopic());
+    
+    const int bufferSize = 50;
+    char buffer[bufferSize];
+    plugin.getStringParam(*plugin.paramsList[KafkaPluginStandInAlt1::PV::kafka_addr].index, bufferSize, buffer);
+    ASSERT_EQ(std::string(buffer), usedBrokerAddr);
+    
+    plugin.getStringParam(*plugin.paramsList[KafkaPluginStandInAlt1::PV::kafka_topic].index, bufferSize, buffer);
+    ASSERT_EQ(std::string(buffer), usedTopic);
 }

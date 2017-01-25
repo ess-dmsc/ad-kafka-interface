@@ -22,7 +22,7 @@ namespace KafkaInterface {
     class KafkaProducer : public RdKafka::EventCb {
         //@todo This class copies the data that is to be sent, make it so that it does not have to.
     public:
-        KafkaProducer(std::string topic, std::string broker, int queueSize = 10);
+        KafkaProducer(std::string broker, std::string topic, int queueSize = 10);
         
         KafkaProducer(int queueSize = 10);
         
