@@ -32,6 +32,7 @@ public:
     using KafkaPlugin::prod;
     using KafkaPlugin::paramsList;
     using KafkaPlugin::PV;
+    using asynPortDriver::pasynUserSelf;
     MOCK_METHOD2(setStringParam, asynStatus(int, const char*));
     MOCK_METHOD2(setIntegerParam, asynStatus(int, int));
 };
@@ -149,3 +150,70 @@ TEST_F(KafkaPluginEnv, KafkaQueueFullTest) {
     std::this_thread::sleep_for(sleepTime);
 }
 
+class KafkaPluginInput : public Test {
+public:
+    static void SetUpTestCase() {
+        plugin = new KafkaPluginStandIn("2324");
+    };
+    
+    static void TearDownTestCase() {
+        delete plugin;
+    };
+    
+    virtual void SetUp() {
+    };
+    
+    virtual void TearDown() {
+        
+    };
+    static int GetIndex(std::string name) {
+        int retIndex = -1;
+        for (auto &p : plugin->prod.GetParams()) {
+            if (name == p.desc) {
+                retIndex = *p.index;
+                break;
+            }
+        }
+        
+        return retIndex;
+    }
+    static KafkaPluginStandIn *plugin;
+};
+
+KafkaPluginStandIn *KafkaPluginInput::plugin = nullptr;
+
+TEST_F(KafkaPluginInput, BrokerAddrTest) {
+    std::string testString = "some_test_broker";
+    asynUser usedUser = *plugin->pasynUserSelf;
+    usedUser.reason = GetIndex("KAFKA_BROKER_ADDRESS");
+    size_t nChars;
+    plugin->writeOctet(&usedUser, testString.c_str(), testString.size(), &nChars);
+    ASSERT_EQ(nChars, testString.size());
+    ASSERT_EQ(testString, plugin->prod.GetBrokerAddr());
+}
+
+TEST_F(KafkaPluginInput, BrokerTopicTest) {
+    std::string testString = "some_test_topic";
+    asynUser usedUser = *plugin->pasynUserSelf;
+    usedUser.reason = GetIndex("KAFKA_TOPIC");
+    size_t nChars;
+    plugin->writeOctet(&usedUser, testString.c_str(), testString.size(), &nChars);
+    ASSERT_EQ(nChars, testString.size());
+    ASSERT_EQ(testString, plugin->prod.GetBrokerAddr());
+}
+
+TEST_F(KafkaPluginInput, StatsTimeTest) {
+    int testValue = 555;
+    asynUser usedUser = *plugin->pasynUserSelf;
+    usedUser.reason = GetIndex("KAFKA_STATS_INT_MS");
+    plugin->writeInt32(&usedUser, testValue);
+    ASSERT_EQ(testValue, plugin->prod.GetStatsTimeMS());
+}
+
+TEST_F(KafkaPluginInput, QueueSizeTest) {
+    int testValue = 22;
+    asynUser usedUser = *plugin->pasynUserSelf;
+    usedUser.reason = GetIndex("KAFKA_QUEUE_SIZE");
+    plugin->writeInt32(&usedUser, testValue);
+    ASSERT_EQ(testValue, plugin->prod.GetMessageQueueLength());
+}
