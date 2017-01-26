@@ -31,14 +31,22 @@ void KafkaPlugin::processCallbacks(NDArray *pArray) {
     
     serializer.SerializeData(*pArray, bufferPtr, bufferSize);
     this->unlock();
-    prod.SendKafkaPacket(bufferPtr, bufferSize);
+    bool addToQueueSuccess = prod.SendKafkaPacket(bufferPtr, bufferSize);
     this->lock();
+    if (not addToQueueSuccess) {
+        int droppedArrays;
+        getIntegerParam(NDPluginDriverDroppedArrays, &droppedArrays);
+        droppedArrays++;
+        setIntegerParam(NDPluginDriverDroppedArrays, droppedArrays);
+    }
     
-    //@todo I need to check what is happening here
-    if (this->pArrays[0])
-        this->pArrays[0]->release();
-    pArray->reserve();
-    this->pArrays[0] = pArray;
+    //Get rid of old saved NDArray and then store the latest array
+//    if (this->pArrays[0])
+//        this->pArrays[0]->release();
+//    pArray->reserve();
+//    this->pArrays[0] = pArray;
+    //We probably do not need that part anymore
+    
     callParamCallbacks();
 }
 
@@ -153,9 +161,9 @@ KafkaPlugin::~KafkaPlugin() { }
 // Configuration routine.  Called directly, or from the iocsh function
 extern "C" int KafkaPluginConfigure(const char *portName, int queueSize, int blockingCallbacks,
                                     const char *NDArrayPort, int NDArrayAddr, size_t maxMemory,
-                                    int priority, int stackSize, const char *brokerAddress, const char *topic) {
+                                    const char *brokerAddress, const char *topic) {
     KafkaPlugin *pPlugin = new KafkaPlugin(portName, queueSize, blockingCallbacks, NDArrayPort,
-                                           NDArrayAddr, maxMemory, priority, stackSize, brokerAddress, topic);
+                                           NDArrayAddr, maxMemory, 0, 0, brokerAddress, topic);
     
     //return (asynSuccess);
     return pPlugin->start();
@@ -168,16 +176,18 @@ static const iocshArg initArg2 = {"blocking callbacks", iocshArgInt};
 static const iocshArg initArg3 = {"NDArrayPort", iocshArgString};
 static const iocshArg initArg4 = {"NDArrayAddr", iocshArgInt};
 static const iocshArg initArg5 = {"maxMemory", iocshArgInt};
-static const iocshArg initArg6 = {"priority", iocshArgInt};
-static const iocshArg initArg7 = {"stack size", iocshArgInt};
+//static const iocshArg initArg6 = {"priority", iocshArgInt};
+//static const iocshArg initArg7 = {"stack size", iocshArgInt};
 static const iocshArg initArg8 = {"broker address", iocshArgString};
 static const iocshArg initArg9 = {"topic", iocshArgString};
+//static const iocshArg *const initArgs[] = {&initArg0, &initArg1, &initArg2, &initArg3,
+//    &initArg4, &initArg5, &initArg6, &initArg7, &initArg8, &initArg9};
 static const iocshArg *const initArgs[] = {&initArg0, &initArg1, &initArg2, &initArg3,
-    &initArg4, &initArg5, &initArg6, &initArg7, &initArg8, &initArg9};
+    &initArg4, &initArg5, &initArg8, &initArg9};
 static const iocshFuncDef initFuncDef = {"KafkaPluginConfigure", 10, initArgs};
 static void initCallFunc(const iocshArgBuf *args) {
     KafkaPluginConfigure(args[0].sval, args[1].ival, args[2].ival, args[3].sval, args[4].ival,
-                         args[5].ival, args[6].ival, args[7].ival, args[8].sval, args[9].sval);
+                         args[5].ival, args[8].sval, args[9].sval);
 }
 
 extern "C" void KafkaPluginReg(void) { iocshRegister(&initFuncDef, initCallFunc); }

@@ -56,6 +56,7 @@ class epicsShareClass KafkaPlugin : public NDPluginDriver {
     
     /** @brief Called when new data from the areaDetector is available.
      * Based on a implementation in one of the standard plugins. Calls KafkaPlugin::SendKafkaPacket().
+     * This member function will throw away packets if the Kafka queue is full!
      * @param[in] pArray  The NDArray from the callback.
      */
     void processCallbacks(NDArray *pArray);
