@@ -14,6 +14,7 @@
 #include <thread>
 #include <chrono>
 #include "KafkaPlugin.h"
+#include "GenerateNDArray.h"
 
 using ::testing::Test;
 using ::testing::_;
@@ -99,7 +100,52 @@ TEST_F(KafkaPluginEnv, InitBrokerStringsTest) {
 }
 
 TEST_F(KafkaPluginEnv, ProcessCallbacksCallTest) {
-    
+    NDArrayGenerator arrGen;
+    NDArray *arr = arrGen.GenerateNDArray(5, 10, 3, NDDataType_t::NDUInt8);
+    KafkaPluginStandIn plugin("port_nr_511");
+    plugin.driverCallback(nullptr, (void*)arr);
+    int queueIndex = -1;
+    for (auto &p : plugin.prod.GetParams()) {
+        if ("KAFKA_UNSENT_PACKETS" == p.desc) {
+            queueIndex = *p.index;
+        }
+    }
+    ASSERT_NE(queueIndex, -1);
+    EXPECT_CALL(plugin, setIntegerParam(_, _)).Times(AtLeast(1));
+    EXPECT_CALL(plugin, setIntegerParam(Eq(queueIndex), Eq(1))).Times(AtLeast(1));
+    std::chrono::milliseconds sleepTime(1000);
+    std::this_thread::sleep_for(sleepTime);
 }
 
+TEST_F(KafkaPluginEnv, KafkaQueueFullTest) {
+    std::chrono::milliseconds sleepTime(1000);
+    KafkaPluginStandIn plugin("port_nr_512");
+    int kafkaMaxQueueSize = 5;
+    plugin.prod.SetMessageQueueLength(kafkaMaxQueueSize);
+    NDArrayGenerator arrGen;
+    for (int i = 0; i < kafkaMaxQueueSize; i++) {
+        NDArray *ptr = arrGen.GenerateNDArray(5, 10, 3, NDDataType_t::NDUInt8);
+        plugin.driverCallback(nullptr, (void*)ptr);
+        ptr->release();
+    }
+    int queueIndex = -1;
+    for (auto &p : plugin.prod.GetParams()) {
+        if ("KAFKA_UNSENT_PACKETS" == p.desc) {
+            queueIndex = *p.index;
+        }
+    }
+    ASSERT_NE(queueIndex, -1);
+    EXPECT_CALL(plugin, setIntegerParam(_, _)).Times(AtLeast(1));
+    EXPECT_CALL(plugin, setIntegerParam(Eq(queueIndex), Eq(kafkaMaxQueueSize))).Times(AtLeast(1));
+    std::this_thread::sleep_for(sleepTime);
+    testing::Mock::VerifyAndClear(&plugin);
+    NDArray *ptr = arrGen.GenerateNDArray(5, 10, 3, NDDataType_t::NDUInt8);
+    plugin.driverCallback(nullptr, (void*)ptr);
+    ptr->release();
+    
+    EXPECT_CALL(plugin, setIntegerParam(testing::Ne(queueIndex), _)).Times(AtLeast(1));
+    EXPECT_CALL(plugin, setIntegerParam(Eq(queueIndex), testing::Ne(kafkaMaxQueueSize))).Times(testing::Exactly(0));
+    EXPECT_CALL(plugin, setIntegerParam(Eq(queueIndex), Eq(kafkaMaxQueueSize))).Times(AtLeast(1));
+    std::this_thread::sleep_for(sleepTime);
+}
 
