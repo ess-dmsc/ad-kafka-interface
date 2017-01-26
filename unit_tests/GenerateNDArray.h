@@ -10,6 +10,7 @@
 
 #include <set>
 #include <random>
+#include <cstring>
 #include <NDPluginDriver.h>
 
 class NDArrayGenerator {
