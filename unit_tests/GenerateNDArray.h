@@ -11,6 +11,7 @@
 #include <set>
 #include <random>
 #include <cstring>
+#include <algorithm>
 #include <NDPluginDriver.h>
 
 class NDArrayGenerator {
