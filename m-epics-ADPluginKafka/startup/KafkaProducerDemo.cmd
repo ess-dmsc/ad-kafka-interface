@@ -12,7 +12,7 @@ epicsEnvSet("QSIZE", "20")
 simDetectorConfig("$(SIMDET_PORT)", $(XSIZE), $(YSIZE), 1, 0, 0)
 dbLoadRecords("simDetector.template", "P=$(PREFIX):, R=CAM:, PORT=$(SIMDET_PORT), ADDR=0, TIMEOUT=1")
 
-KafkaPluginConfigure("$(K_PORT)", 3, 1, "$(SIMDET_PORT)", 0)
+KafkaPluginConfigure("$(K_PORT)", 3, 1, "$(SIMDET_PORT)", 0, -1, "some_addr", "some_topic")
 dbLoadRecords("KafkaPlugin.template", "P=$(PREFIX),R=:KFK:,PORT=$(K_PORT),ADDR=0,TIMEOUT=1,NDARRAY_PORT=$(SIMDET_PORT)")
 
 iocInit
