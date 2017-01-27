@@ -165,8 +165,8 @@ extern "C" int KafkaPluginConfigure(const char *portName, int queueSize, int blo
     KafkaPlugin *pPlugin = new KafkaPlugin(portName, queueSize, blockingCallbacks, NDArrayPort,
                                            NDArrayAddr, maxMemory, 0, 0, brokerAddress, topic);
     
-    //return (asynSuccess);
-    return pPlugin->start();
+    return (asynSuccess);
+    //return pPlugin->start();
 }
 
 // EPICS iocsh shell commands
