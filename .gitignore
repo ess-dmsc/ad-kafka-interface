@@ -2,7 +2,7 @@
 builddir/*
 O.*
 lib/
-db/
+/db/
 dbd/
 include/
 build/
