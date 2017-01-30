@@ -22,3 +22,5 @@ startPVAServer
 dbpf $(PREFIX):KFK:EnableCallbacks Enable
 dbpf $(PREFIX):CAM:AcquirePeriod 2
 dbpf $(PREFIX):CAM:Acquire 1
+
+#Remember file MUST end with new line
