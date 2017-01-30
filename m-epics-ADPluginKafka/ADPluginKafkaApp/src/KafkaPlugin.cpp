@@ -165,8 +165,7 @@ extern "C" int KafkaPluginConfigure(const char *portName, int queueSize, int blo
     KafkaPlugin *pPlugin = new KafkaPlugin(portName, queueSize, blockingCallbacks, NDArrayPort,
                                            NDArrayAddr, maxMemory, 0, 0, brokerAddress, topic);
     
-    return (asynSuccess);
-    //return pPlugin->start();
+    return pPlugin->start();
 }
 
 // EPICS iocsh shell commands
@@ -184,10 +183,10 @@ static const iocshArg initArg9 = {"topic", iocshArgString};
 //    &initArg4, &initArg5, &initArg6, &initArg7, &initArg8, &initArg9};
 static const iocshArg *const initArgs[] = {&initArg0, &initArg1, &initArg2, &initArg3,
     &initArg4, &initArg5, &initArg8, &initArg9};
-static const iocshFuncDef initFuncDef = {"KafkaPluginConfigure", 10, initArgs};
+static const iocshFuncDef initFuncDef = {"KafkaPluginConfigure", 8, initArgs};
 static void initCallFunc(const iocshArgBuf *args) {
     KafkaPluginConfigure(args[0].sval, args[1].ival, args[2].ival, args[3].sval, args[4].ival,
-                         args[5].ival, args[8].sval, args[9].sval);
+                         args[5].ival, args[6].sval, args[7].sval);
 }
 
 extern "C" void KafkaPluginReg(void) { iocshRegister(&initFuncDef, initCallFunc); }
