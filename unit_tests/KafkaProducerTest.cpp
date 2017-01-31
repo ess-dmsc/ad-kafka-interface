@@ -20,6 +20,8 @@ namespace KafkaInterface {
         using KafkaProducer::ConStat;
         using KafkaProducer::kafka_stats_interval;
         using KafkaProducer::PV;
+        using KafkaProducer::conf;
+        using KafkaProducer::tconf;
         void SetConStatParent(KafkaProducerStandIn::ConStat stat, std::string msg) {KafkaProducer::SetConStat(stat, msg);};
         bool MakeConnectionParent() {return KafkaProducer::MakeConnection();};
         MOCK_METHOD0(MakeConnection, bool(void));
@@ -286,5 +288,15 @@ namespace KafkaInterface {
         std::string usedAddr = "some_test_broker_addr";
         prod.SetBrokerAddr(usedAddr);
         ASSERT_EQ(usedAddr, prod.GetBrokerAddr());
+    }
+    
+    TEST_F(KafkaProducerEnv, IsAddrConfSetTest) {
+        std::string testAddr = "some_weird_addr";
+        std::string testTopic = "some_weird_topic";
+        KafkaProducerStandIn prod(testAddr, testTopic);
+        ASSERT_NE(prod.conf, nullptr);
+        std::string tempStr;
+        prod.conf->get("metadata.broker.list", tempStr);
+        ASSERT_NE(testAddr, tempStr);
     }
 }

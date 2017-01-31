@@ -397,5 +397,7 @@ namespace KafkaInterface {
     
     void KafkaProducer::RegisterParamCallbackClass(NDPluginDriver *ptr) {
         paramCallback = ptr;
+        
+        setParam(paramCallback, paramsList[PV::max_msg_size], int(maxMessageSize));
     }
 }

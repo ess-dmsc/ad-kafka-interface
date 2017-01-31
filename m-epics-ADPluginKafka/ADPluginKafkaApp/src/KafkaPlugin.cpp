@@ -61,8 +61,8 @@ asynStatus KafkaPlugin::writeOctet(asynUser *pasynUser, const char *value, size_
     if (status != asynSuccess)
         return (status);
     
-    if (status != asynSuccess)
-        return (status);
+    /* Set the parameter in the parameter library. */
+    status = (asynStatus)setStringParam(addr, function, (char *)value);
     
     std::string tempStr;
     if (function == *paramsList.at(PV::kafka_addr).index) {
@@ -146,6 +146,8 @@ KafkaPlugin::KafkaPlugin(const char *portName, int queueSize, int blockingCallba
     setStringParam(NDPluginDriverPluginType, "KafkaPlugin");
     setParam(this, paramsList.at(PV::kafka_addr), brokerAddress);
     setParam(this, paramsList.at(PV::kafka_topic), brokerTopic);
+    setParam(this, paramsList.at(PV::stats_time), prod.GetStatsTimeMS());
+    setParam(this, paramsList.at(PV::queue_size), prod.GetMessageQueueLength());
     
     // Disable ArrayCallbacks.
     // This plugin currently does not do array callbacks, so make the setting
