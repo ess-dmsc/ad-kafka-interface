@@ -103,9 +103,9 @@ asynStatus KafkaPlugin::writeInt32(asynUser *pasynUser, epicsInt32 value) {
     status = (asynStatus) setIntegerParam(function, value);
     
     if (function == *paramsList[stats_time].index) {
-        
+        prod.SetStatsTimeMS(value);
     } else if (function == *paramsList[queue_size].index) {
-        
+        prod.SetMessageQueueLength(value);
     } else {
         /* If this parameter belongs to a base class call its method */
         if (function < MIN_PARAM_INDEX)
