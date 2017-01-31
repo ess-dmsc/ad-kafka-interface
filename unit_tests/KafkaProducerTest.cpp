@@ -297,6 +297,6 @@ namespace KafkaInterface {
         ASSERT_NE(prod.conf, nullptr);
         std::string tempStr;
         prod.conf->get("metadata.broker.list", tempStr);
-        ASSERT_NE(testAddr, tempStr);
+        ASSERT_EQ(testAddr, tempStr);
     }
 }
