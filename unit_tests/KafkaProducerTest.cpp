@@ -1,10 +1,8 @@
-//
-//  KafkaProducerTest.cpp
-//  KafkaPlugin
-//
-//  Created by Jonas Nilsson on 2017-01-11.
-//  Copyright © 2017 European Spallation Source. All rights reserved.
-//
+/** Copyright (C) 2017 European Spallation Source */
+
+/** @file  KafkaProducerTest.cpp
+ *  @brief Unit tests of the Kafka producer part of this project.
+ */
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>

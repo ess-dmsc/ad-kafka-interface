@@ -1,7 +1,8 @@
-/** Copyright (C) 2016 European Spallation Source */
+/** Copyright (C) 2017 European Spallation Source */
 
-/** @file  Utility.h
- *  @brief Header file for the C++ implementation of an EPICS areaDetector Kafka-plugin.
+/** @file  ParamUtility.h
+ *  @brief Some helper functions and a PV-struct which simplifies the handling
+ * of PV:s.
  */
 
 #pragma once

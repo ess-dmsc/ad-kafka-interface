@@ -1,4 +1,4 @@
-/** Copyright (C) 2016 European Spallation Source */
+/** Copyright (C) 2017 European Spallation Source */
 
 /** @file  KafkaPlugin.cpp
  *  @brief C++ implementation file for an EPICS areaDetector Kafka-plugin.

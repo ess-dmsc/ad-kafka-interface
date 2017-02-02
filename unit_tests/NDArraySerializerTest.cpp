@@ -1,10 +1,8 @@
-//
-//  NDArraySerializerTest.cpp
-//  KafkaPlugin
-//
-//  Created by Jonas Nilsson on 2017-01-05.
-//  Copyright © 2017 European Spallation Source. All rights reserved.
-//
+/** Copyright (C) 2017 European Spallation Source */
+
+/** @file  NDArraySerializerTest.cpp
+ *  @brief Unit tests of the serialization and de-serialization of NDArray data.
+ */
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>

@@ -1,10 +1,9 @@
-//
-//  KafkaConsumer.hpp
-//  KafkaPlugin
-//
-//  Created by Jonas Nilsson on 2017-01-16.
-//  Copyright © 2017 European Spallation Source. All rights reserved.
-//
+/** Copyright (C) 2017 European Spallation Source */
+
+/** @file  KafkaConsumer.h
+ *  @brief Header file of a Kafka consumer class. Used together with an
+ * areaDetector driver.
+ */
 
 #pragma once
 

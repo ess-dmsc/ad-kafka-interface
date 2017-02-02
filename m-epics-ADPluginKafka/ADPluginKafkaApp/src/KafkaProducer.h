@@ -1,10 +1,8 @@
-//
-//  KafkaProducer.hpp
-//  KafkaPlugin
-//
-//  Created by Jonas Nilsson on 2017-01-11.
-//  Copyright © 2017 European Spallation Source. All rights reserved.
-//
+/** Copyright (C) 2017 European Spallation Source */
+
+/** @file  KafkaProducer.h
+ *  @brief Kafka producer part of EPICS C++ areaDetector plugin.
+ */
 
 #pragma once
 

@@ -1,10 +1,9 @@
-//
-//  GenerateNDArray.cpp
-//  KafkaInterface
-//
-//  Created by Jonas Nilsson on 2017-01-26.
-//
-//
+/** Copyright (C) 2017 European Spallation Source */
+
+/** @file  GenerateNDArray.cpp
+ *  @brief Implementation of helper class and helper functions which are used
+ * to generate fake data for the unit tests.
+ */
 
 #include "GenerateNDArray.h"
 

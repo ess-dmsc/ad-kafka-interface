@@ -1,10 +1,9 @@
-//
-//  KafkaConsumer.cpp
-//  KafkaPlugin
-//
-//  Created by Jonas Nilsson on 2017-01-16.
-//  Copyright © 2017 European Spallation Source. All rights reserved.
-//
+/** Copyright (C) 2017 European Spallation Source */
+
+/** @file  KafkaConsumer.cpp
+ *  @brief Implementation of a Kafka consumer. Used in a kafka areaDetector
+ * driver.
+ */
 
 #include "KafkaConsumer.h"
 namespace KafkaInterface {

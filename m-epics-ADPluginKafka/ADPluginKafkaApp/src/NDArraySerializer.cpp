@@ -1,10 +1,9 @@
-//
-//  NDArraySerializer.cpp
-//  KafkaPlugin
-//
-//  Created by Jonas Nilsson on 2017-01-05.
-//  Copyright © 2017 European Spallation Source. All rights reserved.
-//
+/** Copyright (C) 2017 European Spallation Source */
+
+/** @file  NDArraySerializer.cpp
+ *  @brief Implementation of simple class which serializes EPICS NDArray into a
+ * Flatbuffer.
+ */
 
 #include "NDArraySerializer.h"
 #include <vector>

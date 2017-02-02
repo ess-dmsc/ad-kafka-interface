@@ -1,10 +1,8 @@
-//
-//  KafkaPluginTest.cpp
-//  KafkaInterface
-//
-//  Created by Jonas Nilsson on 2017-01-25.
-//
-//
+/** Copyright (C) 2017 European Spallation Source */
+
+/** @file  KafkaPluginTest.cpp
+ *  @brief Some limited tests of actual plugin class.
+ */
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>

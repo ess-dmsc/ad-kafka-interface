@@ -1,10 +1,8 @@
-//
-//  ParamUtilityTest.cpp
-//  KafkaPlugin
-//
-//  Created by Jonas Nilsson on 2017-01-04.
-//  Copyright © 2017 European Spallation Source. All rights reserved.
-//
+/** Copyright (C) 2017 European Spallation Source */
+
+/** @file  ParamUtilityTest.cpp
+ *  @brief Unit tests of the PV utility functions.
+ */
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
