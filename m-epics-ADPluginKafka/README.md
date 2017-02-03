@@ -2,7 +2,7 @@
 An EPICS areaDetector plugin which send areaDetector data serialized using flatbuffers to a Kafka broker. The current version is working but needs modifications to handle multi-threading
 
 ## Requirements
-This project is not compatible with the latest version of the EPICS areaDetector module as it does not implement `pPlugin->start()` on configuration. This can easily be changed however. The `GNUmakefile` used to build this plugin is only compatible with the **ESS EPICS Environment** (EEE) used at ESS in Lund. It should be relatively easy to add make files for compiling the plugin with a generic EPICS installation.
+The `GNUmakefile` used to build this plugin is only compatible with the **ESS EPICS Environment** (EEE) used at ESS in Lund. It should be relatively easy to add make files for compiling the plugin with a generic EPICS installation.
 
 For communicating with the Kafka broker, the C++ version of `librdkafka` is used. The source code for this library can be downloaded from [https://github.com/edenhill/librdkafka](https://github.com/edenhill/librdkafka). To simplify data handling, the plugin uses flatbuffers ([https://github.com/google/flatbuffers](https://github.com/google/flatbuffers)) for data serialization. `librdkafka` produces statistics messages in JSON and these are parsed using `jsoncpp` ([https://github.com/open-source-parsers/jsoncpp](https://github.com/open-source-parsers/jsoncpp)).
 In order to run the simple demo of the plugin in the `startup` folder, the module `adexample` is required as it contains features for running a simulated areaDetector.
@@ -43,10 +43,8 @@ This plugin is not yet production ready and several improvements are required. S
 * **Improvements to error handling** There are several types of connection, buffer full and data transmission error that this plugin will not handle gracefully.
 * **More PV:s** These are required for more fine grained control of the Kafka producer as well as for improvement in error handling.
 * **Multi-threading** Due to problems with EEE, multi threading is currently not working.
-* **Unit tests** As this software is potentially going to be used in a production critical system, unit tests needs to exist.
 * **Performance tests** It is likely that performance of the plugin could be improved. To determine if this is the case, performance tests and profiling of the code is required.
 * **Modify db-template** The existing PV:s needs to be modified in order to be slightly more usefull.
-* **Update stats on read** Update connection status and statistics when reading the relevant PV:s.
 * **Check data handling** The use of _processCallbacks()_ is somewhat convoluted and it should be checked that all calls are correct.
 * **Kafka producer parameters** Kafka producer settings such as memory buffers, timeouts and so on needs to be adjusted for optimal (and any) performance.
 
