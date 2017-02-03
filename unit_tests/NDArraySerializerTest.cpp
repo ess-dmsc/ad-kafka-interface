@@ -10,6 +10,7 @@
 #include <set>
 #include <random>
 #include "NDArraySerializer.h"
+#include "NDArrayDeSerializer.h"
 #include "GenerateNDArray.h"
 
 class NDArraySerializerStandIn : public NDArraySerializer {
@@ -106,7 +107,7 @@ TEST_F(Serializer, SerializeDeserializeTest) {
                     unsigned char *bufferPtr = nullptr;
                     size_t bufferSize;
                     ser.SerializeData(*sendArr, bufferPtr, bufferSize);
-                    ser.DeSerializeData(recvArr, recvPool, bufferPtr);
+                    DeSerializeData(recvArr, recvPool, bufferPtr);
                     CompareDataTypes(sendArr, recvArr);
                     CompareSizeAndDims(sendArr, recvArr);
                     CompareTimeStamps(sendArr, recvArr);
