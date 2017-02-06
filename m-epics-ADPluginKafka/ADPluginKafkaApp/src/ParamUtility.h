@@ -38,7 +38,7 @@ int InitPvParams(asynNDArrType *ptr, std::vector<PV_param> &param) {
             minParamIndex = *p.index;
         }
     }
-    return minParamInde;
+    return minParamIndex;
 }
 
 template <class asynNDArrType>
