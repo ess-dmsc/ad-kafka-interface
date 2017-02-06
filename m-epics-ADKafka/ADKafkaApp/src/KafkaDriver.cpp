@@ -13,7 +13,7 @@
 
 #include <asynDriver.h>
 #include <epicsExport.h>
-
+#include "NDArrayDeSerializer.h"
 #include "KafkaDriver.h"
 
 static const char *driverName = "KafkaDriver";
@@ -95,7 +95,7 @@ asynStatus KafkaDriver::writeInt32(asynUser *pasynUser, epicsInt32 value)
     /* For a real detector this is where the parameter is sent to the hardware */
     if (function == ADAcquire) {
         if (value && !acquiring) {
-            /* Send an event to wake up the simulation task.
+            /* Send an event to wake up the consumer task.
              * It won't actually start generating new images until we release the lock below */
             epicsEventSignal(startEventId_);
         }
@@ -174,7 +174,7 @@ KafkaDriver::KafkaDriver(const char *portName, int maxSizeX, int maxSizeY, NDDat
     }
     
     /* Create the thread that updates the images */
-    status = (epicsThreadCreate("SimDetTask",
+    status = (epicsThreadCreate("ConsumeKafkaMsgsTask",
                                 epicsThreadPriorityMedium,
                                 epicsThreadGetStackSize(epicsThreadStackMedium),
                                 (EPICSTHREADFUNC)consumeTaskC,
@@ -188,162 +188,134 @@ KafkaDriver::KafkaDriver(const char *portName, int maxSizeX, int maxSizeY, NDDat
 
 void KafkaDriver::consumeTask()
 {
-//    int status = asynSuccess;
-//    int imageCounter;
-//    int numImages, numImagesCounter;
-//    int imageMode;
-//    int arrayCallbacks;
-//    int acquire=0;
-//    NDArray *pImage;
-//    double acquireTime, acquirePeriod, delay;
-//    epicsTimeStamp startTime, endTime;
-//    double elapsedTime;
-//    const char *functionName = "simTask";
-//    
-//    this->lock();
-//    /* Loop forever */
-//    while (1) {
-//        /* If we are not acquiring then wait for a semaphore that is given when acquisition is started */
-//        if (!acquire) {
-//            /* Release the lock while we wait for an event that says acquire has started, then lock again */
-//            asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
-//                      "%s:%s: waiting for acquire to start\n", driverName, functionName);
-//            this->unlock();
-//            status = epicsEventWait(startEventId_);
-//            this->lock();
-//            acquire = 1;
-//            setStringParam(ADStatusMessage, "Acquiring data");
-//            setIntegerParam(ADNumImagesCounter, 0);
-//        }
-//        
-//        /* We are acquiring. */
-//        /* Get the current time */
-//        epicsTimeGetCurrent(&startTime);
-//        getIntegerParam(ADImageMode, &imageMode);
-//        
-//        /* Get the exposure parameters */
-//        getDoubleParam(ADAcquireTime, &acquireTime);
-//        getDoubleParam(ADAcquirePeriod, &acquirePeriod);
-//        
-//        setIntegerParam(ADStatus, ADStatusAcquire);
-//        
-//        /* Open the shutter */
-//        setShutter(ADShutterOpen);
-//        
-//        /* Call the callbacks to update any changes */
-//        callParamCallbacks();
-//        
-//        /* Simulate being busy during the exposure time.  Use epicsEventWaitWithTimeout so that
-//         * manually stopping the acquisition will work */
-//        
-//        if (acquireTime > 0.0) {
-//            this->unlock();
-//            status = epicsEventWaitWithTimeout(stopEventId_, acquireTime);
-//            this->lock();
-//        } else {
-//            status = epicsEventTryWait(stopEventId_);
-//        }
-//        if (status == epicsEventWaitOK) {
-//            acquire = 0;
-//            if (imageMode == ADImageContinuous) {
-//                setIntegerParam(ADStatus, ADStatusIdle);
-//            } else {
-//                setIntegerParam(ADStatus, ADStatusAborted);
-//            }
-//            callParamCallbacks();
-//        }
-//        
-//        
-//        /* Update the image */
-//        status = computeImage();
-//        if (status) continue;
-//        
-//        /* Close the shutter */
-//        setShutter(ADShutterClosed);
-//        
-//        if (!acquire) continue;
-//        
-//        setIntegerParam(ADStatus, ADStatusReadout);
-//        /* Call the callbacks to update any changes */
-//        callParamCallbacks();
-//        
-//        pImage = this->pArrays[0];
-//        
-//        /* Get the current parameters */
-//        getIntegerParam(NDArrayCounter, &imageCounter);
-//        getIntegerParam(ADNumImages, &numImages);
-//        getIntegerParam(ADNumImagesCounter, &numImagesCounter);
-//        getIntegerParam(NDArrayCallbacks, &arrayCallbacks);
-//        imageCounter++;
-//        numImagesCounter++;
-//        setIntegerParam(NDArrayCounter, imageCounter);
-//        setIntegerParam(ADNumImagesCounter, numImagesCounter);
-//        
-//        /* Put the frame number and time stamp into the buffer */
-//        pImage->uniqueId = imageCounter;
-//        pImage->timeStamp = startTime.secPastEpoch + startTime.nsec / 1.e9;
-//        updateTimeStamp(&pImage->epicsTS);
-//        
-//        /* Get any attributes that have been defined for this driver */
-//        this->getAttributes(pImage->pAttributeList);
-//        
-//        if (arrayCallbacks) {
-//            /* Call the NDArray callback */
-//            /* Must release the lock here, or we can get into a deadlock, because we can
-//             * block on the plugin lock, and the plugin can be calling us */
-//            this->unlock();
-//            asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
-//                      "%s:%s: calling imageData callback\n", driverName, functionName);
-//            doCallbacksGenericPointer(pImage, NDArrayData, 0);
-//            this->lock();
-//        }
-//        
-//        /* See if acquisition is done */
-//        if ((imageMode == ADImageSingle) ||
-//            ((imageMode == ADImageMultiple) &&
-//             (numImagesCounter >= numImages))) {
-//                
-//                /* First do callback on ADStatus. */
-//                setStringParam(ADStatusMessage, "Waiting for acquisition");
-//                setIntegerParam(ADStatus, ADStatusIdle);
-//                callParamCallbacks();
-//                
-//                acquire = 0;
-//                setIntegerParam(ADAcquire, acquire);
-//                asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
-//                          "%s:%s: acquisition completed\n", driverName, functionName);
-//            }
-//        
-//        /* Call the callbacks to update any changes */
-//        callParamCallbacks();
-//        
-//        /* If we are acquiring then sleep for the acquire period minus elapsed time. */
-//        if (acquire) {
-//            epicsTimeGetCurrent(&endTime);
-//            elapsedTime = epicsTimeDiffInSeconds(&endTime, &startTime);
-//            delay = acquirePeriod - elapsedTime;
-//            asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
-//                      "%s:%s: delay=%f\n",
-//                      driverName, functionName, delay);
-//            if (delay >= 0.0) {
-//                /* We set the status to waiting to indicate we are in the period delay */
-//                setIntegerParam(ADStatus, ADStatusWaiting);
-//                callParamCallbacks();
-//                this->unlock();
-//                status = epicsEventWaitWithTimeout(stopEventId_, delay);
-//                this->lock();
-//                if (status == epicsEventWaitOK) {
-//                    acquire = 0;
-//                    if (imageMode == ADImageContinuous) {
-//                        setIntegerParam(ADStatus, ADStatusIdle);
-//                    } else {
-//                        setIntegerParam(ADStatus, ADStatusAborted);
-//                    }
-//                    callParamCallbacks();
-//                }
-//            }
-//        }
-//    }
+    int status = asynSuccess;
+    int numImages, numImagesCounter;
+    int imageMode;
+    int arrayCallbacks;
+    int acquire=0;
+    NDArray *pImage;
+    double acquirePeriod;
+    const char *functionName = "consumeTask";
+    
+    this->lock();
+    /* Loop forever */
+    while (1) {
+        /* If we are not acquiring then wait for a semaphore that is given when acquisition is started */
+        if (!acquire) {
+            /* Release the lock while we wait for an event that says acquire has started, then lock again */
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
+                      "%s:%s: waiting for acquire to start\n", driverName, functionName);
+            this->unlock();
+            status = epicsEventWait(startEventId_);
+            this->lock();
+            acquire = 1;
+            setStringParam(ADStatusMessage, "Acquiring data");
+            setIntegerParam(ADNumImagesCounter, 0);
+        }
+        
+        /* We are acquiring. */
+        /* Get the current time */
+        getIntegerParam(ADImageMode, &imageMode);
+        
+        setIntegerParam(ADStatus, ADStatusAcquire);
+        
+        /* Open the shutter */
+        setShutter(ADShutterOpen);
+        
+        /* Call the callbacks to update any changes */
+        callParamCallbacks();
+        
+        //Did we get a stop signal?
+        status = epicsEventTryWait(stopEventId_);
+        if (status == epicsEventWaitOK) {
+            acquire = 0;
+            if (imageMode == ADImageContinuous) {
+                setIntegerParam(ADStatus, ADStatusIdle);
+            } else {
+                setIntegerParam(ADStatus, ADStatusAborted);
+            }
+            callParamCallbacks();
+        }
+        
+        /* Update the image */
+        getDoubleParam(ADAcquirePeriod, &acquirePeriod);
+        KafkaInterface::KafkaMessage *fbImg = consumer.WaitForPkg(int(acquirePeriod * 1000));
+        
+        //If we get no image, go to start of loop
+        if (nullptr == fbImg) continue;
+        
+        //Copy data to an NDArray
+        DeSerializeData(pImage, this->pNDArrayPool, (unsigned char*)fbImg->GetDataPtr());
+        delete fbImg;
+        fbImg = nullptr;
+        
+        
+        /* Close the shutter */
+        setShutter(ADShutterClosed);
+        
+        //Make it possible to exit the loop again.
+        if (!acquire) continue;
+        
+        setIntegerParam(ADStatus, ADStatusReadout);
+        /* Call the callbacks to update any changes */
+        callParamCallbacks();
+        
+        /* Get the current parameters */
+        setIntegerParam(NDArrayCounter, pImage->uniqueId);
+        
+        getIntegerParam(ADNumImagesCounter, &numImagesCounter);
+        numImagesCounter++;
+        setIntegerParam(ADNumImagesCounter, numImagesCounter);
+        
+        //If callbacks are active, do them
+        getIntegerParam(NDArrayCallbacks, &arrayCallbacks);
+        if (arrayCallbacks) {
+            /* Call the NDArray callback */
+            /* Must release the lock here, or we can get into a deadlock, because we can
+             * block on the plugin lock, and the plugin can be calling us */
+            this->unlock();
+            asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
+                      "%s:%s: calling imageData callback\n", driverName, functionName);
+            doCallbacksGenericPointer(pImage, NDArrayData, 0);
+            this->lock();
+        }
+        
+        /* See if acquisition is done */
+        getIntegerParam(ADNumImages, &numImages);
+        if ((imageMode == ADImageSingle) ||
+            ((imageMode == ADImageMultiple) &&
+             (numImagesCounter >= numImages))) {
+                
+                /* First do callback on ADStatus. */
+                setStringParam(ADStatusMessage, "Waiting for acquisition");
+                setIntegerParam(ADStatus, ADStatusIdle);
+                callParamCallbacks();
+                
+                acquire = 0;
+                setIntegerParam(ADAcquire, acquire);
+                asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
+                          "%s:%s: acquisition completed\n", driverName, functionName);
+            }
+        
+        /* Call the callbacks to update any changes */
+        callParamCallbacks();
+        
+        /* If we are acquiring then sleep for the acquire period minus elapsed time. */
+        if (acquire) {
+            setIntegerParam(ADStatus, ADStatusWaiting);
+            callParamCallbacks();
+            status = epicsEventTryWait(stopEventId_);
+            if (status == epicsEventWaitOK) {
+                acquire = 0;
+                if (imageMode == ADImageContinuous) {
+                    setIntegerParam(ADStatus, ADStatusIdle);
+                } else {
+                    setIntegerParam(ADStatus, ADStatusAborted);
+                }
+                callParamCallbacks();
+            }
+        }
+    }
 }
 
 KafkaDriver::~KafkaDriver() { }
