@@ -40,6 +40,15 @@ set(driver_SRC "../m-epics-ADKafka/ADKafkaApp/src/")
 
 file(GLOB PLUGIN_SRC_FILES "${plugin_SRC}*.cpp")
 
+file(GLOB DRIVER_SRC_FILES "${driver_SRC}*.cpp")
+
+# The file jsoncpp.cpp is present in both EPICS modules. Remove it from one of them to build the unit tests.
+FOREACH(item ${DRIVER_SRC_FILES})
+  IF(${item} MATCHES "jsoncpp.cpp")
+    LIST(REMOVE_ITEM DRIVER_SRC_FILES ${item})
+  ENDIF(${item} MATCHES "jsoncpp.cpp")
+ENDFOREACH(item)
+
 find_path(rdkafka_INC NAMES librdkafka/rdkafka.h librdkafka/rdkafkacpp.h PATHS /usr/local/include)
 
 find_path(flatbuffers_INC NAMES flatbuffers/flatbuffers.h PATHS /usr/local/include)
@@ -87,7 +96,7 @@ include_directories("$ENV{EPICS_BASE}/include")
 find_library(rdkafka_LIB NAMES rdkafka PATHS /usr/local/lib)
 find_library(rdkafkacpp_LIB NAMES rdkafka++ PATHS /usr/local/lib)
 
-add_executable(unit_tests ${TEST_FILES} ${PLUGIN_SRC_FILES} "${driver_SRC}/KafkaConsumer.cpp")
+add_executable(unit_tests ${TEST_FILES} ${PLUGIN_SRC_FILES} ${DRIVER_SRC_FILES})
 
 if (${APPLE})
     target_link_libraries(unit_tests gtest gmock_main NDPlugin ADBase asyn Com ${rdkafka_LIB} ${rdkafkacpp_LIB})

@@ -16,8 +16,12 @@
 
 class PV_param {
 public:
-    PV_param(std::string desc, asynParamType type, int index = 0);
-    PV_param();
+    PV_param(std::string desc, asynParamType type, int index = 0) : desc(desc), type(type), index(new int(index)) {
+        
+    };
+    PV_param() : desc("Not used"), type(asynParamType::asynParamNotDefined), index(nullptr) {
+        
+    };
     const std::string desc;
     const asynParamType type;
     std::shared_ptr<int> index;
