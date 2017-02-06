@@ -12,7 +12,7 @@
 #include <atomic>
 #include <librdkafka/rdkafkacpp.h>
 #include "ParamUtility.h"
-#include "NDPluginDriver.h"
+#include <asynNDArrayDriver.h>
 #include "json.h"
 
 namespace KafkaInterface {
@@ -29,7 +29,7 @@ namespace KafkaInterface {
         virtual std::vector<PV_param> &GetParams();
         
         
-        virtual void RegisterParamCallbackClass(NDPluginDriver *ptr);
+        virtual void RegisterParamCallbackClass(asynNDArrayDriver *ptr);
         
         virtual bool SetTopic(std::string topicName);
         virtual std::string GetTopic();
@@ -139,7 +139,7 @@ namespace KafkaInterface {
         
         std::thread statusThread;
         
-        NDPluginDriver *paramCallback;
+        asynNDArrayDriver *paramCallback;
         
         std::atomic_bool runThread;
         

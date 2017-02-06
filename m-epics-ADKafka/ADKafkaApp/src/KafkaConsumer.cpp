@@ -242,7 +242,7 @@ namespace KafkaInterface {
         setParam(paramCallback, paramsList[PV::con_msg], msg);
     }
     
-    void KafkaConsumer::RegisterParamCallbackClass(NDPluginDriver *ptr) {
+    void KafkaConsumer::RegisterParamCallbackClass(asynNDArrayDriver *ptr) {
         paramCallback = ptr;
     }
     

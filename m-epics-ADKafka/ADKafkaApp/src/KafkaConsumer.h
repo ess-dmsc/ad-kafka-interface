@@ -10,6 +10,7 @@
 #include <librdkafka/rdkafkacpp.h>
 #include <string>
 #include <vector>
+#include <asynNDArrayDriver.h>
 #include "ParamUtility.h"
 #include "json.h"
 
@@ -30,7 +31,7 @@ public:
     KafkaConsumer(std::string groupId = "KF");
     ~KafkaConsumer();
     
-    virtual void RegisterParamCallbackClass(NDPluginDriver *ptr);
+    virtual void RegisterParamCallbackClass(asynNDArrayDriver *ptr);
     
     virtual bool SetTopic(std::string topicName);
     
@@ -46,6 +47,9 @@ public:
     
     virtual bool SetStatsTimeMS(int time);
     virtual int GetStatsTimeMS();
+    
+//    virtual bool SetMessageQueueLength(int queue);
+//    virtual int GetMessageQueueLength();
     
     virtual std::vector<PV_param> &GetParams();
     
@@ -83,7 +87,7 @@ protected:
     
     void event_cb(RdKafka::Event &event);
     
-    NDPluginDriver *paramCallback;
+    asynNDArrayDriver *paramCallback;
     
     std::string topicName;
     std::string brokerAddrStr;

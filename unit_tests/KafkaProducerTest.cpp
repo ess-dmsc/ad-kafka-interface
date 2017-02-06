@@ -6,6 +6,7 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <NDPluginDriver.h>
 #include "KafkaProducer.h"
 
 namespace KafkaInterface {
