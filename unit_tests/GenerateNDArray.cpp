@@ -6,6 +6,7 @@
  */
 
 #include "GenerateNDArray.h"
+#include <cstdlib>
 
 template <typename T>
 void PopulateArr(size_t elements, void *ptr) {
@@ -33,7 +34,7 @@ void GenerateData(NDDataType_t type, size_t elements, void *usedPtr) {
     } else  if (NDFloat64 == type) {
         PopulateArr<std::double_t>(elements, usedPtr);
     } else {
-        assert(false);
+        std::abort();
     }
 }
 
@@ -93,7 +94,7 @@ void* NDArrayGenerator::GenerateAttrData(NDAttrDataType_t type) {
     } else if (NDAttrFloat64 == type) {
         ptr = GenerateAttrDataT<std::double_t>(-1, 1);
     } else {
-        assert(true);
+        std::abort();
     }
     return ptr;
 }
@@ -119,7 +120,7 @@ void NDArrayGenerator::FreeAttrData(void* ptr, NDAttrDataType_t type) {
     } else if (NDAttrFloat64 == type) {
         FreeAttrDataT<std::double_t>(ptr);
     } else {
-        assert(true);
+        std::abort();
     }
 }
 

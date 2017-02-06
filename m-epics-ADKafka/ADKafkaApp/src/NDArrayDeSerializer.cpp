@@ -7,6 +7,7 @@
 
 #include "NDArrayDeSerializer.h"
 #include <vector>
+#include <cstdlib>
 
 void DeSerializeData(NDArray *&pArray, NDArrayPool *pNDArrayPool, unsigned char *bufferPtr) {
     
@@ -57,7 +58,7 @@ NDDataType_t GetND_DType(FB_Tables::DType arrType) {
         case FB_Tables::DType::DType_float64:
             return NDFloat64;
         default:
-            assert(false);
+            std::abort();
     }
     return NDInt8;
 }
@@ -83,7 +84,7 @@ NDAttrDataType_t GetND_AttrDType(FB_Tables::DType attrType) {
         case FB_Tables::DType::DType_c_string:
             return NDAttrString;
         default:
-            assert(false);
+            std::abort();
     }
     return NDAttrInt8;
 }

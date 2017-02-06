@@ -5,6 +5,7 @@
  */
 
 #include <chrono>
+#include <cstdlib>
 #include "KafkaProducer.h"
 
 namespace KafkaInterface {
@@ -353,7 +354,7 @@ namespace KafkaInterface {
         } else if (nullptr != producer and nullptr != topic) {
             return true;
         }
-        assert(false);
+        std::abort();
         return true;
     }
     
@@ -393,7 +394,7 @@ namespace KafkaInterface {
         return paramsList;
     }
     
-    void KafkaProducer::RegisterParamCallbackClass(NDPluginDriver *ptr) {
+    void KafkaProducer::RegisterParamCallbackClass(asynNDArrayDriver *ptr) {
         paramCallback = ptr;
         
         setParam(paramCallback, paramsList[PV::max_msg_size], int(maxMessageSize));

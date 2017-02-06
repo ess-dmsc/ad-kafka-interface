@@ -86,7 +86,7 @@ void NDArraySerializer::SerializeData(NDArray &pArray, unsigned char *&bufferPtr
                                          temp_attr_src, attrDType, attrValuePayload);
             attrVec.push_back(attr);
         } else {
-            assert(false);
+            std::abort();
         }
         delete [] attrValueBuffer;
         
@@ -127,7 +127,7 @@ FB_Tables::DType NDArraySerializer::GetFB_DType(NDDataType_t arrType) {
         case NDFloat64:
             return FB_Tables::DType::DType_float64;
         default:
-            assert(false);
+            std::abort();
     }
     return FB_Tables::DType::DType_int8;
 }
@@ -151,7 +151,7 @@ NDDataType_t NDArraySerializer::GetND_DType(FB_Tables::DType arrType) {
         case FB_Tables::DType::DType_float64:
             return NDFloat64;
         default:
-            assert(false);
+            std::abort();
     }
     return NDInt8;
 }
@@ -177,7 +177,7 @@ FB_Tables::DType NDArraySerializer::GetFB_DType(NDAttrDataType_t attrType) {
         case NDAttrString:
             return FB_Tables::DType::DType_c_string;
         default:
-            assert(false);
+            std::abort();
     }
     return FB_Tables::DType::DType_int8;
 }
@@ -203,7 +203,7 @@ NDAttrDataType_t NDArraySerializer::GetND_AttrDType(FB_Tables::DType attrType) {
         case FB_Tables::DType::DType_c_string:
             return NDAttrString;
         default:
-            assert(false);
+            std::abort();
     }
     return NDAttrInt8;
 }

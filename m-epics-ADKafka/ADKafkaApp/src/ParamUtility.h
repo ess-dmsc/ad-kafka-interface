@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <iostream>
+#include <cstdlib>
 
 class PV_param {
 public:
@@ -44,7 +46,7 @@ asynStatus setParam(asynNDArrType *ptr, const PV_param &p, const std::string val
     if (asynParamOctet == p.type) {
         ret = ptr->setStringParam(*p.index, value.c_str());
     } else {
-        assert(false);
+        std::abort();
     }
     return ret;
 }
@@ -58,7 +60,7 @@ asynStatus setParam(asynNDArrType *ptr, const PV_param &p, const int value) {
     if (asynParamInt32 == p.type) {
         ret = ptr->setIntegerParam(*p.index, value);
     } else {
-        assert(false);
+        std::abort();
     }
     return ret;
 }
