@@ -28,7 +28,7 @@ namespace KafkaInterface {
         return msg->len();
     }
     
-    KafkaConsumer::KafkaConsumer(std::string topic, std::string broker, std::string groupId) : topicOffset(RdKafka::Topic::OFFSET_END), consumer(nullptr), paramCallback(nullptr), conf(nullptr) {
+    KafkaConsumer::KafkaConsumer(std::string broker, std::string topic, std::string groupId) : topicName(topic), brokerAddrStr(broker), topicOffset(RdKafka::Topic::OFFSET_END), consumer(nullptr), paramCallback(nullptr), conf(nullptr) {
         InitRdKafka(groupId);
         SetBrokerAddr(broker);
         SetTopic(topic);
@@ -88,9 +88,22 @@ namespace KafkaInterface {
         return paramsList;
     }
     
-    void KafkaConsumer::SetOffset(std::int64_t offset) {
+    bool KafkaConsumer::SetOffset(std::int64_t offset) {
+        if (offset < -2) {
+            return false;
+        }
         topicOffset = offset;
+        setParam(paramCallback, paramsList.at(msg_offset), offset);
         UpdateTopic();
+        return true;
+    }
+    
+    std::string KafkaConsumer::GetTopic() {
+        return topicName;
+    }
+    
+    std::string KafkaConsumer::GetBrokerAddr() {
+        return brokerAddrStr;
     }
     
     KafkaMessage* KafkaConsumer::WaitForPkg(int timeout) {

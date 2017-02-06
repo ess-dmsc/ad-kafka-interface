@@ -27,21 +27,23 @@ private:
 
 class KafkaConsumer : public RdKafka::EventCb {
 public:
-    KafkaConsumer(std::string topic, std::string broker, std::string groupId = "KF");
+    KafkaConsumer(std::string broker, std::string topic, std::string groupId = "KF");
     KafkaConsumer(std::string groupId = "KF");
     ~KafkaConsumer();
     
     virtual void RegisterParamCallbackClass(asynNDArrayDriver *ptr);
     
     virtual bool SetTopic(std::string topicName);
+    virtual std::string GetTopic();
     
     virtual bool SetBrokerAddr(std::string brokerAddr);
+    virtual std::string GetBrokerAddr();
     
     virtual KafkaMessage* WaitForPkg(int timeout);
     
     virtual std::int64_t GetCurrentOffset();
     
-    virtual void SetOffset(std::int64_t offset);
+    virtual bool SetOffset(std::int64_t offset);
     
     virtual bool SetGroupId(std::string groupId);
     
