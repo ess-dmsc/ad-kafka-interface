@@ -9,6 +9,7 @@ node('eee') {
         } 
     } catch (e) {
         slackSend color: 'danger', message: '@jonasn: PICS Kafka interface checkout failed'
+        throw e
     }
 
     dir("build") {
@@ -18,6 +19,7 @@ node('eee') {
             } 
         } catch (e) {
             slackSend color: 'danger', message: '@jonasn: EPICS Kafka interface CMake failed'
+            throw e
         }
         
         try {
@@ -26,6 +28,7 @@ node('eee') {
             }
             } catch (e) {
                 slackSend color: 'danger', message: '@jonasn: EPICS Kafka interface build failed'
+                throw e
             }
         
             try {
@@ -35,6 +38,7 @@ node('eee') {
                 }
                 } catch (e) {
                     slackSend color: 'danger', message: '@jonasn: EPICS Kafka interface unit tests failed'
+                    throw e
                 }
  
     }
