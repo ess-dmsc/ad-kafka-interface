@@ -3,24 +3,40 @@
  */
 
 node('eee') {
-
-    stage("Checkout projects") {
-        checkout scm
+    try {
+        stage("Checkout projects") {
+            checkout scm
+        } 
+    } catch (e) {
+        slackSend color: 'danger', message: 'EPICS Kafka interface checkout failed'
     }
 
     dir("build") {
-        stage("Run CMake for unit tests") {
-            sh "cmake ../code"
+        try {
+            stage("Run CMake for unit tests") {
+                sh "cmake ../code"
+            } 
+        } catch (e) {
+            slackSend color: 'danger', message: 'EPICS Kafka interface CMake failed'
         }
-
-        stage("Build unit tests") {
-            sh "make"
-        }
-
-        stage("Run unit tests") {
-            sh "./unit_tests/unit_tests --gtest_output=xml:AllResultsUnitTests.xml"
-            junit '*Tests.xml'
-        }
+        
+        try {
+            stage("Build unit tests") {
+                sh "make"
+            }
+            } catch (e) {
+                slackSend color: 'danger', message: 'EPICS Kafka interface build failed'
+            }
+        
+            try {
+                stage("Run unit tests") {
+                    sh "./unit_tests/unit_tests --gtest_output=xml:AllResultsUnitTests.xml"
+                    junit '*Tests.xml'
+                }
+                } catch (e) {
+                    slackSend color: 'danger', message: 'EPICS Kafka interface unit tests failed'
+                }
+                slackSend color: 'danger', message: 'EPICS Kafka interface unit tests success'
  
     }
 }
