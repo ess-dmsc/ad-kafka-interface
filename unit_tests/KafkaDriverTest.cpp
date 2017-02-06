@@ -8,6 +8,8 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <thread>
+#include <chrono>
 #include "KafkaDriver.h"
 #include "PortName.h"
 
@@ -27,7 +29,10 @@ public:
     using KafkaDriver::consumer;
     using KafkaDriver::paramsList;
     using KafkaDriver::PV;
+    using KafkaDriver::startEventId_;
+    using KafkaDriver::stopEventId_;
     using asynPortDriver::pasynUserSelf;
+    using ADDriver::ADStatusMessage;
     MOCK_METHOD2(setStringParam, asynStatus(int, const char*));
     MOCK_METHOD2(setIntegerParam, asynStatus(int, int));
 };
@@ -85,4 +90,12 @@ TEST_F(KafkaDriverEnv, InitBrokerStringsTest) {
     
     drvr.getStringParam(*drvr.paramsList[KafkaDriverStandIn::PV::kafka_topic].index, bufferSize, buffer);
     ASSERT_EQ(std::string(buffer), usedTopic);
+}
+
+TEST_F(KafkaDriverEnv, ThreadRunningTest) {
+    KafkaDriverStandIn drvr;
+    EXPECT_CALL(drvr, setStringParam(Eq(drvr.ADStatusMessage), _)).Times(Exactly(1));
+    epicsEventSignal(drvr.startEventId_);
+    epicsEventSignal(drvr.stopEventId_);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
