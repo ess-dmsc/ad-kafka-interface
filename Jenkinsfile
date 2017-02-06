@@ -8,7 +8,7 @@ node('eee') {
             checkout scm
         } 
     } catch (e) {
-        slackSend color: 'danger', message: 'EPICS Kafka interface checkout failed'
+        slackSend color: 'danger', message: '@jonasn: PICS Kafka interface checkout failed'
     }
 
     dir("build") {
@@ -17,7 +17,7 @@ node('eee') {
                 sh "cmake ../code"
             } 
         } catch (e) {
-            slackSend color: 'danger', message: 'EPICS Kafka interface CMake failed'
+            slackSend color: 'danger', message: '@jonasn: EPICS Kafka interface CMake failed'
         }
         
         try {
@@ -25,7 +25,7 @@ node('eee') {
                 sh "make"
             }
             } catch (e) {
-                slackSend color: 'danger', message: 'EPICS Kafka interface build failed'
+                slackSend color: 'danger', message: '@jonasn: EPICS Kafka interface build failed'
             }
         
             try {
@@ -34,9 +34,8 @@ node('eee') {
                     junit '*Tests.xml'
                 }
                 } catch (e) {
-                    slackSend color: 'danger', message: 'EPICS Kafka interface unit tests failed'
+                    slackSend color: 'danger', message: '@jonasn: EPICS Kafka interface unit tests failed'
                 }
-                slackSend color: 'danger', message: 'EPICS Kafka interface unit tests success'
  
     }
 }
