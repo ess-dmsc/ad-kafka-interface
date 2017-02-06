@@ -112,6 +112,36 @@ namespace KafkaInterface {
         delete msg;
     }
     
+    TEST_F(KafkaConsumerEnv, SetOffsetSuccessTest) {
+        KafkaConsumer cons;
+        cons.RegisterParamCallbackClass(asynDrvr);
+        int ctr = 1;
+        for (auto p : cons.GetParams()) {
+            *p.index = ctr;
+            ctr++;
+        }
+        int usedValue = -2;
+        EXPECT_CALL(*asynDrvr, setIntegerParam(_, Eq(usedValue))).Times(Exactly(1));
+        ASSERT_TRUE(cons.SetOffset(usedValue));
+        ASSERT_EQ(cons.GetCurrentOffset(), usedValue);
+        Mock::VerifyAndClear(asynDrvr);
+    }
+    
+    TEST_F(KafkaConsumerEnv, SetOffsetFailTest) {
+        KafkaConsumer cons;
+        cons.RegisterParamCallbackClass(asynDrvr);
+        int ctr = 1;
+        for (auto p : cons.GetParams()) {
+            *p.index = ctr;
+            ctr++;
+        }
+        int usedValue = -3;
+        EXPECT_CALL(*asynDrvr, setIntegerParam(_, Eq(usedValue))).Times(Exactly(0));
+        ASSERT_FALSE(cons.SetOffset(usedValue));
+        ASSERT_NE(cons.GetCurrentOffset(), usedValue);
+        Mock::VerifyAndClear(asynDrvr);
+    }
+    
     TEST_F(KafkaConsumerEnv, WaitTest) {
         KafkaConsumer cons("some_addr", "some_topic");
         auto start = std::chrono::steady_clock::now();

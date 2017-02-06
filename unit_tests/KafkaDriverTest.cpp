@@ -73,21 +73,6 @@ TEST_F(KafkaDriverEnv, ParamCallbackIsSetTest) {
     ASSERT_TRUE(drvr.consumer.SetOffset(usedValue));
 }
 
-TEST_F(KafkaDriverEnv, SetOffsetSuccessTest) {
-    KafkaDriverStandIn drvr;
-    int usedValue = -2;
-    EXPECT_CALL(drvr, setIntegerParam(_, Eq(usedValue))).Times(Exactly(1));
-    ASSERT_TRUE(drvr.consumer.SetOffset(usedValue));
-}
-
-TEST_F(KafkaDriverEnv, SetOffsetFailTest) {
-    KafkaDriverStandIn drvr;
-    int usedValue = -3;
-    EXPECT_CALL(drvr, setIntegerParam(_, Eq(usedValue))).Times(Exactly(0));
-    ASSERT_FALSE(drvr.consumer.SetOffset(usedValue));
-}
-
-
 TEST_F(KafkaDriverEnv, InitBrokerStringsTest) {
     KafkaDriverStandIn drvr;
     ASSERT_EQ(usedBrokerAddr, drvr.consumer.GetBrokerAddr());
