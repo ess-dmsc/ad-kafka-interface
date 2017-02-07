@@ -3,10 +3,23 @@
 
 include "ADBase.template"
 
-record(longin, "$(P)$(R)UnsentPackets_RBV") #Integer in from device
+record(longin, "$(P)$(R)UnproccessedMessages_RBV") #Integer in from device
 {
     field(DTYP, "asynInt32")	#Data type
-    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_UNSENT_PACKETS")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_UNPROCCESSED_MESSAGES")
+	field(SCAN, "I/O Intr")		#Update value on interrupt
+}
+
+record(longout, "$(P)$(R)MessageOffset") #Integer in from device
+{
+    field(DTYP, "asynInt32")	#Data type
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_MESSAGE_OFFSET")
+}
+
+record(longin, "$(P)$(R)MessageOffset_RBV") #Integer in from device
+{
+    field(DTYP, "asynInt32")	#Data type
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_MESSAGE_OFFSET")
 	field(SCAN, "I/O Intr")		#Update value on interrupt
 }
 
@@ -64,6 +77,20 @@ record(stringin, "$(P)$(R)KafkaTopic_RBV")
 {
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_TOPIC")
+	field(SCAN, "I/O Intr")
+}
+
+record(stringout, "$(P)$(R)KafkaGroup")
+{
+    field(DTYP, "asynOctetWrite")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_GROUP")
+	field(PINI, "NO")
+}
+
+record(stringin, "$(P)$(R)KafkaGroup_RBV")
+{
+    field(DTYP, "asynOctetRead")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_GROUP")
 	field(SCAN, "I/O Intr")
 }
 
