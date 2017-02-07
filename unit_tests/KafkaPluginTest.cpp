@@ -65,6 +65,11 @@ TEST_F(KafkaPluginEnv, InitParamsIndexTest) {
     }
 }
 
+TEST_F(KafkaPluginEnv, ParameterCountTest) {
+    KafkaPluginStandIn plug;
+    ASSERT_EQ(plug.paramsList.size(), KafkaPluginStandIn::PV::count);
+}
+
 TEST_F(KafkaPluginEnv, InitIsErrorStateTest) {
     KafkaPluginStandIn plugin;
     ASSERT_TRUE(plugin.prod.SetStatsTimeMS(10000));

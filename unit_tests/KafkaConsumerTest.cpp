@@ -20,6 +20,7 @@ public:
     using KafkaInterface::KafkaConsumer::consumer;
     using KafkaInterface::KafkaConsumer::paramCallback;
     using KafkaInterface::KafkaConsumer::PV;
+    using KafkaInterface::KafkaConsumer::paramsList;
     void SetConStatParent(KafkaConsumerStandIn::ConStat stat, std::string msg) {KafkaInterface::KafkaConsumer::SetConStat(stat, msg);};
     bool MakeConnectionParent() {return KafkaInterface::KafkaConsumer::MakeConnection();};
     MOCK_METHOD1(ParseStatusString, void(std::string));
@@ -90,6 +91,11 @@ namespace KafkaInterface {
         ASSERT_NE(cons.consumer, nullptr);
     }
     
+    TEST_F(KafkaConsumerEnv, ParameterCountTest) {
+        KafkaConsumerStandIn cons;
+        ASSERT_EQ(cons.paramsList.size(), KafkaConsumerStandIn::PV::count);
+    }
+    
     TEST_F(KafkaConsumerEnv, ConnectionFailTest) {
         KafkaConsumerStandInAlt cons;
         ASSERT_EQ(cons.consumer, nullptr);
@@ -112,7 +118,7 @@ namespace KafkaInterface {
         delete msg;
     }
     
-    TEST_F(KafkaConsumerEnv, SetOffsetSuccessTest) {
+    TEST_F(KafkaConsumerEnv, SetOffsetSuccess1Test) {
         KafkaConsumer cons;
         cons.RegisterParamCallbackClass(asynDrvr);
         int ctr = 1;
@@ -120,7 +126,37 @@ namespace KafkaInterface {
             *p.index = ctr;
             ctr++;
         }
-        int usedValue = -2;
+        int usedValue = RdKafka::Topic::OFFSET_BEGINNING;
+        EXPECT_CALL(*asynDrvr, setIntegerParam(_, Eq(usedValue))).Times(Exactly(1));
+        ASSERT_TRUE(cons.SetOffset(usedValue));
+        ASSERT_EQ(cons.GetCurrentOffset(), usedValue);
+        Mock::VerifyAndClear(asynDrvr);
+    }
+    
+    TEST_F(KafkaConsumerEnv, SetOffsetSuccess2Test) {
+        KafkaConsumer cons;
+        cons.RegisterParamCallbackClass(asynDrvr);
+        int ctr = 1;
+        for (auto p : cons.GetParams()) {
+            *p.index = ctr;
+            ctr++;
+        }
+        int usedValue = RdKafka::Topic::OFFSET_END;
+        EXPECT_CALL(*asynDrvr, setIntegerParam(_, Eq(usedValue))).Times(Exactly(1));
+        ASSERT_TRUE(cons.SetOffset(usedValue));
+        ASSERT_EQ(cons.GetCurrentOffset(), usedValue);
+        Mock::VerifyAndClear(asynDrvr);
+    }
+    
+    TEST_F(KafkaConsumerEnv, SetOffsetSuccess3Test) {
+        KafkaConsumer cons;
+        cons.RegisterParamCallbackClass(asynDrvr);
+        int ctr = 1;
+        for (auto p : cons.GetParams()) {
+            *p.index = ctr;
+            ctr++;
+        }
+        int usedValue = RdKafka::Topic::OFFSET_STORED;
         EXPECT_CALL(*asynDrvr, setIntegerParam(_, Eq(usedValue))).Times(Exactly(1));
         ASSERT_TRUE(cons.SetOffset(usedValue));
         ASSERT_EQ(cons.GetCurrentOffset(), usedValue);
@@ -274,6 +310,25 @@ namespace KafkaInterface {
         int usedTime = 100;
         cons.SetStatsTimeMS(usedTime);
         ASSERT_EQ(usedTime, cons.GetStatsTimeMS());
+    }
+    
+    TEST_F(KafkaConsumerEnv, GetGroupIdTest) {
+        std::string testString = "some_group_id1";
+        KafkaConsumer cons("addr", "tpic", testString);
+        ASSERT_EQ(testString, cons.GetGroupId());
+    }
+    
+    TEST_F(KafkaConsumerEnv, GetGroupIdAltTest) {
+        std::string testString = "some_group_id2";
+        KafkaConsumer cons(testString);
+        ASSERT_EQ(testString, cons.GetGroupId());
+    }
+    
+    TEST_F(KafkaConsumerEnv, SetGetGroupIdTest) {
+        std::string testString = "some_group_id3";
+        KafkaConsumer cons("addr", "topic");
+        cons.SetGroupId(testString);
+        ASSERT_EQ(testString, cons.GetGroupId());
     }
     
     TEST_F(KafkaConsumerEnv, SetConStatTest) {

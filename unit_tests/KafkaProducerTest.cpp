@@ -21,6 +21,7 @@ namespace KafkaInterface {
         using KafkaProducer::PV;
         using KafkaProducer::conf;
         using KafkaProducer::tconf;
+        using KafkaProducer::paramsList;
         void SetConStatParent(KafkaProducerStandIn::ConStat stat, std::string msg) {KafkaProducer::SetConStat(stat, msg);};
         bool MakeConnectionParent() {return KafkaProducer::MakeConnection();};
         MOCK_METHOD0(MakeConnection, bool(void));
@@ -77,6 +78,11 @@ namespace KafkaInterface {
     
     using namespace testing;
     using ::testing::Mock;
+    
+    TEST_F(KafkaProducerEnv, ParameterCountTest) {
+        KafkaProducerStandIn prod;
+        ASSERT_EQ(prod.paramsList.size(), KafkaProducerStandIn::PV::count);
+    }
     
     TEST_F(KafkaProducerEnv, InitTest) {
         KafkaProducer prod;

@@ -71,6 +71,11 @@ TEST_F(KafkaDriverEnv, InitIsErrorStateTest) {
     ASSERT_TRUE(drvr.consumer.SetStatsTimeMS(10000));
 }
 
+TEST_F(KafkaDriverEnv, ParameterCountTest) {
+    KafkaDriverStandIn drvr;
+    ASSERT_EQ(drvr.paramsList.size(), KafkaDriverStandIn::PV::count);
+}
+
 TEST_F(KafkaDriverEnv, ParamCallbackIsSetTest) {
     KafkaDriverStandIn drvr;
     int usedValue = 5000;
@@ -90,6 +95,16 @@ TEST_F(KafkaDriverEnv, InitBrokerStringsTest) {
     
     drvr.getStringParam(*drvr.paramsList[KafkaDriverStandIn::PV::kafka_topic].index, bufferSize, buffer);
     ASSERT_EQ(std::string(buffer), usedTopic);
+    
+    drvr.getStringParam(*drvr.paramsList[KafkaDriverStandIn::PV::kafka_group].index, bufferSize, buffer);
+    ASSERT_EQ(std::string(buffer), drvr.consumer.GetGroupId());
+}
+
+TEST_F(KafkaDriverEnv, InitStatsTimeTest) {
+    KafkaDriverStandIn drvr;
+    int temp;
+    drvr.getIntegerParam(*drvr.paramsList[KafkaDriverStandIn::PV::stats_time].index, &temp);
+    ASSERT_EQ(drvr.consumer.GetStatsTimeMS(), temp);
 }
 
 TEST_F(KafkaDriverEnv, ThreadRunningTest) {
