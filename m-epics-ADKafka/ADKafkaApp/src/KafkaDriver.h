@@ -50,17 +50,24 @@ class epicsShareClass KafkaDriver : public ADDriver {
         kafka_topic,
         kafka_group,
         stats_time,
-        queue_size,
-        current_offset,
+        set_offset,
         count,
     };
+    
+    enum OffsetSetting {
+        Beginning = 0,
+        Stored = 1,
+        Manual = 2,
+        End = 3,
+    };
+    
+    OffsetSetting usedOffsetSetting;
     
     std::vector<PV_param> paramsList = {
         PV_param("KAFKA_BROKER_ADDRESS", asynParamOctet), //kafka_addr
         PV_param("KAFKA_TOPIC", asynParamOctet), //kafka_topic
         PV_param("KAFKA_GROUP", asynParamOctet), //kafka_group
         PV_param("KAFKA_STATS_INT_MS", asynParamInt32), //stats_time
-        PV_param("KAFKA_QUEUE_SIZE", asynParamInt32), //queue_size
-        PV_param("KAFKA_SET_OFFSET", asynParamInt32), //current_offset
+        PV_param("KAFKA_SET_OFFSET", asynParamInt32), //set_offset
     };
 };

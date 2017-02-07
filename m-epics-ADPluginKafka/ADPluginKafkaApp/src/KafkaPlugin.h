@@ -94,6 +94,6 @@ class epicsShareClass KafkaPlugin : public NDPluginDriver {
         PV_param("KAFKA_BROKER_ADDRESS", asynParamOctet), //kafka_addr
         PV_param("KAFKA_TOPIC", asynParamOctet), //kafka_topic
         PV_param("KAFKA_STATS_INT_MS", asynParamInt32), //stats_time
-        PV_param("KAFKA_QUEUE_SIZE", asynParamInt32), //stats_time
+        PV_param("KAFKA_QUEUE_SIZE", asynParamInt32), //queue_size
     };
 };

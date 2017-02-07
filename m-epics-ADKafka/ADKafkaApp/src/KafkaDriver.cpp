@@ -88,6 +88,43 @@ asynStatus KafkaDriver::writeInt32(asynUser *pasynUser, epicsInt32 value)
     }
     callParamCallbacks();
     
+    for (auto pv : consumer.GetParams()) {
+        if (*pv.index == function) {
+            if ("KAFKA_MESSAGE_OFFSET" == pv.desc) {
+                consumer.SetOffset(value);
+                break;
+            }
+        }
+    }
+    
+    if (function == *paramsList[set_offset].index) {
+        int cOffsetSetting;
+        getIntegerParam(*paramsList[set_offset].index, &cOffsetSetting);
+        if (value >= 0 and value <= 3) {
+            if (KafkaDriver::Beginning == value) {
+                consumer.SetOffset(RdKafka::Topic::OFFSET_BEGINNING);
+            } else if (KafkaDriver::End == value) {
+                consumer.SetOffset(RdKafka::Topic::OFFSET_END);
+            } else if (KafkaDriver::Stored == value) {
+                consumer.SetOffset(RdKafka::Topic::OFFSET_STORED);
+            } else if (KafkaDriver::Manual == value) {
+                int cOffsetValue;
+                getIntegerParam(consumer.GetOffsetPVIndex(), &cOffsetValue);
+                consumer.SetOffset(cOffsetValue);
+            }
+            usedOffsetSetting = OffsetSetting(value);
+        } else {
+            value = cOffsetSetting;
+        }
+    } else if (function == consumer.GetOffsetPVIndex()) {
+        if (KafkaDriver::Manual == usedOffsetSetting) {
+            consumer.SetOffset(value);
+        }
+    } else if (function == *paramsList[stats_time].index) {
+        if (value > 0) {
+            consumer.SetStatsTimeMS(value);
+        }
+    }
     /* Set the parameter and readback in the parameter library.  This may be overwritten when we read back the
      * status at the end, but that's OK */
     status = setIntegerParam(function, value);
@@ -139,7 +176,7 @@ KafkaDriver::KafkaDriver(const char *portName, int maxSizeX, int maxSizeY, NDDat
     
     const char *functionName = "KafkaDriver";
     int status = asynStatus::asynSuccess;
-    
+    usedOffsetSetting = OffsetSetting::Stored;
     startEventId_ = epicsEventCreate(epicsEventEmpty);
     if (!startEventId_) {
         printf("%s:%s epicsEventCreate failure for start event\n",
@@ -159,10 +196,12 @@ KafkaDriver::KafkaDriver(const char *portName, int maxSizeX, int maxSizeY, NDDat
         InitPvParams(this, consumer.GetParams());
         consumer.RegisterParamCallbackClass(this);
     
-        status = setParam(this, paramsList.at(PV::kafka_addr), brokerAddress);
-        status |= setParam(this, paramsList.at(PV::kafka_topic), brokerTopic);
-        status |= setParam(this, paramsList.at(PV::stats_time), consumer.GetStatsTimeMS());
-        
+    status = setParam(this, paramsList.at(PV::kafka_addr), brokerAddress);
+    status |= setParam(this, paramsList.at(PV::kafka_topic), brokerTopic);
+    status |= setParam(this, paramsList.at(PV::kafka_group), consumer.GetGroupId());
+    status |= setParam(this, paramsList.at(PV::stats_time), consumer.GetStatsTimeMS());
+    status |= setParam(this, paramsList.at(PV::set_offset), usedOffsetSetting);
+    
         // Disable ArrayCallbacks.
         // This plugin currently does not do array callbacks, so make the setting
         // reflect the behavior

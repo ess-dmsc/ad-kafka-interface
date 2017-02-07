@@ -28,13 +28,13 @@ namespace KafkaInterface {
         return msg->len();
     }
     
-    KafkaConsumer::KafkaConsumer(std::string broker, std::string topic, std::string groupId) : topicName(topic), brokerAddrStr(broker), topicOffset(RdKafka::Topic::OFFSET_END), consumer(nullptr), paramCallback(nullptr), conf(nullptr) {
+    KafkaConsumer::KafkaConsumer(std::string broker, std::string topic, std::string groupId) : topicName(topic), brokerAddrStr(broker), topicOffset(RdKafka::Topic::OFFSET_STORED), consumer(nullptr), paramCallback(nullptr), conf(nullptr) {
         InitRdKafka(groupId);
         SetBrokerAddr(broker);
         SetTopic(topic);
     }
     
-    KafkaConsumer::KafkaConsumer(std::string groupId) : topicOffset(RdKafka::Topic::OFFSET_END), consumer(nullptr), paramCallback(nullptr), conf(nullptr) {
+    KafkaConsumer::KafkaConsumer(std::string groupId) : topicOffset(RdKafka::Topic::OFFSET_STORED), consumer(nullptr), paramCallback(nullptr), conf(nullptr) {
         InitRdKafka(groupId);
     }
     
@@ -82,6 +82,7 @@ namespace KafkaInterface {
             errorState = true;
             return;
         }
+        groupName = groupId;
     }
     
     std::vector<PV_param> &KafkaConsumer::GetParams() {
@@ -89,7 +90,7 @@ namespace KafkaInterface {
     }
     
     bool KafkaConsumer::SetOffset(std::int64_t offset) {
-        if (offset < -2) {
+        if (offset < -2 and offset != -1000) {
             return false;
         }
         topicOffset = offset;
@@ -111,6 +112,7 @@ namespace KafkaInterface {
             RdKafka::Message *msg = consumer->consume(timeout);
             if (msg->err() == RdKafka::ERR_NO_ERROR) {
                 topicOffset = msg->offset();
+                setParam(paramCallback, paramsList[PV::msg_offset], int(topicOffset));
                 return new KafkaMessage(msg);
             } else {
                 delete msg;
@@ -235,6 +237,10 @@ namespace KafkaInterface {
         return true;
     }
     
+    std::string KafkaConsumer::GetGroupId() {
+        return groupName;
+    }
+    
     bool KafkaConsumer::SetGroupId(std::string groupId) {
         if (errorState or groupId.size() == 0) {
             return false;
@@ -245,6 +251,7 @@ namespace KafkaInterface {
             SetConStat(KafkaConsumer::ConStat::ERROR, "Can not set new group id.");
             return false;
         }
+        groupName = groupId;
         MakeConnection();
         return true;
     }
@@ -257,6 +264,7 @@ namespace KafkaInterface {
     
     void KafkaConsumer::RegisterParamCallbackClass(asynNDArrayDriver *ptr) {
         paramCallback = ptr;
+        setParam(paramCallback, paramsList[PV::msg_offset], int(RdKafka::Topic::OFFSET_STORED));
     }
     
     bool KafkaConsumer::SetStatsTimeMS(int time) {
@@ -276,5 +284,9 @@ namespace KafkaInterface {
     
     int KafkaConsumer::GetStatsTimeMS() {
         return kafka_stats_interval;
+    }
+    
+    int KafkaConsumer::GetOffsetPVIndex() {
+        return *paramsList[PV::msg_offset].index;
     }
 }

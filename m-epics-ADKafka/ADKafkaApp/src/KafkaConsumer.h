@@ -45,7 +45,10 @@ public:
     
     virtual bool SetOffset(std::int64_t offset);
     
+    virtual int GetOffsetPVIndex();
+    
     virtual bool SetGroupId(std::string groupId);
+    virtual std::string GetGroupId();
     
     virtual bool SetStatsTimeMS(int time);
     virtual int GetStatsTimeMS();
@@ -62,6 +65,8 @@ protected:
     size_t bufferSize = 100000000;
     
     std::int64_t topicOffset;
+    
+    PV_param offsetParam;
     
     enum class ConStat { CONNECTED = 0, CONNECTING = 1, DISCONNECTED = 2, ERROR = 3, };
     
@@ -93,6 +98,7 @@ protected:
     
     std::string topicName;
     std::string brokerAddrStr;
+    std::string groupName;
     
     //Variables used by the Kafka producer.
     std::string errstr;
@@ -104,7 +110,6 @@ protected:
     Json::Reader reader;
     
     enum PV {
-        stats_time,
         max_msg_size,
         con_status,
         con_msg,
@@ -114,11 +119,10 @@ protected:
     };
     
     std::vector<PV_param> paramsList = {
-        PV_param("KAFKA_STATS_TIME", asynParamInt32), //stats_time
         PV_param("KAFKA_MAX_MSG_SIZE", asynParamInt32), //max_msg_size
         PV_param("KAFKA_CONNECTION_STATUS", asynParamInt32), //con_status
         PV_param("KAFKA_CONNECTION_MESSAGE", asynParamOctet), //con_msg
-        PV_param("KAFKA_MESSAGE_OFFSET", asynParamInt32), //msg_offset
+        PV_param("KAFKA_CURRENT_OFFSET", asynParamInt32), //msg_offset
         PV_param("KAFKA_UNPROCCESSED_MESSAGES", asynParamInt32), //msgs_in_queue
     };
 };
