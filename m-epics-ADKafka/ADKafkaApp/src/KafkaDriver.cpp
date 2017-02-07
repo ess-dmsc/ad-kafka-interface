@@ -167,7 +167,7 @@ static void consumeTaskC(void *drvPvt)
     pPvt->consumeTask();
 }
 
-KafkaDriver::KafkaDriver(const char *portName, int maxSizeX, int maxSizeY, NDDataType_t dataType, int maxBuffers, size_t maxMemory, int priority, int stackSize, const char *brokerAddress, const char *brokerTopic)
+KafkaDriver::KafkaDriver(const char *portName, int maxBuffers, size_t maxMemory, int priority, int stackSize, const char *brokerAddress, const char *brokerTopic)
     // Invoke the base class constructor
 : ADDriver(portName, 1, consumer.GetNumberOfPVs() + PV::count, maxBuffers, maxMemory,
            0, 0, /* No interfaces beyond those set in ADDriver.cpp */
@@ -360,10 +360,9 @@ void KafkaDriver::consumeTask()
 KafkaDriver::~KafkaDriver() { }
 
 // Configuration routine.  Called directly, or from the iocsh function
-extern "C" int KafkaDriverConfigure(const char *portName, int maxSizeX, int maxSizeY,
-                                    int dataType, int maxBuffers, size_t maxMemory,
+extern "C" int KafkaDriverConfigure(const char *portName, int maxBuffers, size_t maxMemory,
                                     int priority, int stackSize, const char *brokerAddrStr, const char *topicName) {
-    KafkaDriver *pDriver = new KafkaDriver(portName, maxSizeX, maxSizeY, (NDDataType_t)dataType,
+    KafkaDriver *pDriver = new KafkaDriver(portName,
                                            maxBuffers, maxMemory, priority, stackSize, brokerAddrStr, topicName);
 
     return (asynSuccess);
@@ -371,22 +370,19 @@ extern "C" int KafkaDriverConfigure(const char *portName, int maxSizeX, int maxS
 
 // EPICS iocsh shell commands
 static const iocshArg initArg0 = {"portName", iocshArgString};
-static const iocshArg initArg1 = {"Max X size", iocshArgInt};
-static const iocshArg initArg2 = {"Max Y size", iocshArgInt};
-static const iocshArg initArg3 = {"Data type", iocshArgInt};
-static const iocshArg initArg4 = {"maxBuffers", iocshArgInt};
-static const iocshArg initArg5 = {"maxMemory", iocshArgInt};
-static const iocshArg initArg6 = {"priority", iocshArgInt};
-static const iocshArg initArg7 = {"stackSize", iocshArgInt};
-static const iocshArg initArg8 = {"broker address", iocshArgString};
-static const iocshArg initArg9 = {"broker topic", iocshArgString};
+static const iocshArg initArg1 = {"maxBuffers", iocshArgInt};
+static const iocshArg initArg2 = {"maxMemory", iocshArgInt};
+static const iocshArg initArg3 = {"priority", iocshArgInt};
+static const iocshArg initArg4 = {"stackSize", iocshArgInt};
+static const iocshArg initArg5 = {"broker address", iocshArgString};
+static const iocshArg initArg6 = {"broker topic", iocshArgString};
 static const iocshArg *const initArgs[] = {&initArg0, &initArg1, &initArg2, &initArg3,
-                                           &initArg4, &initArg5, &initArg6, &initArg7, &initArg8, &initArg9};
-static const iocshFuncDef initFuncDef = {"KafkaDriverConfigure", 10, initArgs};
+                                           &initArg4, &initArg5, &initArg6};
+static const iocshFuncDef initFuncDef = {"KafkaDriverConfigure", 7, initArgs};
 
 static void initCallFunc(const iocshArgBuf *args) {
-    KafkaDriverConfigure(args[0].sval, args[1].ival, args[2].ival, args[3].ival, args[4].ival,
-                         args[5].ival, args[6].ival, args[7].ival, args[8].sval, args[9].sval);
+    KafkaDriverConfigure(args[0].sval, args[1].ival,
+                         args[2].ival, args[3].ival, args[4].ival, args[5].sval, args[6].sval);
 }
 
 extern "C" void KafkaDriverReg(void) { iocshRegister(&initFuncDef, initCallFunc); }

@@ -18,7 +18,7 @@ using KafkaInterface::KafkaConsumer;
 
 class epicsShareClass KafkaDriver : public ADDriver {
   public:
-    KafkaDriver(const char *portName, int maxSizeX, int maxSizeY, NDDataType_t dataType, int maxBuffers, size_t maxMemory, int priority, int stackSize, const char *brokerAddress, const char *brokerTopic);
+    KafkaDriver(const char *portName, int maxBuffers, size_t maxMemory, int priority, int stackSize, const char *brokerAddress, const char *brokerTopic);
     
     ~KafkaDriver();
     

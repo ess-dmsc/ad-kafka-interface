@@ -25,7 +25,7 @@ const std::string usedTopic = "some_topic";
 
 class KafkaDriverStandIn : public KafkaDriver {
 public:
-    KafkaDriverStandIn() : KafkaDriver(PortName().c_str(), 100, 100, NDDataType_t::NDUInt32, 10, 0, 0, 0, usedBrokerAddr.c_str(), usedTopic.c_str()) {};
+    KafkaDriverStandIn() : KafkaDriver(PortName().c_str(), 10, 0, 0, 0, usedBrokerAddr.c_str(), usedTopic.c_str()) {};
     using KafkaDriver::consumer;
     using KafkaDriver::paramsList;
     using KafkaDriver::PV;
