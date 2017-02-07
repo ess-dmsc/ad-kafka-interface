@@ -9,36 +9,6 @@
 #include <vector>
 #include <cstdlib>
 
-void DeSerializeData(NDArray *&pArray, NDArrayPool *pNDArrayPool, unsigned char *bufferPtr) {
-    
-    auto recvArr = FB_Tables::GetNDArray(bufferPtr);
-    int id = recvArr->id();
-    double timeStamp = recvArr->timeStamp();
-    int EPICSsecPastEpoch = recvArr->epicsTS()->secPastEpoch();
-    int nsec = recvArr->epicsTS()->nsec();
-    std::vector<size_t> dims(recvArr->dims()->begin(), recvArr->dims()->end());
-    NDDataType_t dataType = GetND_DType(recvArr->dataType());
-    void *pData = (void*)recvArr->pData()->Data();
-    int pData_size = recvArr->pData()->size();
-    
-    
-    pArray = pNDArrayPool->alloc(int(dims.size()), dims.data(), dataType, 0, NULL);
-    
-    NDAttributeList *attrPtr = pArray->pAttributeList;
-    attrPtr->clear();
-    for (int i = 0; i < recvArr->pAttributeList()->size(); i++) {
-        auto cAttr = recvArr->pAttributeList()->Get(i);
-        attrPtr->add(new NDAttribute(cAttr->pName()->c_str(), cAttr->pDescription()->c_str(), NDAttrSourceDriver, cAttr->pSource()->c_str(), GetND_AttrDType(cAttr->dataType()), (void*)cAttr->pData()->Data()));
-    }
-    
-    std::memcpy(pArray->pData, pData, pData_size);
-    
-    pArray->uniqueId = id;
-    pArray->timeStamp = timeStamp;
-    pArray->epicsTS.secPastEpoch = EPICSsecPastEpoch;
-    pArray->epicsTS.nsec = nsec;
-}
-
 NDDataType_t GetND_DType(FB_Tables::DType arrType) {
     switch (arrType) {
         case FB_Tables::DType::DType_int8:
@@ -87,4 +57,34 @@ NDAttrDataType_t GetND_AttrDType(FB_Tables::DType attrType) {
             std::abort();
     }
     return NDAttrInt8;
+}
+
+void DeSerializeData(NDArray *&pArray, NDArrayPool *pNDArrayPool, unsigned char *bufferPtr) {
+    
+    auto recvArr = FB_Tables::GetNDArray(bufferPtr);
+    int id = recvArr->id();
+    double timeStamp = recvArr->timeStamp();
+    int EPICSsecPastEpoch = recvArr->epicsTS()->secPastEpoch();
+    int nsec = recvArr->epicsTS()->nsec();
+    std::vector<size_t> dims(recvArr->dims()->begin(), recvArr->dims()->end());
+    NDDataType_t dataType = GetND_DType(recvArr->dataType());
+    void *pData = (void*)recvArr->pData()->Data();
+    int pData_size = recvArr->pData()->size();
+    
+    
+    pArray = pNDArrayPool->alloc(int(dims.size()), dims.data(), dataType, 0, NULL);
+    
+    NDAttributeList *attrPtr = pArray->pAttributeList;
+    attrPtr->clear();
+    for (int i = 0; i < recvArr->pAttributeList()->size(); i++) {
+        auto cAttr = recvArr->pAttributeList()->Get(i);
+        attrPtr->add(new NDAttribute(cAttr->pName()->c_str(), cAttr->pDescription()->c_str(), NDAttrSourceDriver, cAttr->pSource()->c_str(), GetND_AttrDType(cAttr->dataType()), (void*)cAttr->pData()->Data()));
+    }
+    
+    std::memcpy(pArray->pData, pData, pData_size);
+    
+    pArray->uniqueId = id;
+    pArray->timeStamp = timeStamp;
+    pArray->epicsTS.secPastEpoch = EPICSsecPastEpoch;
+    pArray->epicsTS.nsec = nsec;
 }
