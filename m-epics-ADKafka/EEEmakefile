@@ -1,6 +1,6 @@
 EXCLUDE_ARCHS = eldk
 include ${EPICS_ENV_PATH}/module.Makefile
-LIBVERSION = 1.0-ALPHA
+LIBVERSION = 1.0-BETA
 LIBRDKAFKA_PATH = /usr/local/lib/
 LDFLAGS += -Wl,--whole-archive ${LIBRDKAFKA_PATH}librdkafka++.a ${LIBRDKAFKA_PATH}librdkafka.a -Wl,--no-whole-archive
 CXXFLAGS += -std=c++11

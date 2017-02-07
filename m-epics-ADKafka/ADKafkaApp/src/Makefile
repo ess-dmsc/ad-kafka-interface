@@ -10,7 +10,6 @@ INC += json.h
 INC += NDArray_schema_generated.h
 INC += ParamUtility.h
 INC += NDArrayDeSerializer.h
-INC_DIR += /opt/epics/base-3.15.4/include
 LIBRARY_IOC += ADKafka
 LIB_SRCS += KafkaDriver.cpp
 LIB_SRCS += KafkaConsumer.cpp
