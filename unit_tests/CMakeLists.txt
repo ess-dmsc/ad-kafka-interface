@@ -101,7 +101,7 @@ add_executable(unit_tests ${TEST_FILES} ${PLUGIN_SRC_FILES} ${DRIVER_SRC_FILES})
 if (${APPLE})
     target_link_libraries(unit_tests gtest gmock_main NDPlugin ADBase asyn Com ${rdkafka_LIB} ${rdkafkacpp_LIB})
 else()
-    target_link_libraries(unit_tests gtest gmock_main xml sz busy calc seq ca ${ZLIB_LIBRARY} ${TIFF_LIBRARY} ${JPEG_LIBRARY} ${HDF5_LIBRARIES} normativeTypesCPP pvAccessCPP pvDataCPP pvDatabaseCPP adcore asyn Com ${rdkafka_LIB} ${rdkafkacpp_LIB})
+    target_link_libraries(unit_tests gtest gmock_main xml sz busy calc seq ca dbCore ${ZLIB_LIBRARY} ${TIFF_LIBRARY} ${JPEG_LIBRARY} ${HDF5_LIBRARIES} normativeTypesCPP pvAccessCPP pvDataCPP pvDatabaseCPP adcore asyn Com ${rdkafka_LIB} ${rdkafkacpp_LIB})
 endif()
 
 add_test(TestAll unit_tests)
