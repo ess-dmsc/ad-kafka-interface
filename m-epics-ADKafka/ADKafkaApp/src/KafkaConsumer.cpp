@@ -293,7 +293,15 @@ namespace KafkaInterface {
     
     void KafkaConsumer::PollForConnectionStats() {
         if (consumer != nullptr) {
-            consumer->poll(0);
+            std::vector<RdKafka::TopicPartition*> topics;
+            consumer->assignment(topics);
+            consumer->unassign();
+            RdKafka::Message *msg = consumer->consume(0);
+            if (msg->err() == RdKafka::ERR_NO_ERROR) {
+                std::abort(); //We got a message and we do not want one!
+            } else {
+            }
+            consumer->assign(topics);
         }
     }
 }
