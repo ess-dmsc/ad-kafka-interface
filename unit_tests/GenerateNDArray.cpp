@@ -7,6 +7,7 @@
 
 #include "GenerateNDArray.h"
 #include <cstdlib>
+#include <ciso646>
 
 template <typename T>
 void PopulateArr(size_t elements, void *ptr) {

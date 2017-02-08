@@ -7,6 +7,7 @@
 
 #include "NDArraySerializer.h"
 #include <vector>
+#include <ciso646>
 
 NDArraySerializer::NDArraySerializer() : builder(FB_builder_buffer) {
     

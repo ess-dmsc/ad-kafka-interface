@@ -13,6 +13,7 @@
 
 #include <asynDriver.h>
 #include <epicsExport.h>
+#include <ciso646>
 #include "NDArrayDeSerializer.h"
 #include "KafkaDriver.h"
 

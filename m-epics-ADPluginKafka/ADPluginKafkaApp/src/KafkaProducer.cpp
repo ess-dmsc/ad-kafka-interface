@@ -6,6 +6,7 @@
 
 #include <chrono>
 #include <cstdlib>
+#include <ciso646>
 #include "KafkaProducer.h"
 
 namespace KafkaInterface {

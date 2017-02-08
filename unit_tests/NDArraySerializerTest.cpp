@@ -9,6 +9,7 @@
 #include <map>
 #include <set>
 #include <random>
+#include <ciso646>
 #include "NDArraySerializer.h"
 #include "NDArrayDeSerializer.h"
 #include "GenerateNDArray.h"

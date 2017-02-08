@@ -8,6 +8,7 @@
 #include "NDArrayDeSerializer.h"
 #include <vector>
 #include <cstdlib>
+#include <ciso646>
 
 NDDataType_t GetND_DType(FB_Tables::DType arrType) {
     switch (arrType) {

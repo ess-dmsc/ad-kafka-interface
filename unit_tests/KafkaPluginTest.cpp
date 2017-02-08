@@ -11,6 +11,7 @@
 #include <tuple>
 #include <thread>
 #include <chrono>
+#include <ciso646>
 #include "KafkaPlugin.h"
 #include "GenerateNDArray.h"
 #include "PortName.h"

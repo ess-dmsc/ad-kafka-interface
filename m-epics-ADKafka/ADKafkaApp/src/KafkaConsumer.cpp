@@ -6,6 +6,8 @@
  */
 
 #include "KafkaConsumer.h"
+#include <ciso646>
+
 namespace KafkaInterface {
     
     int KafkaConsumer::GetNumberOfPVs() {

@@ -8,6 +8,7 @@
 #include <gmock/gmock.h>
 #include <chrono>
 #include <asynNDArrayDriver.h>
+#include <ciso646>
 #include "KafkaConsumer.h"
 
 class KafkaConsumerStandIn : public KafkaInterface::KafkaConsumer {

@@ -10,6 +10,7 @@
 #include <gmock/gmock.h>
 #include <thread>
 #include <chrono>
+#include <ciso646>
 #include "KafkaDriver.h"
 #include "PortName.h"
 

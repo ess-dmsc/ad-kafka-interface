@@ -12,6 +12,7 @@
 #include <cstring>
 #include <algorithm>
 #include <NDPluginDriver.h>
+#include <ciso646>
 
 class NDArrayGenerator {
 public:
