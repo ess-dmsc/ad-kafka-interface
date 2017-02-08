@@ -26,20 +26,20 @@ node('eee') {
             stage("Build unit tests") {
                 sh "make"
             }
-            } catch (e) {
-                slackSend color: 'danger', message: '@jonasn ad-kafka-interface: Unit tests build failed'
-                throw e
-            }
+        } catch (e) {
+            slackSend color: 'danger', message: '@jonasn ad-kafka-interface: Unit tests build failed'
+            throw e
+        }
         
-            try {
-                stage("Run unit tests") {
-                    sh "./unit_tests/unit_tests --gtest_output=xml:AllResultsUnitTests.xml"
-                    junit '*Tests.xml'
-                }
-                } catch (e) {
-                    slackSend color: 'danger', message: '@jonasn ad-kafka-interface: Unit tests failed'
-                    throw e
-                }
+        try {
+            stage("Run unit tests") {
+                sh "./unit_tests/unit_tests --gtest_output=xml:AllResultsUnitTests.xml"
+                junit '*Tests.xml'
+            }
+        } catch (e) {
+            slackSend color: 'danger', message: '@jonasn ad-kafka-interface: Unit tests failed'
+            throw e
+        }
  
     }
     
