@@ -169,7 +169,6 @@ namespace KafkaInterface {
     }
     
     void KafkaProducer::SetConStat(KafkaProducer::ConStat stat, std::string msg) {
-        //std::cout << int(stat) << " : " << msg << std::endl;
         setParam(paramCallback, paramsList.at(PV::con_status), int(stat));
         setParam(paramCallback, paramsList.at(PV::con_msg), msg);
     }

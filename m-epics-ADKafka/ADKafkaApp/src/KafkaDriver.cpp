@@ -191,6 +191,13 @@ KafkaDriver::KafkaDriver(const char *portName, int maxBuffers, size_t maxMemory,
         return;
     }
     
+    threadExitEventId_ = epicsEventCreate(epicsEventEmpty);
+    if (!threadExitEventId_) {
+        printf("%s:%s epicsEventCreate failure for stop event\n",
+               driverName, functionName);
+        return;
+    }
+    
         MIN_PARAM_INDEX = InitPvParams(this, paramsList);
         
         //The following three calls must be made in this particular order
@@ -236,17 +243,27 @@ void KafkaDriver::consumeTask()
     NDArray *pImage;
     double acquirePeriod;
     const char *functionName = "consumeTask";
-    
+    double startWaitTimeout;
+    keepThreadAlive = true;
     this->lock();
     /* Loop forever */
-    while (1) {
+    while (keepThreadAlive) {
         /* If we are not acquiring then wait for a semaphore that is given when acquisition is started */
         if (!acquire) {
             /* Release the lock while we wait for an event that says acquire has started, then lock again */
             asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
                       "%s:%s: waiting for acquire to start\n", driverName, functionName);
             this->unlock();
-            status = epicsEventWait(startEventId_);
+            status = asynStatus::asynTimeout;
+            startWaitTimeout = consumer.GetStatsTimeMS() / 1000.0;
+//            status = epicsEventWait(startEventId_);
+            while (status == asynStatus::asynTimeout) {
+                status = epicsEventWaitWithTimeout(startEventId_, startWaitTimeout);
+                if (not keepThreadAlive) {
+                    goto exitConsumeTaskLabel;
+                }
+                consumer.PollForConnectionStats();
+            }
             this->lock();
             acquire = 1;
             setStringParam(ADStatusMessage, "Acquiring data");
@@ -356,9 +373,15 @@ void KafkaDriver::consumeTask()
             }
         }
     }
+exitConsumeTaskLabel:
+    epicsEventSignal(threadExitEventId_);
 }
 
-KafkaDriver::~KafkaDriver() { }
+KafkaDriver::~KafkaDriver() {
+    keepThreadAlive = false;
+    epicsEventSignal(startEventId_);
+    epicsEventWait(threadExitEventId_);
+}
 
 // Configuration routine.  Called directly, or from the iocsh function
 extern "C" int KafkaDriverConfigure(const char *portName, int maxBuffers, size_t maxMemory,

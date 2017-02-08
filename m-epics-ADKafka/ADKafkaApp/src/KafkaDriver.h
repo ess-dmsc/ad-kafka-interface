@@ -44,6 +44,7 @@ class epicsShareClass KafkaDriver : public ADDriver {
     
     epicsEventId startEventId_;
     epicsEventId stopEventId_;
+    epicsEventId threadExitEventId_;
     
     enum PV {
         kafka_addr,
@@ -70,4 +71,5 @@ class epicsShareClass KafkaDriver : public ADDriver {
         PV_param("KAFKA_STATS_INT_MS", asynParamInt32), //stats_time
         PV_param("KAFKA_SET_OFFSET", asynParamInt32), //set_offset
     };
+    bool keepThreadAlive;
 };

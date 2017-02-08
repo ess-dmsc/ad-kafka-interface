@@ -20,6 +20,7 @@ using ::testing::Exactly;
 using ::testing::Mock;
 using ::testing::Eq;
 using ::testing::AtLeast;
+using ::testing::StrEq;
 
 const std::string usedBrokerAddr = "some_broker";
 const std::string usedTopic = "some_topic";
@@ -75,6 +76,8 @@ TEST_F(KafkaDriverEnv, InitIsErrorStateTest) {
 TEST_F(KafkaDriverEnv, ParameterCountTest) {
     KafkaDriverStandIn drvr;
     ASSERT_EQ(drvr.paramsList.size(), KafkaDriverStandIn::PV::count);
+    //Ugly hack to make sure that the thread actually starts
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
 
 TEST_F(KafkaDriverEnv, ParamCallbackIsSetTest) {
@@ -114,4 +117,19 @@ TEST_F(KafkaDriverEnv, ThreadRunningTest) {
     epicsEventSignal(drvr.startEventId_);
     epicsEventSignal(drvr.stopEventId_);
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
+}
+
+TEST_F(KafkaDriverEnv, ConnectionStatusUpdateTest) {
+    KafkaDriverStandIn drvr;
+    int msgIndex = -1;
+    for (auto p : drvr.consumer.GetParams()) {
+        if ("KAFKA_CONNECTION_MESSAGE" == p.desc) {
+            msgIndex = *p.index;
+            break;
+        }
+    }
+    EXPECT_CALL(drvr, setIntegerParam(_,_)).Times(testing::AtLeast(1));
+    EXPECT_CALL(drvr, setStringParam(Eq(msgIndex), _)).Times(AtLeast(1));
+    EXPECT_CALL(drvr, setStringParam(Eq(msgIndex), StrEq("Brokers down. Attempting reconnection."))).Times(AtLeast(1));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 }

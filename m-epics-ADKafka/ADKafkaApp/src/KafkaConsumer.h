@@ -53,6 +53,8 @@ public:
     virtual bool SetStatsTimeMS(int time);
     virtual int GetStatsTimeMS();
     
+    virtual void PollForConnectionStats();
+    
 //    virtual bool SetMessageQueueLength(int queue);
 //    virtual int GetMessageQueueLength();
     

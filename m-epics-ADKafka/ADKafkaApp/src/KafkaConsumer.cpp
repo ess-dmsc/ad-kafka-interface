@@ -259,7 +259,6 @@ namespace KafkaInterface {
     }
     
     void KafkaConsumer::SetConStat(ConStat stat, std::string msg) {
-        //std::cout << int(stat) << " : " << msg << std::endl;
         setParam(paramCallback, paramsList[PV::con_status], int(stat));
         setParam(paramCallback, paramsList[PV::con_msg], msg);
     }
@@ -290,5 +289,11 @@ namespace KafkaInterface {
     
     int KafkaConsumer::GetOffsetPVIndex() {
         return *paramsList[PV::msg_offset].index;
+    }
+    
+    void KafkaConsumer::PollForConnectionStats() {
+        if (consumer != nullptr) {
+            consumer->poll(0);
+        }
     }
 }
