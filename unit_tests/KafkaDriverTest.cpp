@@ -66,11 +66,15 @@ TEST_F(KafkaDriverEnv, InitParamsIndexTest) {
     for (auto &p : drvr.consumer.GetParams()) {
         ASSERT_NE(*p.index, 0);
     }
+    //Ugly hack to make sure that the thread actually starts
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
 
 TEST_F(KafkaDriverEnv, InitIsErrorStateTest) {
     KafkaDriverStandIn drvr;
     ASSERT_TRUE(drvr.consumer.SetStatsTimeMS(10000));
+    //Ugly hack to make sure that the thread actually starts
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
 
 TEST_F(KafkaDriverEnv, ParameterCountTest) {
@@ -85,6 +89,8 @@ TEST_F(KafkaDriverEnv, ParamCallbackIsSetTest) {
     int usedValue = 5000;
     EXPECT_CALL(drvr, setIntegerParam(_, Eq(usedValue))).Times(Exactly(1));
     ASSERT_TRUE(drvr.consumer.SetOffset(usedValue));
+    //Ugly hack to make sure that the thread actually starts
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
 
 TEST_F(KafkaDriverEnv, InitBrokerStringsTest) {
@@ -102,6 +108,8 @@ TEST_F(KafkaDriverEnv, InitBrokerStringsTest) {
     
     drvr.getStringParam(*drvr.paramsList[KafkaDriverStandIn::PV::kafka_group].index, bufferSize, buffer);
     ASSERT_EQ(std::string(buffer), drvr.consumer.GetGroupId());
+    //Ugly hack to make sure that the thread actually starts
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
 
 TEST_F(KafkaDriverEnv, InitStatsTimeTest) {
@@ -109,6 +117,8 @@ TEST_F(KafkaDriverEnv, InitStatsTimeTest) {
     int temp;
     drvr.getIntegerParam(*drvr.paramsList[KafkaDriverStandIn::PV::stats_time].index, &temp);
     ASSERT_EQ(drvr.consumer.GetStatsTimeMS(), temp);
+    //Ugly hack to make sure that the thread actually starts
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
 
 TEST_F(KafkaDriverEnv, ThreadRunningTest) {
