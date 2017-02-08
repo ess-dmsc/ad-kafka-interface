@@ -91,7 +91,7 @@ asynStatus KafkaDriver::writeInt32(asynUser *pasynUser, epicsInt32 value)
     
     for (auto pv : consumer.GetParams()) {
         if (*pv.index == function) {
-            if ("KAFKA_MESSAGE_OFFSET" == pv.desc) {
+            if ("KAFKA_CURRENT_OFFSET" == pv.desc) {
                 consumer.SetOffset(value);
                 break;
             }

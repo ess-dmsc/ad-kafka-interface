@@ -13,13 +13,13 @@ record(longin, "$(P)$(R)UnproccessedMessages_RBV") #Integer in from device
 record(longout, "$(P)$(R)CurrentMessageOffset") #Integer in from device
 {
     field(DTYP, "asynInt32")	#Data type
-    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_MESSAGE_OFFSET")
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_CURRENT_OFFSET")
 }
 
 record(longin, "$(P)$(R)CurrentMessageOffset_RBV") #Integer in from device
 {
     field(DTYP, "asynInt32")	#Data type
-    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_MESSAGE_OFFSET")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_CURRENT_OFFSET")
 	field(SCAN, "I/O Intr")		#Update value on interrupt
 }
 
@@ -28,6 +28,7 @@ record(longin, "$(P)$(R)KafkaMaxMessageSize_RBV") #Integer in from device
     field(DTYP, "asynInt32")	#Data type
     field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_MAX_MSG_SIZE")
 	field(SCAN, "I/O Intr")		#Update value on interrupt
+    field(EGU,  "bytes")
 }
 
 record(mbbi, "$(P)$(R)ConnectionStatus_RBV") #Multi bit binary input
@@ -128,6 +129,7 @@ record(longout, "$(P)$(R)KafkaStatsIntervalTime") #Integer in from device
 {
     field(DTYP, "asynInt32")	#Data type
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_STATS_INT_MS")
+    field(EGU,  "ms")
 }
 
 record(longin, "$(P)$(R)KafkaStatsIntervalTime_RBV") #Integer in from device
@@ -135,4 +137,5 @@ record(longin, "$(P)$(R)KafkaStatsIntervalTime_RBV") #Integer in from device
     field(DTYP, "asynInt32")	#Data type
     field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_STATS_INT_MS")
 	field(SCAN, "I/O Intr")		#Update value on interrupt
+    field(EGU,  "ms")
 }
