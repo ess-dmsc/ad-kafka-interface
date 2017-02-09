@@ -23,8 +23,6 @@ public:
      */
     void SerializeData(NDArray &pArray, unsigned char *&bufferPtr, size_t &bufferSize);
     
-    void DeSerializeData(NDArray *&pArray, NDArrayPool *pNDArrayPool, unsigned char *bufferPtr);
-    
     void ReleaseSerializedData();
 protected:
     /** @brief Used to convert from areaDetector data type to flatbuffer data type.
