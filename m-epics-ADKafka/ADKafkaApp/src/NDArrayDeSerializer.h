@@ -8,4 +8,4 @@
 #include "NDArray_schema_generated.h"
 #include <NDArray.h>
 
-void DeSerializeData(NDArray *&pArray, NDArrayPool *pNDArrayPool, unsigned char *bufferPtr);
+void DeSerializeData(NDArray *&pArray, NDArrayPool *pNDArrayPool, unsigned char *bufferPtr, const size_t length);

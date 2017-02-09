@@ -60,7 +60,7 @@ NDAttrDataType_t GetND_AttrDType(FB_Tables::DType attrType) {
     return NDAttrInt8;
 }
 
-void DeSerializeData(NDArray *&pArray, NDArrayPool *pNDArrayPool, unsigned char *bufferPtr) {
+void DeSerializeData(NDArray *&pArray, NDArrayPool *pNDArrayPool, unsigned char *bufferPtr, const size_t length) {
     
     auto recvArr = FB_Tables::GetNDArray(bufferPtr);
     int id = recvArr->id();

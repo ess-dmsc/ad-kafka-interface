@@ -302,7 +302,7 @@ void KafkaDriver::consumeTask()
         if (nullptr == fbImg) continue;
         
         //Copy data to an NDArray
-        DeSerializeData(pImage, this->pNDArrayPool, (unsigned char*)fbImg->GetDataPtr());
+        DeSerializeData(pImage, this->pNDArrayPool, (unsigned char*)fbImg->GetDataPtr(), fbImg->size());
         delete fbImg;
         fbImg = nullptr;
         

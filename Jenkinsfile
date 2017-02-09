@@ -32,9 +32,11 @@ node('eee') {
         }
         
         try {
-            stage("Run unit tests") {
-                sh "./unit_tests/unit_tests --gtest_output=xml:AllResultsUnitTests.xml"
-                junit '*Tests.xml'
+            dir("unit_tests"){
+                stage("Run unit tests") {
+                    sh "./unit_tests --gtest_output=xml:AllResultsUnitTests.xml"
+                    junit '*Tests.xml'
+                }
             }
         } catch (e) {
             slackSend color: 'danger', message: '@jonasn ad-kafka-interface: Unit tests failed'

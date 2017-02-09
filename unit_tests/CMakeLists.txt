@@ -104,4 +104,6 @@ else()
     target_link_libraries(unit_tests gtest gmock_main xml sz busy calc seq ca dbCore ${ZLIB_LIBRARY} ${TIFF_LIBRARY} ${JPEG_LIBRARY} ${HDF5_LIBRARIES} normativeTypesCPP pvAccessCPP pvDataCPP pvDatabaseCPP adcore asyn Com ${rdkafka_LIB} ${rdkafkacpp_LIB})
 endif()
 
+configure_file("someNDArray.data" "." COPYONLY)
+
 add_test(TestAll unit_tests)
