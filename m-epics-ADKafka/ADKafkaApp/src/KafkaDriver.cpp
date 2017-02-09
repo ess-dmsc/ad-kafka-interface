@@ -240,7 +240,7 @@ void KafkaDriver::consumeTask()
     int imageMode;
     int arrayCallbacks;
     int acquire=0;
-    NDArray *pImage;
+    NDArray *pImage = nullptr;
     double acquirePeriod;
     const char *functionName = "consumeTask";
     double startWaitTimeout;
@@ -257,13 +257,20 @@ void KafkaDriver::consumeTask()
             status = asynStatus::asynTimeout;
             startWaitTimeout = consumer.GetStatsTimeMS() / 1000.0;
 //            status = epicsEventWait(startEventId_);
+            consumer.StopConsumption();
             while (status == asynStatus::asynTimeout) {
                 status = epicsEventWaitWithTimeout(startEventId_, startWaitTimeout);
                 if (not keepThreadAlive) {
                     goto exitConsumeTaskLabel;
                 }
-                consumer.PollForConnectionStats();
+                KafkaInterface::KafkaMessage *fbImg = consumer.WaitForPkg(0);
+                if (fbImg != nullptr) {
+                    asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
+                              "%s:%s: Got Kafka msg when none should be received.\n", driverName, functionName);
+                    std::abort(); //This should never happen
+                }
             }
+            consumer.StartConsumption();
             this->lock();
             acquire = 1;
             setStringParam(ADStatusMessage, "Acquiring data");
@@ -296,12 +303,17 @@ void KafkaDriver::consumeTask()
         
         /* Update the image */
         getDoubleParam(ADAcquirePeriod, &acquirePeriod);
+        this->unlock();
         KafkaInterface::KafkaMessage *fbImg = consumer.WaitForPkg(int(acquirePeriod * 1000));
+        this->lock();
         
         //If we get no image, go to start of loop
         if (nullptr == fbImg) continue;
         
         //Copy data to an NDArray
+        if (pImage) {
+            pImage->release();
+        }
         DeSerializeData(pImage, this->pNDArrayPool, (unsigned char*)fbImg->GetDataPtr(), fbImg->size());
         delete fbImg;
         fbImg = nullptr;
@@ -349,6 +361,7 @@ void KafkaDriver::consumeTask()
                 callParamCallbacks();
                 
                 acquire = 0;
+                consumer.StopConsumption();
                 setIntegerParam(ADAcquire, acquire);
                 asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
                           "%s:%s: acquisition completed\n", driverName, functionName);
@@ -364,6 +377,7 @@ void KafkaDriver::consumeTask()
             status = epicsEventTryWait(stopEventId_);
             if (status == epicsEventWaitOK) {
                 acquire = 0;
+                consumer.StopConsumption();
                 if (imageMode == ADImageContinuous) {
                     setIntegerParam(ADStatus, ADStatusIdle);
                 } else {
@@ -373,6 +387,7 @@ void KafkaDriver::consumeTask()
             }
         }
     }
+    this->unlock();
 exitConsumeTaskLabel:
     epicsEventSignal(threadExitEventId_);
 }
@@ -381,6 +396,10 @@ KafkaDriver::~KafkaDriver() {
     keepThreadAlive = false;
     epicsEventSignal(startEventId_);
     epicsEventWait(threadExitEventId_);
+    
+    epicsEventDestroy(startEventId_);
+    epicsEventDestroy(stopEventId_);
+    epicsEventDestroy(threadExitEventId_);
 }
 
 // Configuration routine.  Called directly, or from the iocsh function

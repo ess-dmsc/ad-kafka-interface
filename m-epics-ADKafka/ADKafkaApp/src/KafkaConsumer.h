@@ -41,6 +41,9 @@ public:
     
     virtual KafkaMessage* WaitForPkg(int timeout);
     
+    virtual void StartConsumption();
+    virtual void StopConsumption();
+    
     virtual std::int64_t GetCurrentOffset();
     
     virtual bool SetOffset(std::int64_t offset);
@@ -53,8 +56,6 @@ public:
     virtual bool SetStatsTimeMS(int time);
     virtual int GetStatsTimeMS();
     
-    virtual void PollForConnectionStats();
-    
 //    virtual bool SetMessageQueueLength(int queue);
 //    virtual int GetMessageQueueLength();
     
@@ -63,6 +64,7 @@ public:
     static int GetNumberOfPVs();
 protected:
     bool errorState = false;
+    bool consumptionHalted = true;
     
     size_t bufferSize = 100000000;
     

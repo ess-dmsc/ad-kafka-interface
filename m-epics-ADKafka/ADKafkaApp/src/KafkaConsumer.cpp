@@ -193,8 +193,29 @@ namespace KafkaInterface {
             std::vector<RdKafka::TopicPartition*> topics;
             topics.push_back(RdKafka::TopicPartition::create(topicName, 0, topicOffset));
             consumer->assign(topics);
+            if (consumptionHalted) {
+                consumer->pause(topics);
+            }
         }
         return true;
+    }
+    
+    void KafkaConsumer::StartConsumption() {
+        if (consumptionHalted) {
+            std::vector<RdKafka::TopicPartition*> topics;
+            consumer->assignment(topics);
+            consumer->resume(topics);
+            consumptionHalted = false;
+        }
+    }
+    
+    void KafkaConsumer::StopConsumption() {
+        if (not consumptionHalted) {
+            std::vector<RdKafka::TopicPartition*> topics;
+            consumer->assignment(topics);
+            consumer->pause(topics);
+            consumptionHalted = true;
+        }
     }
     
     bool KafkaConsumer::MakeConnection() {
@@ -289,19 +310,5 @@ namespace KafkaInterface {
     
     int KafkaConsumer::GetOffsetPVIndex() {
         return *paramsList[PV::msg_offset].index;
-    }
-    
-    void KafkaConsumer::PollForConnectionStats() {
-        if (consumer != nullptr) {
-            std::vector<RdKafka::TopicPartition*> topics;
-            consumer->assignment(topics);
-            consumer->unassign();
-            RdKafka::Message *msg = consumer->consume(0);
-            if (msg->err() == RdKafka::ERR_NO_ERROR) {
-                std::abort(); //We got a message and we do not want one!
-            } else {
-            }
-            consumer->assign(topics);
-        }
     }
 }
