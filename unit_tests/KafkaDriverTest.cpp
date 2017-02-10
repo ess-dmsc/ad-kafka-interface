@@ -143,3 +143,18 @@ TEST_F(KafkaDriverEnv, ConnectionStatusUpdateTest) {
     EXPECT_CALL(drvr, setStringParam(Eq(msgIndex), StrEq("Brokers down. Attempting reconnection."))).Times(AtLeast(1));
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 }
+
+TEST_F(KafkaDriverEnv, SetStatsTimeTest) {
+    KafkaDriverStandIn drvr;
+    int usedPVIndex = *drvr.paramsList[KafkaDriverStandIn::PV::stats_time].index;
+    int newStatsTime = 1000;
+    
+    auto tempUser = pasynManager->createAsynUser(nullptr, nullptr);
+    tempUser->reason = usedPVIndex;
+    
+    EXPECT_CALL(drvr, setIntegerParam(Eq(usedPVIndex), Eq(newStatsTime))).Times(Exactly(1));
+    
+    drvr.writeInt32(tempUser, newStatsTime);
+    
+    pasynManager->freeAsynUser(tempUser);
+}
