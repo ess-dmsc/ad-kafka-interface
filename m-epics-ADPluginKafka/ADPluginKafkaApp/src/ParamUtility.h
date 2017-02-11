@@ -8,22 +8,22 @@
 #pragma once
 
 #include <asynNDArrayDriver.h>
+#include <cstdlib>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
-#include <cstdlib>
 
 class PV_param {
-public:
-    PV_param(std::string desc, asynParamType type, int index = 0) : desc(desc), type(type), index(new int(index)) {};
-    PV_param() : desc("Not used"), type(asynParamType::asynParamNotDefined), index(nullptr) {};
+  public:
+    PV_param(std::string desc, asynParamType type, int index = 0)
+        : desc(desc), type(type), index(new int(index)){};
+    PV_param() : desc("Not used"), type(asynParamType::asynParamNotDefined), index(nullptr){};
     const std::string desc;
     const asynParamType type;
     std::shared_ptr<int> index;
 };
 
-template <class asynNDArrType>
-int InitPvParams(asynNDArrType *ptr, std::vector<PV_param> &param) {
+template <class asynNDArrType> int InitPvParams(asynNDArrType *ptr, std::vector<PV_param> &param) {
     int minParamIndex = -1;
     for (auto &p : param) {
         ptr->createParam(p.desc.c_str(), p.type, p.index.get());

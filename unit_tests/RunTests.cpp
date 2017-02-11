@@ -4,14 +4,12 @@
  *  @brief The starting point of the tests.
  */
 
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
-
+#include <gtest/gtest.h>
 
 int main(int argc, char **argv) {
-    //Perform death tests in a separate process
-    ::testing::FLAGS_gtest_death_test_style = "threadsafe";
-    ::testing::InitGoogleMock(&argc, argv);
-    return RUN_ALL_TESTS();
+  // Perform death tests in a separate process
+  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+  ::testing::InitGoogleMock(&argc, argv);
+  return RUN_ALL_TESTS();
 }
-
