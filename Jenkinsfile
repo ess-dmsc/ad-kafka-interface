@@ -3,13 +3,15 @@
  */
 
 node('eee') {
-    try {
-        stage("Checkout projects") {
-            checkout scm
-        } 
-    } catch (e) {
-        slackSend color: 'danger', message: '@jonasn ad-kafka-interface: Checkout failed'
-        throw e
+    dir("code") {
+        try {
+            stage("Checkout projects") {
+                checkout scm
+            } 
+        } catch (e) {
+            slackSend color: 'danger', message: '@jonasn ad-kafka-interface: Checkout failed'
+            throw e
+        }
     }
 
     dir("build") {
