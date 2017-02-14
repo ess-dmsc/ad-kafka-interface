@@ -1,10 +1,8 @@
-//
-//  KafkaDriverTest.cpp
-//  KafkaInterface
-//
-//  Created by Jonas Nilsson on 2017-02-03.
-//
-//
+/** Copyright (C) 2017 European Spallation Source */
+
+/** @file  KafkaDriverTest.cpp
+ *  @brief This file holds KafkaDriver unit tests..
+ */
 
 #include "KafkaDriver.h"
 #include "PortName.h"
@@ -25,6 +23,7 @@ using ::testing::StrEq;
 const std::string usedBrokerAddr = "some_broker";
 const std::string usedTopic = "some_topic";
 
+/// @brief Simple stand-in class used for unit tests.
 class KafkaDriverStandIn : public KafkaDriver {
 public:
   KafkaDriverStandIn()
@@ -41,6 +40,7 @@ public:
   MOCK_METHOD2(setIntegerParam, asynStatus(int, int));
 };
 
+/// @brief A testing fixture used for setting up unit tests.
 class KafkaDriverEnv : public Test {
 public:
   static void SetUpTestCase(){

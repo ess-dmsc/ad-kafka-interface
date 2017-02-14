@@ -1,8 +1,8 @@
 /** Copyright (C) 2017 European Spallation Source */
 
 /** @file  GenerateNDArray.cpp
- *  @brief Implementation of helper class and helper functions which are used
- * to generate fake data for the unit tests.
+ *  @brief Implementation of helper class and helper functions which are used to generate fake data
+ * for the unit tests.
  */
 
 #include "GenerateNDArray.h"

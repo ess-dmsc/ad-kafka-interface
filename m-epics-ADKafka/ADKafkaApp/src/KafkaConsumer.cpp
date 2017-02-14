@@ -116,7 +116,7 @@ KafkaMessage *KafkaConsumer::WaitForPkg(int timeout) {
 }
 
 void KafkaConsumer::event_cb(RdKafka::Event &event) {
-    //@todo This member function really needs some expanded capability
+    /// @todo This member function really needs some expanded capability
     switch (event.type()) {
     case RdKafka::Event::EVENT_ERROR:
         if (event.err() == RdKafka::ERR__ALL_BROKERS_DOWN) {
@@ -128,10 +128,10 @@ void KafkaConsumer::event_cb(RdKafka::Event &event) {
         }
         break;
     case RdKafka::Event::EVENT_LOG:
-        //@todo Add message/log or something
+        /// @todo Add message/log or something
         break;
     case RdKafka::Event::EVENT_THROTTLE:
-        //@todo Add message/log or something
+        /// @todo Add message/log or something
         break;
     case RdKafka::Event::EVENT_STATS:
         ParseStatusString(event.str());
@@ -139,16 +139,16 @@ void KafkaConsumer::event_cb(RdKafka::Event &event) {
     default:
         if ((event.type() == RdKafka::Event::EVENT_LOG) and
             (event.severity() == RdKafka::Event::EVENT_SEVERITY_ERROR)) {
-            //@todo Add message/log or something
+            /// @todo Add message/log or something
 
         } else {
-            //@todo Add message/log or something
+            /// @todo Add message/log or something
         }
     }
 }
 
 void KafkaConsumer::ParseStatusString(std::string msg) {
-    //@todo We should probably extract some more stats from the JSON message
+    /// @todo We should probably extract some more stats from the JSON message
     bool parseSuccess = reader.parse(msg, root);
     if (not parseSuccess) {
         SetConStat(KafkaConsumer::ConStat::ERROR, "Status msg.: Unable to parse.");
@@ -184,25 +184,31 @@ bool KafkaConsumer::UpdateTopic() {
         if (consumptionHalted) {
             consumer->pause(topics);
         }
+    } else {
+        return false;
     }
     return true;
 }
 
 void KafkaConsumer::StartConsumption() {
     if (consumptionHalted) {
-        std::vector<RdKafka::TopicPartition *> topics;
-        consumer->assignment(topics);
-        consumer->resume(topics);
         consumptionHalted = false;
+        if (consumer != nullptr) {
+            std::vector<RdKafka::TopicPartition *> topics;
+            consumer->assignment(topics);
+            consumer->resume(topics);
+        }
     }
 }
 
 void KafkaConsumer::StopConsumption() {
     if (not consumptionHalted) {
-        std::vector<RdKafka::TopicPartition *> topics;
-        consumer->assignment(topics);
-        consumer->pause(topics);
         consumptionHalted = true;
+        if (consumer != nullptr) {
+            std::vector<RdKafka::TopicPartition *> topics;
+            consumer->assignment(topics);
+            consumer->pause(topics);
+        }
     }
 }
 

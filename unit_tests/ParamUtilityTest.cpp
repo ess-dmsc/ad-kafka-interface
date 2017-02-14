@@ -14,6 +14,7 @@
 
 using namespace testing;
 
+/// @brief Simple stand-in class used for unit tests.
 class NDPluginDriverStandIn : public NDPluginDriver {
 public:
   NDPluginDriverStandIn(const char *portName, int queueSize,
@@ -31,6 +32,7 @@ public:
   MOCK_METHOD3(createParam, asynStatus(const char *, asynParamType, int *));
 };
 
+/// @brief A testing fixture used for setting up unit tests.
 class ParamUtility : public ::testing::Test {
 public:
   static void SetUpTestCase() {

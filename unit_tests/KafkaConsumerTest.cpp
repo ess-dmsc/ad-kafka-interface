@@ -11,6 +11,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+/// @brief Simple stand-in class used for unit tests.
 class KafkaConsumerStandIn : public KafkaInterface::KafkaConsumer {
 public:
   KafkaConsumerStandIn() : KafkaConsumer(){};
@@ -35,6 +36,7 @@ public:
   MOCK_METHOD2(SetConStat, void(KafkaConsumerStandIn::ConStat, std::string));
 };
 
+/// @brief Simple stand-in class used for unit tests.
 class KafkaConsumerStandInAlt : public KafkaInterface::KafkaConsumer {
 public:
   KafkaConsumerStandInAlt() : KafkaConsumer(){};
@@ -46,6 +48,7 @@ public:
   using KafkaInterface::KafkaConsumer::consumer;
 };
 
+/// @brief Simple stand-in class used for unit tests.
 class asynNDArrayDriverStandIn : public asynNDArrayDriver {
 public:
   asynNDArrayDriverStandIn(const char *portName, int maxAddr, int numParams,
@@ -60,6 +63,7 @@ public:
   MOCK_METHOD3(createParam, asynStatus(const char *, asynParamType, int *));
 };
 
+/// @brief A testing fixture used for setting up unit tests.
 class KafkaConsumerEnv : public ::testing::Test {
 public:
   static void SetUpTestCase() {

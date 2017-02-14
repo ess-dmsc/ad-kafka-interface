@@ -137,7 +137,7 @@ bool KafkaProducer::SendKafkaPacket(unsigned char *buffer, size_t buffer_size) {
 }
 
 void KafkaProducer::event_cb(RdKafka::Event &event) {
-    //@todo This member function really needs some expanded capability
+    /// @todo This member function really needs some expanded capability
     switch (event.type()) {
     case RdKafka::Event::EVENT_ERROR:
         if (event.err() == RdKafka::ERR__ALL_BROKERS_DOWN) {
@@ -149,10 +149,10 @@ void KafkaProducer::event_cb(RdKafka::Event &event) {
         }
         break;
     case RdKafka::Event::EVENT_LOG:
-        //@todo Add message/log or something
+        /// @todo Add message/log or something
         break;
     case RdKafka::Event::EVENT_THROTTLE:
-        //@todo Add message/log or something
+        /// @todo Add message/log or something
         break;
     case RdKafka::Event::EVENT_STATS:
         ParseStatusString(event.str());
@@ -160,10 +160,10 @@ void KafkaProducer::event_cb(RdKafka::Event &event) {
     default:
         if ((event.type() == RdKafka::Event::EVENT_LOG) and
             (event.severity() == RdKafka::Event::EVENT_SEVERITY_ERROR)) {
-            //@todo Add message/log or something
+            /// @todo Add message/log or something
 
         } else {
-            //@todo Add message/log or something
+            /// @todo Add message/log or something
         }
     }
 }
@@ -174,7 +174,7 @@ void KafkaProducer::SetConStat(KafkaProducer::ConStat stat, std::string msg) {
 }
 
 void KafkaProducer::ParseStatusString(std::string msg) {
-    //@todo We should probably extract some more stats from the JSON message
+    /// @todo We should probably extract some more stats from the JSON message
     bool parseSuccess = reader.parse(msg, root);
     if (not parseSuccess) {
         SetConStat(KafkaProducer::ConStat::ERROR, "Status msg.: Unable to parse.");
@@ -199,9 +199,9 @@ void KafkaProducer::ParseStatusString(std::string msg) {
     setParam(paramCallback, paramsList.at(PV::msgs_in_queue), unsentMessages);
 }
 
-void KafkaProducer::AttemptFlushAtReconnect(bool flush, int flushTime) {
+void KafkaProducer::AttemptFlushAtReconnect(bool flush, int timeout_ms) {
     doFlush = flush;
-    KafkaProducer::flushTimeout = flushTime;
+    KafkaProducer::flushTimeout = timeout_ms;
 }
 
 void KafkaProducer::InitRdKafka() {

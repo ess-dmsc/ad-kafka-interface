@@ -1,10 +1,8 @@
-//
-//  PortName.cpp
-//  KafkaInterface
-//
-//  Created by Jonas Nilsson on 2017-02-06.
-//
-//
+/** Copyright (C) 2017 European Spallation Source */
+
+/** @file  PortName.cpp
+ *  @brief Implementation file for simple name generator.
+ */
 
 #include "PortName.h"
 

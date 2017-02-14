@@ -9,7 +9,7 @@
 #include <ciso646>
 #include <vector>
 
-NDArraySerializer::NDArraySerializer() : builder(FB_builder_buffer) {}
+NDArraySerializer::NDArraySerializer(const flatbuffers::uoffset_t bufferSize) : builder(bufferSize) {}
 
 void NDArraySerializer::SerializeData(NDArray &pArray, unsigned char *&bufferPtr,
                                       size_t &bufferSize) {
@@ -69,8 +69,6 @@ void NDArraySerializer::SerializeData(NDArray &pArray, unsigned char *&bufferPtr
     bufferPtr = builder.GetBufferPointer();
     bufferSize = builder.GetSize();
 }
-
-void NDArraySerializer::ReleaseSerializedData() { builder.ReleaseBufferPointer(); }
 
 FB_Tables::DType NDArraySerializer::GetFB_DType(NDDataType_t arrType) {
     switch (arrType) {

@@ -26,6 +26,7 @@ using ::testing::AtLeast;
 const std::string usedBrokerAddr = "some_broker";
 const std::string usedTopic = "some_topic";
 
+/// @brief Simple stand-in class used for unit tests.
 class KafkaPluginStandIn : public KafkaPlugin {
 public:
   KafkaPluginStandIn()
@@ -39,6 +40,7 @@ public:
   MOCK_METHOD2(setIntegerParam, asynStatus(int, int));
 };
 
+/// @brief A testing fixture used for setting up unit tests.
 class KafkaPluginEnv : public Test {
 public:
   static void SetUpTestCase(){

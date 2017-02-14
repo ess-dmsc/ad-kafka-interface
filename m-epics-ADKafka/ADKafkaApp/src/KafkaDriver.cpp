@@ -1,6 +1,6 @@
-/** Copyright (C) 2016 European Spallation Source */
+/** Copyright (C) 2017 European Spallation Source */
 
-/** @file  KafkaPlugin.cpp
+/** @file  KafkaDriver.cpp
  *  @brief C++ implementation file for an EPICS areaDetector Kafka-plugin.
  */
 
@@ -45,7 +45,7 @@ asynStatus KafkaDriver::writeOctet(asynUser *pasynUser, const char *value, size_
     // Do callbacks so higher layers see any changes
     status = (asynStatus)callParamCallbacks(addr, addr);
 
-    //@todo Part of the EPICS message logging system, should be expanded or removed
+    /// @todo Part of the EPICS message logging system, should be expanded or removed
     if (status) {
         epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize,
                       "%s:%s: status=%d, function=%d, value=%s", driverName, functionName, status,
@@ -311,8 +311,9 @@ void KafkaDriver::consumeTask() {
         if (pImage) {
             pImage->release();
         }
-        DeSerializeData(pImage, this->pNDArrayPool, (unsigned char *)fbImg->GetDataPtr(),
-                        fbImg->size());
+        /// @todo Make sure that there is actual a free NDArray to which copy the data.
+        DeSerializeData(this->pNDArrayPool, (unsigned char *)fbImg->GetDataPtr(),
+                        fbImg->size(), pImage);
         delete fbImg;
         fbImg = nullptr;
 

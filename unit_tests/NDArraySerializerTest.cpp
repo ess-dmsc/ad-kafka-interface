@@ -16,6 +16,7 @@
 #include <random>
 #include <set>
 
+/// @brief Simple stand-in class used for unit tests.
 class NDArraySerializerStandIn : public NDArraySerializer {
 public:
   using NDArraySerializer::GetFB_DType;
@@ -40,6 +41,7 @@ void CompareAttributes(NDArray *arr1, const FB_Tables::NDArray *arr2);
 
 void GenerateData(NDDataType_t type, size_t elements, void *ptr);
 
+/// @brief A testing fixture used for setting up unit tests.
 class Serializer : public ::testing::Test {
 public:
   static void SetUpTestCase(){
@@ -95,6 +97,7 @@ TEST_F(Serializer, SerializeTest) {
   delete sendArr;
 }
 
+/// @brief A testing fixture used for setting up unit tests.
 class DeSerializer : public ::testing::Test {
 public:
   static void SetUpTestCase() {
@@ -151,7 +154,7 @@ TEST_F(Serializer, SerializeDeserializeTest) {
           unsigned char *bufferPtr = nullptr;
           size_t bufferSize;
           ser.SerializeData(*sendArr, bufferPtr, bufferSize);
-          DeSerializeData(recvArr, recvPool, bufferPtr, bufferSize);
+          DeSerializeData(recvPool, bufferPtr, bufferSize, recvArr);
           CompareDataTypes(sendArr, recvArr);
           CompareSizeAndDims(sendArr, recvArr);
           CompareTimeStamps(sendArr, recvArr);

@@ -19,7 +19,7 @@
 static const char *driverName = "KafkaPlugin";
 
 void KafkaPlugin::processCallbacks(NDArray *pArray) {
-    //@todo Check the order of these calls and if all of them are needed.
+    /// @todo Check the order of these calls and if all of them are needed.
     NDArrayInfo_t arrayInfo;
 
     NDPluginDriver::processCallbacks(pArray);
@@ -78,7 +78,7 @@ asynStatus KafkaPlugin::writeOctet(asynUser *pasynUser, const char *value, size_
     // Do callbacks so higher layers see any changes
     status = (asynStatus)callParamCallbacks(addr, addr);
 
-    //@todo Part of the EPICS message logging system, should be expanded or removed
+    /// @todo Part of the EPICS message logging system, should be expanded or removed
     if (status) {
         epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize,
                       "%s:%s: status=%d, function=%d, value=%s", driverName, functionName, status,

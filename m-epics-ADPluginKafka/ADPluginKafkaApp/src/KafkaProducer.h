@@ -15,37 +15,146 @@
 #include <thread>
 #include <vector>
 
+/** @brief The KafkaInterface namespace is used primarily to seperate KafkaInterface::KafkaConsumer
+ * from the class with the same name in librdkafka.
+ */
 namespace KafkaInterface {
 
+/** @brief The class which handles the production of Kafka messages, i.e. it sends data to the
+ * broker.
+ * This can not do all the initialization steps on its own. Instead the following instructions for
+ * making the class ready to produce messages MUST be followed:
+ * 1. Call the constructor of the class.
+ * 2. Initialize the PV:s used by this class. Call KafkaConsumer::GetParams() to get PV definitons.
+ * 3. Call KafkaConsumer::RegisterParamCallbackClass() to enable setting of PV:s.
+ * 4. Call KafkaConsumer::StartThread() to enable periodic polling of the connection status to the
+ * Kafka brokers.
+ * @todo This class copies the data that is to be sent, make it so that it does not have to.
+ */
 class KafkaProducer : public RdKafka::EventCb {
-    //@todo This class copies the data that is to be sent, make it so that it does not have to.
   public:
+    /** @brief Sets up the producer to send messages to a Kafka broker.
+     * @note The steps for setting up this class as described in the class description MUST be
+     * followed.
+     * @param[in] broker The address of the Kafka broker in the form "address:port". Can take
+     * several addresses seperated by a comma (e.g. "address1:port1,address2:port2").
+     * @param[in] topic Topic from which the driver should consume messages. Note that only
+     * one topic can be specified.
+     * @param[in] queueSize The maximum number of messages that the librdkafka will store in its
+     * buffer.
+     */
     KafkaProducer(std::string broker, std::string topic, int queueSize = 10);
-
+    
+    /** @brief Simple consumer constructor which will not connect to a broker.
+     * @note After calling the constructor, the rest of the instructions given in the class
+     * description must also be followed.
+     * Requires the setting of a broker address and topic name before production can be started.
+     * @param[in] queueSize The maximum number of messages that the librdkafka will store in its
+     * buffer.
+     */
     KafkaProducer(int queueSize = 10);
-
+    
+    /** @brief Destructor.
+     * Will signal the stats thread to exit and will only return when it has done so which might
+     * take some time. Will attempt to gracefully shut down the Kafka connection.
+     */
     ~KafkaProducer();
-
+    
+    /** @brief Returns the PV definitions used by the KafkaInterface::Producer.
+     * KafkaInterface::KafkaProducer can not initialize its own PV:s as the driver needs to know:
+     * * How many PVs will be used in order to allocate enough memory for them.
+     * * The lowest index of the PVs that the driver is responsible for in order to determine which
+     * PV indexes has to be handled by a parent class.
+     * @return The definitions of the PVs which values are modified by this class. Note that the
+     * location of the index is kept track of by a std::shared_ptr.
+     */
     virtual std::vector<PV_param> &GetParams();
-
+    
+    /** @brief Used to register the param callback class.
+     * @note This member function must be called after the relevant PV:s have been initilaized. See
+     * the class documentation for more information.
+     * Will set the maximum message size PV when called.
+     * @param ptr Pointer to driver class instance.
+     */
     virtual void RegisterParamCallbackClass(asynNDArrayDriver *ptr);
-
+    
+    /** @brief Set topic to consume messages from.
+     * Will try to set a new topic and if successfull; will attempt to drop the current topic and
+     * connect to the new one.
+     * @param topicName The new topic.
+     * @return True on succes, false on failure.
+     */
     virtual bool SetTopic(std::string topicName);
+    
+    /** @brief Get the current topic name.
+     * Will return the topic name stored by KafkaInterface::KafkaProducer.
+     * @return The current topic name.
+     */
     virtual std::string GetTopic();
-
+    
+    /** @brief Set a new broker address.
+     * Will drop the current broker/topic connection and attept to create a new one using the new
+     * broker address. Has some limited error checking.
+     * @param[in] brokerAddr The new broker address to use.
+     * @return True on success, false on failure.
+     */
     virtual bool SetBrokerAddr(std::string brokerAddr);
+    
+    /** @brief Return the current broker address stored by KafkaInterface::KafkaProducer.
+     * @return The current broker address as configured using KafkaProducer::KafkaProducer() or
+     * KafkaProducer::SetBrokerAddr().
+     */
     virtual std::string GetBrokerAddr();
-
+    
+    /** @brief Used to set the maximum message size that the producer will handle.
+     * Note that the maximum message size has a hardcoded upper limit which currently is 1e9 bytes
+     * (approx. 954 MB). Will destroy the current connection and do a re-connect using the new
+     * limit.
+     * @param[in] msgSize Maximum message size in bytes.
+     * @return True on success and false on failure.
+     */
     virtual bool SetMaxMessageSize(size_t msgSize);
+    
+    /** @brief The maximum message size as stored by KafkaInterface::KafkaProducer.
+     * @return Maximum message size in number of bytes.
+     */
     virtual size_t GetMaxMessageSize();
-
+    
+    /** @brief Sets the maximum number of messages in the Kafka producer buffer.
+     * Callling this function will destroy the current connection and do a reconnect with the new
+     * setting if possible.
+     * @return True on success and false on failure.
+     */
     virtual bool SetMessageQueueLength(int queue);
+    
+    /** @brief Get the maximum number of queued messages in the Kafka producer buffer.
+     * @return The maximum number of messages.
+     */
     virtual int GetMessageQueueLength();
-
+    
+    /** @brief Set the Kafka connection stats time interval.
+     * Has some error checking to determine if it is possible to update this configuration and if it
+     * is successfull. Note that even if successfull, the actual time between stats messages can
+     * vary quite a bit based on how often KafkaConsumer::WaitForPkg() is called and other things.
+     * @param[in] time The time in milliseconds (ms) between the reporting of connection statistics
+     * by librdkafka.
+     * @return True on success, false on failure.
+     */
     virtual bool SetStatsTimeMS(int time);
+    
+    /** @brief Returns the current Kafka stats interval time as stored by KafkaConsumer.
+     * Does not guarantee that this is the acutal interval between times the connection stats are
+     * obtained.
+     */
     virtual int GetStatsTimeMS();
-
-    virtual void AttemptFlushAtReconnect(bool flush, int flushTime);
+    
+    /** @brief Set if the class should try to flush messages from the buffer when disconnecting
+     * from the broker.
+     * @param[in] flush Should a flush be attempted?
+     * @param[in] timeout_ms What is the timeout in milliseconds (ms) before the attempt should be
+     * abandoned.
+     */
+    virtual void AttemptFlushAtReconnect(bool flush, int timeout_ms);
 
     /** @brief Starts the thread that keeps track of the status of the Kafka connection.
      * @note Call this thread only after the PV parameters have been registered with the
@@ -62,15 +171,21 @@ class KafkaProducer : public RdKafka::EventCb {
     static int GetNumberOfPVs();
 
   protected:
-    size_t maxMessageSize; // In bytes
-    int msgQueueSize;
+    size_t maxMessageSize; /// @brief Stored maximum message size in bytes.
+    int msgQueueSize; /// @brief Stored maximum Kafka producer queue length.
 
-    bool doFlush; // Should we wait for existing messages to be sent before we close the connection?
-    int flushTimeout; // For how long should we wait.
-    bool errorState;  // Are we unable to init librdkafka?
-
+    bool doFlush; /// @brief Should a flush attempt be made at disconnect?
+    int flushTimeout; /// @brief What is the timeout of the flush attempt?
+    bool errorState;  /// @brief Set to true if librdkafka could not be initialized.
+    
+    /** @brief Helper function for cleanly shutting down a topic.
+     * Implements the flushing functionality.
+     */
     virtual void ShutDownTopic();
-
+    
+    /** @brief Helper function for shutting down and deallocating the producer.
+     * Also calls KafkaProducer::ShutDownTopic() if needed.
+     */
     virtual void ShutDownProducer();
 
     /** @brief Callback member function used by the status and error handling system of librdkafka.
@@ -83,6 +198,8 @@ class KafkaProducer : public RdKafka::EventCb {
     virtual void event_cb(RdKafka::Event &event);
 
     /** @brief Thread member function. Should only be called by KafkaProducer::StartThread().
+     * Uses std::this_thread::sleep_for() as it can not know if a producer and topic has been
+     * allocated.
      */
     virtual void ThreadFunction();
 
@@ -112,11 +229,12 @@ class KafkaProducer : public RdKafka::EventCb {
      */
     virtual void ParseStatusString(std::string msg);
 
-    // Some configuration values
-    int kafka_stats_interval = 500; // In ms
-    const int sleepTime = 50;       // Milliseconds sleeping between poll()-calls
-
-    mutable std::mutex brokerMutex;
+    int kafka_stats_interval = 500; /// @brief Saved Kafka connection stats interval in ms.
+    
+    /// @brief Sleep time between poll()-calls. See KafkaProducer::ThreadFunction().
+    const int sleepTime = 50;
+    
+    mutable std::mutex brokerMutex; /// @brief Prevents access to shared resources.
 
     /** @brief Attempts to init the Kafka producer system of librdkafka.
      * Failure to init the Kafka system results in a error message written to the relevant PV and
@@ -125,29 +243,48 @@ class KafkaProducer : public RdKafka::EventCb {
      * Kafka producer system that will attempt to connect to a broker.
      */
     virtual void InitRdKafka();
-
+    
+    /** @brief Helper function which recreates a broker connection.
+     * Attempts to close the current broker connection and create a new one based on the current
+     * configurations. Called by several other member functions.
+     */
     virtual bool MakeConnection();
 
-    // Variables used by the Kafka producer.
+    
+    /// @brief Used to take care of error strings returned by verious librdkafka functions.
     std::string errstr;
+    
+    /// @brief Stores the pointer to a librdkafka configruation object.
     RdKafka::Conf *conf = nullptr;
+    
+    /// @brief Stores the pointer to a librdkafka topic configruation object.
     RdKafka::Conf *tconf = nullptr;
+    
+    /// @brief Pointer to Kafka topic in librdkafka.
     RdKafka::Topic *topic = nullptr;
+    
+    /// @brief Pointer to Kafka producer in librdkafka.
     RdKafka::Producer *producer = nullptr;
 
-    std::string topicName;
-    std::string brokerAddrStr;
+    std::string topicName; /// @brief Stores the current topic used by the consumer.
+    std::string brokerAddrStr; /// @brief Stores the current broker address used by the consumer.
 
-    // Variables used by the JSON parser
+    /// @brief The root and broker json objects extracted from a json string.
     Json::Value root, brokers;
-    Json::Reader reader;
+    Json::Reader reader; /// @brief Parses std:string objects into a Json::value.
 
+    /// @brief C++11 thread which periodically polls for connection stats.
     std::thread statusThread;
-
+    
+    /** @brief The pointer to the actual driver class which instantiated this class. Required for
+     * updating PVs.
+     */
     asynNDArrayDriver *paramCallback;
-
+    
+    /// @brief Used to shut down the stats thread.
     std::atomic_bool runThread;
-
+    
+    /// @brief Used to keep track of the PV:s made available by this driver.
     enum PV {
         con_status,
         con_msg,
@@ -155,7 +292,8 @@ class KafkaProducer : public RdKafka::EventCb {
         max_msg_size,
         count,
     };
-
+    
+    /// @brief The list of PV:s created by the driver and their definition.
     std::vector<PV_param> paramsList = {
         PV_param("KAFKA_CONNECTION_STATUS", asynParamInt32),  // con_status
         PV_param("KAFKA_CONNECTION_MESSAGE", asynParamOctet), // con_msg

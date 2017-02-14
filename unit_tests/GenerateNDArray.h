@@ -1,8 +1,7 @@
 /** Copyright (C) 2017 European Spallation Source */
 
 /** @file  GenerateNDArray.h
- *  @brief Header file of the helper class which is used to generate fake data
- * for the unit tests.
+ *  @brief Header file of the helper class which is used to generate fake data for the unit tests.
  */
 
 #pragma once
