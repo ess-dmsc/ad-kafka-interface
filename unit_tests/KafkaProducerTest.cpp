@@ -224,7 +224,7 @@ TEST_F(KafkaProducerEnv, MaxMessagesInQueue) {
 }
 
 TEST_F(KafkaProducerEnv, TooManyMessagesInQueue) {
-  KafkaProducerStandIn prod("some_addr", "some_topic");
+  NiceMock<KafkaProducerStandIn> prod("some_addr", "some_topic");
   ON_CALL(prod, MakeConnection())
       .WillByDefault(
           Invoke(&prod, &KafkaProducerStandIn::MakeConnectionParent));
@@ -234,18 +234,18 @@ TEST_F(KafkaProducerEnv, TooManyMessagesInQueue) {
     *p.index.get() = ctr;
     ctr++;
   }
-  int sendMsgs = 11;
-  int msg_queued = *params[KafkaProducerStandIn::PV::msgs_in_queue].index.get();
+  int maxQueueSize = 11;
+  int msgsQueuedIndex = *params[KafkaProducerStandIn::PV::msgs_in_queue].index.get();
   ON_CALL(prod, SetConStat(_, _))
       .WillByDefault(Invoke(&prod, &KafkaProducerStandIn::SetConStatParent));
   prod.RegisterParamCallbackClass(plugin);
-  prod.SetMessageQueueLength(sendMsgs);
+  prod.SetMessageQueueLength(maxQueueSize);
   EXPECT_CALL(*plugin, setIntegerParam(_, _)).Times(AtLeast(0));
-  EXPECT_CALL(*plugin, setIntegerParam(Eq(msg_queued), Eq(sendMsgs)))
+  EXPECT_CALL(*plugin, setIntegerParam(Eq(msgsQueuedIndex), Eq(maxQueueSize)))
       .Times(AtLeast(1));
   prod.StartThread();
   std::string msg("Some message");
-  for (int i = 0; i < sendMsgs; i++) {
+  for (int i = 0; i < maxQueueSize; i++) {
     ASSERT_TRUE(prod.SendKafkaPacket((unsigned char *)msg.c_str(), msg.size()));
   }
   ASSERT_FALSE(prod.SendKafkaPacket((unsigned char *)msg.c_str(), msg.size()));

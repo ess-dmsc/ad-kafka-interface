@@ -131,6 +131,8 @@ TEST_F(KafkaDriverEnv, InitStatsTimeTest) {
 
 TEST_F(KafkaDriverEnv, ThreadRunningTest) {
   KafkaDriverStandIn drvr;
+    EXPECT_CALL(drvr, setStringParam(testing::Ne(drvr.ADStatusMessage), _))
+    .Times(AtLeast(0));
   EXPECT_CALL(drvr, setStringParam(Eq(drvr.ADStatusMessage), _))
       .Times(Exactly(1));
   epicsEventSignal(drvr.startEventId_);

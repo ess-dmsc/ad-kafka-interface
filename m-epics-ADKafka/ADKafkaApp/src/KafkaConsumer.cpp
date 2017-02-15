@@ -249,7 +249,7 @@ bool KafkaConsumer::SetBrokerAddr(std::string brokerAddr) {
         SetConStat(KafkaConsumer::ConStat::ERROR, "Can not set new broker.");
         return false;
     }
-    brokerAddr = brokerAddr;
+    KafkaConsumer::brokerAddr = brokerAddr;
     MakeConnection();
     return true;
 }

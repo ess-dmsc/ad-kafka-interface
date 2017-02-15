@@ -301,7 +301,7 @@ bool KafkaProducer::SetBrokerAddr(std::string brokerAddr) {
         SetConStat(KafkaProducer::ConStat::ERROR, "Can not set new broker.");
         return false;
     }
-    brokerAddr = brokerAddr;
+    KafkaProducer::brokerAddr = brokerAddr;
     brokerMutex.lock();
     if (nullptr != topic) {
         brokerMutex.unlock();
