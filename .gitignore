@@ -7,3 +7,4 @@ dbd/
 include/
 build/
 KafkaInterface.xcodeproj/*
+documentation/*

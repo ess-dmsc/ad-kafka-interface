@@ -40,6 +40,15 @@ set(driver_SRC "../m-epics-ADKafka/ADKafkaApp/src/")
 
 file(GLOB PLUGIN_SRC_FILES "${plugin_SRC}*.cpp")
 
+file(GLOB DRIVER_SRC_FILES "${driver_SRC}*.cpp")
+
+# The file jsoncpp.cpp is present in both EPICS modules. Remove it from one of them to build the unit tests.
+FOREACH(item ${DRIVER_SRC_FILES})
+  IF(${item} MATCHES "jsoncpp.cpp")
+    LIST(REMOVE_ITEM DRIVER_SRC_FILES ${item})
+  ENDIF(${item} MATCHES "jsoncpp.cpp")
+ENDFOREACH(item)
+
 find_path(rdkafka_INC NAMES librdkafka/rdkafka.h librdkafka/rdkafkacpp.h PATHS /usr/local/include)
 
 find_path(flatbuffers_INC NAMES flatbuffers/flatbuffers.h PATHS /usr/local/include)
@@ -60,7 +69,7 @@ if (${APPLE})
     
     link_directories("$ENV{EPICS_MODULES_PATH}/areaDetector/ADCore/lib/darwin-x86" "$ENV{EPICS_MODULES_PATH}/asyn/lib/darwin-x86" "$ENV{EPICS_BASE}/lib/darwin-x86")
 else()
-    set(E_VER "3.14.12.5")
+    set(E_VER "3.15.4")
     set(E_OS "centos7-x86_64")
     message(STATUS "Assuming Linux machine running the ESS EPICS environment.")
     include_directories("$ENV{EPICS_MODULES_PATH}/adcore/2.5.1/${E_VER}/include/" "$ENV{EPICS_BASE}/include/compiler/gcc/" "$ENV{EPICS_BASE}/include/os/Linux/" "$ENV{EPICS_MODULES_PATH}/asyn/4.27.0/${E_VER}/include/")
@@ -87,12 +96,14 @@ include_directories("$ENV{EPICS_BASE}/include")
 find_library(rdkafka_LIB NAMES rdkafka PATHS /usr/local/lib)
 find_library(rdkafkacpp_LIB NAMES rdkafka++ PATHS /usr/local/lib)
 
-add_executable(unit_tests ${TEST_FILES} ${PLUGIN_SRC_FILES} "${driver_SRC}/KafkaConsumer.cpp")
+add_executable(unit_tests ${TEST_FILES} ${PLUGIN_SRC_FILES} ${DRIVER_SRC_FILES})
 
 if (${APPLE})
     target_link_libraries(unit_tests gtest gmock_main NDPlugin ADBase asyn Com ${rdkafka_LIB} ${rdkafkacpp_LIB})
 else()
-    target_link_libraries(unit_tests gtest gmock_main xml sz busy calc seq ca dbIoc registryIoc ${ZLIB_LIBRARY} ${TIFF_LIBRARY} ${JPEG_LIBRARY} ${HDF5_LIBRARIES} normativeTypesCPP pvAccessCPP pvDataCPP pvDatabaseCPP adcore asyn Com ${rdkafka_LIB} ${rdkafkacpp_LIB})
+    target_link_libraries(unit_tests gtest gmock_main xml sz busy calc seq ca dbCore ${ZLIB_LIBRARY} ${TIFF_LIBRARY} ${JPEG_LIBRARY} ${HDF5_LIBRARIES} normativeTypesCPP pvAccessCPP pvDataCPP pvDatabaseCPP adcore asyn Com ${rdkafka_LIB} ${rdkafkacpp_LIB})
 endif()
+
+configure_file("someNDArray.data" "." COPYONLY)
 
 add_test(TestAll unit_tests)
