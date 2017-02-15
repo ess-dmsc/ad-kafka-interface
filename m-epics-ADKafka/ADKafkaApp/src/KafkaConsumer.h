@@ -12,6 +12,7 @@
 #include <librdkafka/rdkafkacpp.h>
 #include <string>
 #include <vector>
+#include <memory>
 
 /** @brief The KafkaInterface namespace is used primarily to seperate KafkaInterface::KafkaConsumer
  * from the class with the same name in librdkafka.

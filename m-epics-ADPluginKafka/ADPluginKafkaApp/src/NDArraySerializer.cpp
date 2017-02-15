@@ -8,6 +8,7 @@
 #include "NDArraySerializer.h"
 #include <ciso646>
 #include <vector>
+#include <memory>
 
 NDArraySerializer::NDArraySerializer(const flatbuffers::uoffset_t bufferSize)
     : builder(bufferSize) {}

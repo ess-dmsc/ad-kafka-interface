@@ -13,6 +13,7 @@
 #include <cstring>
 #include <random>
 #include <set>
+#include <memory>
 
 class NDArrayGenerator {
 public:
