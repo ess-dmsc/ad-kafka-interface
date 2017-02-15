@@ -26,21 +26,21 @@ class PV_param {
      */
     PV_param(std::string desc, asynParamType type, int index = 0)
         : desc(desc), type(type), index(new int(index)){};
-    
+
     /** @brief An empty constructor for PV_param. It is required by some parts of the code.
      * This constructor is required by some parts of the code though its use is minimised in order
      * decrease the probability of bugs. Will set the PV description to "Not used" which aids in
      * debugging.
      */
     PV_param() : desc("Not used"), type(asynParamType::asynParamNotDefined), index(nullptr){};
-    
+
     /// @brief Connection between index and database template name.
     const std::string desc;
-    
+
     /// @brief Data type of the PV.
     const asynParamType type;
-    
-    /// @brief The index of the PV, must be a std::shared_ptr<> in order to 
+
+    /// @brief The index of the PV, must be a std::shared_ptr<> in order to
     std::shared_ptr<int> index;
 };
 
@@ -55,7 +55,8 @@ class PV_param {
  * @return The minimum index set to the PV_param objects passed to the function. This minimum value
  * is used to keep track of which PV index should be handled by a parent class.
  */
-template <class asynNDArrType> int InitPvParams(asynNDArrType *driverPtr, std::vector<PV_param> &paramList) {
+template <class asynNDArrType>
+int InitPvParams(asynNDArrType *driverPtr, std::vector<PV_param> &paramList) {
     int minParamIndex = -1;
     for (auto &p : paramList) {
         driverPtr->createParam(p.desc.c_str(), p.type, p.index.get());
