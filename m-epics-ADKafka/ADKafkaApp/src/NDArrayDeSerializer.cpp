@@ -72,7 +72,7 @@ void DeSerializeData(NDArrayPool *pNDArrayPool, const unsigned char *bufferPtr, 
     void *pData = (void *)recvArr->pData()->Data();
     int pData_size = recvArr->pData()->size();
 
-    pArray = pNDArrayPool->alloc(int(dims.size()), dims.data(), dataType, 0, NULL);
+    pArray = pNDArrayPool->alloc(int(dims.size()), dims.data(), dataType, 0, nullptr);
 
     NDAttributeList *attrPtr = pArray->pAttributeList;
     attrPtr->clear();

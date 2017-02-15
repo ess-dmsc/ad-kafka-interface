@@ -253,10 +253,10 @@ class KafkaProducer : public RdKafka::EventCb {
     std::string errstr;
     
     /// @brief Stores the pointer to a librdkafka configruation object.
-    RdKafka::Conf *conf = nullptr;
+    std::unique_ptr<RdKafka::Conf> conf;
     
     /// @brief Stores the pointer to a librdkafka topic configruation object.
-    RdKafka::Conf *tconf = nullptr;
+    std::unique_ptr<RdKafka::Conf> tconf;
     
     /// @brief Pointer to Kafka topic in librdkafka.
     RdKafka::Topic *topic = nullptr;

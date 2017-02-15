@@ -14,7 +14,7 @@ int KafkaConsumer::GetNumberOfPVs() { return PV::count; }
 
 KafkaMessage::KafkaMessage(RdKafka::Message *msg) : msg(msg) {}
 
-KafkaMessage::~KafkaMessage() { delete msg; }
+KafkaMessage::~KafkaMessage() {}
 
 void *KafkaMessage::GetDataPtr() { return msg->payload(); }
 
@@ -22,7 +22,7 @@ size_t KafkaMessage::size() { return msg->len(); }
 
 KafkaConsumer::KafkaConsumer(std::string broker, std::string topic, std::string groupId)
     : topicName(topic), brokerAddr(broker), topicOffset(RdKafka::Topic::OFFSET_STORED),
-      consumer(nullptr), paramCallback(nullptr), conf(nullptr) {
+      consumer(nullptr), paramCallback(nullptr), conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)) {
     InitRdKafka(groupId);
     SetBrokerAddr(broker);
     SetTopic(topic);
@@ -30,7 +30,7 @@ KafkaConsumer::KafkaConsumer(std::string broker, std::string topic, std::string 
 
 KafkaConsumer::KafkaConsumer(std::string groupId)
     : topicOffset(RdKafka::Topic::OFFSET_STORED), consumer(nullptr), paramCallback(nullptr),
-      conf(nullptr) {
+      conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)) {
     InitRdKafka(groupId);
 }
 
@@ -41,14 +41,10 @@ KafkaConsumer::~KafkaConsumer() {
         delete consumer;
         consumer = nullptr;
     }
-    delete conf;
-    conf = nullptr;
 }
 
 void KafkaConsumer::InitRdKafka(std::string groupId) {
-    conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
-
-    if (NULL == conf) {
+    if (nullptr == conf.get()) {
         errorState = true;
         SetConStat(KafkaConsumer::ConStat::ERROR, "Can not create global conf object.");
         return;
@@ -89,7 +85,7 @@ bool KafkaConsumer::SetOffset(std::int64_t offset) {
         return false;
     }
     topicOffset = offset;
-    setParam(paramCallback, paramsList.at(msg_offset), offset);
+    setParam(paramCallback, paramsList.at(msg_offset), static_cast<int>(offset));
     UpdateTopic();
     return true;
 }
@@ -98,13 +94,13 @@ std::string KafkaConsumer::GetTopic() { return topicName; }
 
 std::string KafkaConsumer::GetBrokerAddr() { return brokerAddr; }
 
-KafkaMessage *KafkaConsumer::WaitForPkg(int timeout) {
+std::unique_ptr<KafkaMessage> KafkaConsumer::WaitForPkg(int timeout) {
     if (nullptr != consumer and topicName.size() > 0) {
         RdKafka::Message *msg = consumer->consume(timeout);
         if (msg->err() == RdKafka::ERR_NO_ERROR) {
             topicOffset = msg->offset();
             setParam(paramCallback, paramsList[PV::msg_offset], int(topicOffset));
-            return new KafkaMessage(msg);
+            return std::unique_ptr<KafkaMessage>(new KafkaMessage(msg));
         } else {
             delete msg;
             return nullptr;
@@ -220,7 +216,7 @@ bool KafkaConsumer::MakeConnection() {
         consumer = nullptr;
     }
     if (brokerAddr.size() > 0) {
-        consumer = RdKafka::KafkaConsumer::create(conf, errstr);
+        consumer = RdKafka::KafkaConsumer::create(conf.get(), errstr);
         if (nullptr == consumer) {
             SetConStat(KafkaConsumer::ConStat::ERROR, "Unable to create consumer.");
             return false;

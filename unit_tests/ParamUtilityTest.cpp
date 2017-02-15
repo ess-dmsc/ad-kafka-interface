@@ -68,7 +68,7 @@ public:
   static NDPluginDriverStandIn *plugin;
 };
 
-NDPluginDriverStandIn *ParamUtility::plugin = NULL;
+NDPluginDriverStandIn *ParamUtility::plugin = nullptr;
 
 MATCHER_P(CharToStringMatcher, matchStr, "") {
   return matchStr == std::string(arg);

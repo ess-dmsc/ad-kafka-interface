@@ -277,8 +277,8 @@ void CompareAttributes(NDArray *arr1, const FB_Tables::NDArray *arr2) {
   }
   ASSERT_EQ(compAttrList.size(), arr1->pAttributeList->count());
 
-  NDAttribute *cAttr = arr1->pAttributeList->next(NULL);
-  while (cAttr != NULL) {
+  NDAttribute *cAttr = arr1->pAttributeList->next(nullptr);
+  while (cAttr != nullptr) {
     ASSERT_NE(compAttrList.find(std::string(cAttr->getName())),
               compAttrList.end());
     const FB_Tables::NDAttribute *compAttr =
@@ -330,11 +330,11 @@ void CompareAttributes(NDArray *arr1, NDArray *arr2) {
 
   std::set<NDAttribute *> attrPtrs;
 
-  NDAttribute *cAttr = arr1->pAttributeList->next(NULL);
+  NDAttribute *cAttr = arr1->pAttributeList->next(nullptr);
   NDAttribute *compAttr;
-  while (cAttr != NULL) {
+  while (cAttr != nullptr) {
     compAttr = arr2->pAttributeList->find(cAttr->getName());
-    ASSERT_NE(NULL, long(compAttr));
+    ASSERT_NE(nullptr, compAttr);
 
     ASSERT_EQ(std::string(cAttr->getDescription()),
               std::string(compAttr->getDescription()));

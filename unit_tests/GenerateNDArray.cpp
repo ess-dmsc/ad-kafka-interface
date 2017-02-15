@@ -38,13 +38,12 @@ void GenerateData(NDDataType_t type, size_t elements, void *usedPtr) {
   }
 }
 
-NDArrayGenerator::NDArrayGenerator() {
+NDArrayGenerator::NDArrayGenerator() : sendPool(new NDArrayPool(1, 0)) {
   idCtr = 0;
-  sendPool = new NDArrayPool(1, 0);
   eng = std::default_random_engine(r());
 }
 
-NDArrayGenerator::~NDArrayGenerator() { delete sendPool; }
+NDArrayGenerator::~NDArrayGenerator() { }
 
 std::string NDArrayGenerator::RandomString(size_t length) {
   auto randchar = []() -> char {
@@ -159,7 +158,7 @@ NDArray *NDArrayGenerator::GenerateNDArray(size_t numAttr, size_t numElem,
     elements *= (numElem + k * 2);
     usedDimensions.push_back(numElem + k * 2);
   }
-  NDArray *pArr = sendPool->alloc(dims, usedDimensions.data(), dType, 0, NULL);
+  NDArray *pArr = sendPool->alloc(dims, usedDimensions.data(), dType, 0, nullptr);
   GenerateData(dType, elements, pArr->pData);
   pArr->uniqueId = idCtr;
   idCtr++;

@@ -122,19 +122,17 @@ TEST_F(KafkaConsumerEnv, ConnectionFailTest) {
 TEST_F(KafkaConsumerEnv, StatsTest) {
   KafkaConsumerStandIn cons("some_broker", "some_topic");
   EXPECT_CALL(cons, ParseStatusString(_)).Times(AtLeast(1));
-  KafkaMessage *msg = cons.WaitForPkg(1000);
-  delete msg;
+  auto msg = cons.WaitForPkg(1000);
 }
 
 TEST_F(KafkaConsumerEnv, NoWaitTest) {
   KafkaConsumer cons;
   auto start = std::chrono::steady_clock::now();
-  KafkaMessage *msg = cons.WaitForPkg(1000);
+  auto msg = cons.WaitForPkg(1000);
   auto duration = std::chrono::duration_cast<TimeT>(
       std::chrono::steady_clock::now() - start);
   ASSERT_LT(duration.count(), 100);
   ASSERT_EQ(msg, nullptr);
-  delete msg;
 }
 
 TEST_F(KafkaConsumerEnv, SetOffsetSuccess1Test) {
@@ -203,12 +201,11 @@ TEST_F(KafkaConsumerEnv, WaitTest) {
 
   int waitTime = 1000;
 
-  KafkaMessage *msg = cons.WaitForPkg(waitTime);
+  auto msg = cons.WaitForPkg(waitTime);
   auto duration = std::chrono::duration_cast<TimeT>(
       std::chrono::steady_clock::now() - start);
   ASSERT_GE(duration.count(), waitTime - 10);
   ASSERT_EQ(msg, nullptr);
-  delete msg;
 }
 
 TEST_F(KafkaConsumerEnv, StatsQueueTest) {
@@ -223,9 +220,8 @@ TEST_F(KafkaConsumerEnv, StatsQueueTest) {
   int queueIndex = *params[KafkaConsumerStandIn::PV::msgs_in_queue].index;
   EXPECT_CALL(*asynDrvr, setIntegerParam(_, _)).Times(AtLeast(1));
   EXPECT_CALL(*asynDrvr, setIntegerParam(Eq(queueIndex), _)).Times(AtLeast(1));
-  KafkaMessage *msg = cons.WaitForPkg(1000);
+  auto msg = cons.WaitForPkg(1000);
 
-  delete msg;
   Mock::VerifyAndClear(asynDrvr);
 }
 
@@ -241,9 +237,8 @@ TEST_F(KafkaConsumerEnv, StatsStatusTest) {
   int statusIndex = *params[KafkaConsumerStandIn::PV::con_status].index;
   EXPECT_CALL(*asynDrvr, setIntegerParam(_, _)).Times(AtLeast(1));
   EXPECT_CALL(*asynDrvr, setIntegerParam(Eq(statusIndex), _)).Times(AtLeast(1));
-  KafkaMessage *msg = cons.WaitForPkg(1000);
-
-  delete msg;
+  auto msg = cons.WaitForPkg(1000);
+  
   Mock::VerifyAndClear(asynDrvr);
 }
 

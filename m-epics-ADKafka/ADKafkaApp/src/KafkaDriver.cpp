@@ -221,7 +221,7 @@ KafkaDriver::KafkaDriver(const char *portName, int maxBuffers, size_t maxMemory,
     /* Create the thread that updates the images */
     status = (epicsThreadCreate("ConsumeKafkaMsgsTask", epicsThreadPriorityMedium,
                                 epicsThreadGetStackSize(epicsThreadStackMedium),
-                                (EPICSTHREADFUNC)consumeTaskC, this) == NULL);
+                                (EPICSTHREADFUNC)consumeTaskC, this) == nullptr);
     if (status) {
         printf("%s:%s epicsThreadCreate failure for image task\n", driverName, functionName);
         return;
@@ -259,7 +259,7 @@ void KafkaDriver::consumeTask() {
                 if (not keepThreadAlive) {
                     goto exitConsumeTaskLabel; //This is justified in my opinion
                 }
-                KafkaInterface::KafkaMessage *fbImg = consumer.WaitForPkg(0);
+                auto fbImg = consumer.WaitForPkg(0);
                 if (fbImg != nullptr) {
                     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
                               "%s:%s: Got Kafka msg when none should be received.\n", driverName,
@@ -301,22 +301,22 @@ void KafkaDriver::consumeTask() {
         /* Update the image */
         getDoubleParam(ADAcquirePeriod, &acquirePeriod);
         this->unlock();
-        KafkaInterface::KafkaMessage *fbImg = consumer.WaitForPkg(int(acquirePeriod * 1000));
-        this->lock();
+        {
+            auto fbImg = consumer.WaitForPkg(int(acquirePeriod * 1000));
+            this->lock();
 
-        // If we get no image, go to start of loop
-        if (nullptr == fbImg)
-            continue;
+            // If we get no image, go to start of loop
+            if (nullptr == fbImg)
+                continue;
 
-        // We can only now if there is any data in the NDArray at this point
-        if (pImage) {
-            pImage->release();
-        }
-        /// @todo Make sure that there is actual a free NDArray to which copy the data.
-        DeSerializeData(this->pNDArrayPool, (unsigned char *)fbImg->GetDataPtr(),
+            // We can only now if there is any data in the NDArray at this point
+            if (pImage) {
+                pImage->release();
+            }
+            /// @todo Make sure that there is actual a free NDArray to which copy the data.
+            DeSerializeData(this->pNDArrayPool, (unsigned char *)fbImg->GetDataPtr(),
                         fbImg->size(), pImage);
-        delete fbImg;
-        fbImg = nullptr;
+        }
 
         /* Close the shutter */
         setShutter(ADShutterClosed);

@@ -25,7 +25,7 @@ class PV_param {
      * @param[in] index The index value of the PV.
      */
     PV_param(std::string desc, asynParamType type, int index = 0)
-        : desc(desc), type(type), index(new int(index)){};
+    : desc(desc), type(type), index(std::make_shared<int>(index)){};
 
     /** @brief An empty constructor for PV_param. It is required by some parts of the code.
      * This constructor is required by some parts of the code though its use is minimised in order

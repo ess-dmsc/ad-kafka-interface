@@ -14,8 +14,8 @@ namespace KafkaInterface {
 int KafkaProducer::GetNumberOfPVs() { return PV::count; }
 
 KafkaProducer::KafkaProducer(std::string broker, std::string topic, int queueSize)
-    : errorState(false), doFlush(true), topic(nullptr), producer(nullptr), conf(nullptr),
-      tconf(nullptr), flushTimeout(500), maxMessageSize(1000000), topicName(topic),
+    : errorState(false), doFlush(true), topic(nullptr), producer(nullptr), conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)),
+      tconf(RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC)), flushTimeout(500), maxMessageSize(1000000), topicName(topic),
       runThread(false), paramCallback(nullptr), msgQueueSize(queueSize) {
     InitRdKafka();
     SetBrokerAddr(broker);
@@ -23,8 +23,8 @@ KafkaProducer::KafkaProducer(std::string broker, std::string topic, int queueSiz
 }
 
 KafkaProducer::KafkaProducer(int queueSize)
-    : errorState(false), doFlush(true), topic(nullptr), producer(nullptr), conf(nullptr),
-      tconf(nullptr), flushTimeout(500), maxMessageSize(1000000), runThread(false),
+    : errorState(false), doFlush(true), topic(nullptr), producer(nullptr), conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)),
+      tconf(RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC)), flushTimeout(500), maxMessageSize(1000000), runThread(false),
       paramCallback(nullptr), msgQueueSize(queueSize) {
     InitRdKafka();
 }
@@ -36,10 +36,6 @@ KafkaProducer::~KafkaProducer() {
     }
     ShutDownTopic();
     ShutDownProducer();
-    delete tconf;
-    tconf = nullptr;
-    delete conf;
-    conf = nullptr;
 }
 
 bool KafkaProducer::StartThread() {
@@ -128,7 +124,7 @@ bool KafkaProducer::SendKafkaPacket(unsigned char *buffer, size_t buffer_size) {
     }
     RdKafka::ErrorCode resp =
         producer->produce(topic, -1, RdKafka::Producer::RK_MSG_COPY /* Copy payload */, buffer,
-                          buffer_size, NULL, NULL);
+                          buffer_size, nullptr, nullptr);
 
     if (RdKafka::ERR_NO_ERROR != resp) {
         SetConStat(KafkaProducer::ConStat::ERROR,
@@ -208,16 +204,13 @@ void KafkaProducer::AttemptFlushAtReconnect(bool flush, int timeout_ms) {
 }
 
 void KafkaProducer::InitRdKafka() {
-    conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
-    tconf = RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC);
-
-    if (NULL == conf) {
+    if (nullptr == conf) {
         errorState = true;
         SetConStat(KafkaProducer::ConStat::ERROR, "Can not create global conf object.");
         return;
     }
 
-    if (NULL == tconf) {
+    if (nullptr == tconf) {
         errorState = true;
         SetConStat(KafkaProducer::ConStat::ERROR, "Can not create topic conf object.");
         return;
@@ -277,7 +270,7 @@ bool KafkaProducer::SetTopic(std::string topicName) {
     }
     std::lock_guard<std::mutex> lock(brokerMutex);
     if (nullptr != producer) {
-        topic = RdKafka::Topic::create(producer, topicName, tconf, errstr);
+        topic = RdKafka::Topic::create(producer, topicName, tconf.get(), errstr);
         if (nullptr == topic) {
             SetConStat(KafkaProducer::ConStat::ERROR, "Unable to create topic.");
             return false;
@@ -322,13 +315,13 @@ bool KafkaProducer::MakeConnection() {
     std::lock_guard<std::mutex> lock(brokerMutex);
     if (nullptr == producer and nullptr == topic) {
         if (brokerAddr.size() > 0) {
-            producer = RdKafka::Producer::create(conf, errstr);
-            if (NULL == producer) {
+            producer = RdKafka::Producer::create(conf.get(), errstr);
+            if (nullptr == producer) {
                 SetConStat(KafkaProducer::ConStat::ERROR, "Unable to create producer.");
                 return false;
             }
             if (topicName.size() != 0) {
-                topic = RdKafka::Topic::create(producer, topicName, tconf, errstr);
+                topic = RdKafka::Topic::create(producer, topicName, tconf.get(), errstr);
                 if (nullptr == topic) {
                     SetConStat(KafkaProducer::ConStat::ERROR, "Unable to create topic.");
                     return false;
@@ -342,7 +335,7 @@ bool KafkaProducer::MakeConnection() {
         }
     } else if (nullptr != producer and nullptr == topic) {
         if (topicName.size() != 0) {
-            topic = RdKafka::Topic::create(producer, topicName, tconf, errstr);
+            topic = RdKafka::Topic::create(producer, topicName, tconf.get(), errstr);
             if (nullptr == topic) {
                 SetConStat(KafkaProducer::ConStat::ERROR, "Unable to create topic.");
                 return false;

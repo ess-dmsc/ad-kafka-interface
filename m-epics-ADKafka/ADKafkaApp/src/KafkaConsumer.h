@@ -42,7 +42,7 @@ class KafkaMessage {
 
   private:
     /// @brief The pointer to the actual RdKafka::Message.
-    RdKafka::Message *msg;
+    std::unique_ptr<RdKafka::Message> msg;
 };
 
 /** @brief Consumes Kafka messages and returns a pointer to those messages for deserialisation.
@@ -132,7 +132,7 @@ class KafkaConsumer : public RdKafka::EventCb {
      * correctly, returns nullptr. Returns a pointer to a KafkaInterface::KafkaMessage on success.
      * Note that the caller is responsible for calling delete on the returned pointer.
      */
-    virtual KafkaMessage *WaitForPkg(int timeout);
+    virtual std::unique_ptr<KafkaMessage> WaitForPkg(int timeout);
     
     /** @brief Start the consumption of messages.
      * KafkaInterface::KafkaConsumer does not start consumption automatically. This function must be
@@ -304,7 +304,7 @@ class KafkaConsumer : public RdKafka::EventCb {
     std::string errstr;
     
     /// @brief Stores the pointer to a librdkafka configruation object.
-    RdKafka::Conf *conf = nullptr;
+    std::unique_ptr<RdKafka::Conf> conf;
     
     /// @brief Pointer to Kafka consumer in librdkafka.
     RdKafka::KafkaConsumer *consumer = nullptr;

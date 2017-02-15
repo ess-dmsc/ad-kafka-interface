@@ -46,5 +46,5 @@ private:
   std::default_random_engine eng;
   std::random_device r;
   int idCtr;
-  NDArrayPool *sendPool;
+    std::unique_ptr<NDArrayPool> sendPool;
 };

@@ -32,10 +32,10 @@ void NDArraySerializer::SerializeData(NDArray &pArray, unsigned char *&bufferPtr
     std::vector<flatbuffers::Offset<FB_Tables::NDAttribute>> attrVec;
 
     // When passing NULL, get first element
-    NDAttribute *attr_ptr = pArray.pAttributeList->next(NULL);
+    NDAttribute *attr_ptr = pArray.pAttributeList->next(nullptr);
 
     // Itterate over attributes, next(ptr) returns NULL when there are no more
-    while (attr_ptr != NULL) {
+    while (attr_ptr != nullptr) {
         auto temp_attr_str = builder.CreateString(attr_ptr->getName());
         auto temp_attr_desc = builder.CreateString(attr_ptr->getDescription());
         auto temp_attr_src = builder.CreateString(attr_ptr->getSource());
@@ -44,10 +44,10 @@ void NDArraySerializer::SerializeData(NDArray &pArray, unsigned char *&bufferPtr
         attr_ptr->getValueInfo(&c_type, &bytes);
         auto attrDType = GetFB_DType(c_type);
 
-        char *attrValueBuffer = new char[bytes];
-        int attrValueRes = attr_ptr->getValue(c_type, (void *)attrValueBuffer, bytes);
+        std::unique_ptr<char[]> attrValueBuffer(new char[bytes]);
+        int attrValueRes = attr_ptr->getValue(c_type, (void *)attrValueBuffer.get(), bytes);
         if (ND_SUCCESS == attrValueRes) {
-            auto attrValuePayload = builder.CreateVector((unsigned char *)attrValueBuffer, bytes);
+            auto attrValuePayload = builder.CreateVector((unsigned char *)attrValueBuffer.get(), bytes);
 
             auto attr = FB_Tables::CreateNDAttribute(builder, temp_attr_str, temp_attr_desc,
                                                      temp_attr_src, attrDType, attrValuePayload);
@@ -55,7 +55,6 @@ void NDArraySerializer::SerializeData(NDArray &pArray, unsigned char *&bufferPtr
         } else {
             std::abort();
         }
-        delete[] attrValueBuffer;
 
         attr_ptr = pArray.pAttributeList->next(attr_ptr);
     }
