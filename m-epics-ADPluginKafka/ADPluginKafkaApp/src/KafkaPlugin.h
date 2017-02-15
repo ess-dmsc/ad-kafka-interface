@@ -91,7 +91,7 @@ class epicsShareClass KafkaPlugin : public NDPluginDriver {
     int MIN_PARAM_INDEX;
     
     /// @brief The kafka producer which is used to send serialized NDArray data to the broker.
-    KafkaProducer prod;
+    KafkaProducer producer;
     
     /// @brief The class instance used to serialize NDArray data.
     NDArraySerializer serializer;

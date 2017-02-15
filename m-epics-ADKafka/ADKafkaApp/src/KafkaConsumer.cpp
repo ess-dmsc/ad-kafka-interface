@@ -21,7 +21,7 @@ void *KafkaMessage::GetDataPtr() { return msg->payload(); }
 size_t KafkaMessage::size() { return msg->len(); }
 
 KafkaConsumer::KafkaConsumer(std::string broker, std::string topic, std::string groupId)
-    : topicName(topic), brokerAddrStr(broker), topicOffset(RdKafka::Topic::OFFSET_STORED),
+    : topicName(topic), brokerAddr(broker), topicOffset(RdKafka::Topic::OFFSET_STORED),
       consumer(nullptr), paramCallback(nullptr), conf(nullptr) {
     InitRdKafka(groupId);
     SetBrokerAddr(broker);
@@ -96,7 +96,7 @@ bool KafkaConsumer::SetOffset(std::int64_t offset) {
 
 std::string KafkaConsumer::GetTopic() { return topicName; }
 
-std::string KafkaConsumer::GetBrokerAddr() { return brokerAddrStr; }
+std::string KafkaConsumer::GetBrokerAddr() { return brokerAddr; }
 
 KafkaMessage *KafkaConsumer::WaitForPkg(int timeout) {
     if (nullptr != consumer and topicName.size() > 0) {
@@ -219,7 +219,7 @@ bool KafkaConsumer::MakeConnection() {
         delete consumer;
         consumer = nullptr;
     }
-    if (brokerAddrStr.size() > 0) {
+    if (brokerAddr.size() > 0) {
         consumer = RdKafka::KafkaConsumer::create(conf, errstr);
         if (nullptr == consumer) {
             SetConStat(KafkaConsumer::ConStat::ERROR, "Unable to create consumer.");
@@ -249,7 +249,7 @@ bool KafkaConsumer::SetBrokerAddr(std::string brokerAddr) {
         SetConStat(KafkaConsumer::ConStat::ERROR, "Can not set new broker.");
         return false;
     }
-    brokerAddrStr = brokerAddr;
+    brokerAddr = brokerAddr;
     MakeConnection();
     return true;
 }

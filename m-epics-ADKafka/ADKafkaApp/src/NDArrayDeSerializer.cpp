@@ -62,7 +62,6 @@ NDAttrDataType_t GetND_AttrDType(FB_Tables::DType attrType) {
 
 void DeSerializeData(NDArrayPool *pNDArrayPool, const unsigned char *bufferPtr, const size_t size,
                      NDArray *&pArray) {
-
     auto recvArr = FB_Tables::GetNDArray(bufferPtr);
     int id = recvArr->id();
     double timeStamp = recvArr->timeStamp();

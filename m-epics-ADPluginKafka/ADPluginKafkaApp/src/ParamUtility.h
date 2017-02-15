@@ -84,13 +84,13 @@ asynStatus setParam(asynNDArrType *driverPtr, const PV_param &param, const std::
     if (nullptr == driverPtr or 0 == *param.index) {
         return asynStatus::asynError;
     }
-    asynStatus ret;
+    asynStatus retStatus;
     if (asynParamOctet == param.type) {
-        ret = driverPtr->setStringParam(*param.index, value.c_str());
+        retStatus = driverPtr->setStringParam(*param.index, value.c_str());
     } else {
         std::abort();
     }
-    return ret;
+    return retStatus;
 }
 
 /** @brief Overloaded function used to set PV integer values.
@@ -109,11 +109,11 @@ asynStatus setParam(asynNDArrType *driverPtr, const PV_param &param, const int v
     if (nullptr == driverPtr or 0 == *param.index) {
         return asynStatus::asynError;
     }
-    asynStatus ret;
+    asynStatus retStatus;
     if (asynParamInt32 == param.type) {
-        ret = driverPtr->setIntegerParam(*param.index, value);
+        retStatus = driverPtr->setIntegerParam(*param.index, value);
     } else {
         std::abort();
     }
-    return ret;
+    return retStatus;
 }

@@ -18,8 +18,7 @@ public:
   NDArrayGenerator();
   ~NDArrayGenerator();
 
-  NDArray *GenerateNDArray(size_t numAttr, size_t numElem, int dims,
-                           NDDataType_t dType);
+  NDArray *GenerateNDArray(size_t numAttr, size_t numElem, int dims, NDDataType_t dType);
   std::set<std::string> usedAttrStrings;
 
 private:

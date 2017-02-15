@@ -86,7 +86,9 @@ asynStatus KafkaDriver::writeInt32(asynUser *pasynUser, epicsInt32 value) {
         }
     }
     callParamCallbacks();
-
+    
+    // We need to determine which index is used to store the current message offset
+    // This could probably be a bit nicer
     for (auto pv : consumer.GetParams()) {
         if (*pv.index == function) {
             if ("KAFKA_CURRENT_OFFSET" == pv.desc) {
@@ -197,20 +199,19 @@ KafkaDriver::KafkaDriver(const char *portName, int maxBuffers, size_t maxMemory,
 
     MIN_PARAM_INDEX = InitPvParams(this, paramsList);
 
-    // The following three calls must be made in this particular order
+    // The following two calls must be made in this particular order
     InitPvParams(this, consumer.GetParams());
     consumer.RegisterParamCallbackClass(this);
-
+    
+    //Set start values in the PV database.
     status = setParam(this, paramsList.at(PV::kafka_addr), brokerAddress);
     status |= setParam(this, paramsList.at(PV::kafka_topic), brokerTopic);
     status |= setParam(this, paramsList.at(PV::kafka_group), consumer.GetGroupId());
     status |= setParam(this, paramsList.at(PV::stats_time), consumer.GetStatsTimeMS());
     status |= setParam(this, paramsList.at(PV::set_offset), usedOffsetSetting);
 
-    // Disable ArrayCallbacks.
-    // This plugin currently does not do array callbacks, so make the setting
-    // reflect the behavior
-    setIntegerParam(NDArrayCallbacks, 0);
+    // Array callbacks are required to send data to plugins
+    setIntegerParam(NDArrayCallbacks, 1);
 
     if (status) {
         printf("%s: unable to set camera parameters\n", functionName);
@@ -251,12 +252,12 @@ void KafkaDriver::consumeTask() {
             this->unlock();
             status = asynStatus::asynTimeout;
             startWaitTimeout = consumer.GetStatsTimeMS() / 1000.0;
-            //            status = epicsEventWait(startEventId_);
             consumer.StopConsumption();
+            // Loop waiting for start acquisition event
             while (status == asynStatus::asynTimeout) {
                 status = epicsEventWaitWithTimeout(startEventId_, startWaitTimeout);
                 if (not keepThreadAlive) {
-                    goto exitConsumeTaskLabel;
+                    goto exitConsumeTaskLabel; //This is justified in my opinion
                 }
                 KafkaInterface::KafkaMessage *fbImg = consumer.WaitForPkg(0);
                 if (fbImg != nullptr) {
@@ -307,7 +308,7 @@ void KafkaDriver::consumeTask() {
         if (nullptr == fbImg)
             continue;
 
-        // Copy data to an NDArray
+        // We can only now if there is any data in the NDArray at this point
         if (pImage) {
             pImage->release();
         }
@@ -328,7 +329,7 @@ void KafkaDriver::consumeTask() {
         /* Call the callbacks to update any changes */
         callParamCallbacks();
 
-        /* Get the current parameters */
+        /* Get/set the current parameters */
         setIntegerParam(NDArrayCounter, pImage->uniqueId);
 
         getIntegerParam(ADNumImagesCounter, &numImagesCounter);

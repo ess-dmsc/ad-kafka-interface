@@ -19,6 +19,8 @@
 static const char *driverName = "KafkaPlugin";
 
 void KafkaPlugin::processCallbacks(NDArray *pArray) {
+    // We do not need to call reserve/release as this is done by the caller when in blocking mode
+    // and by the thread in non-blocking mode.
     /// @todo Check the order of these calls and if all of them are needed.
     NDArrayInfo_t arrayInfo;
 
@@ -31,7 +33,7 @@ void KafkaPlugin::processCallbacks(NDArray *pArray) {
 
     serializer.SerializeData(*pArray, bufferPtr, bufferSize);
     this->unlock();
-    bool addToQueueSuccess = prod.SendKafkaPacket(bufferPtr, bufferSize);
+    bool addToQueueSuccess = producer.SendKafkaPacket(bufferPtr, bufferSize);
     this->lock();
     if (not addToQueueSuccess) {
         int droppedArrays;
@@ -39,14 +41,6 @@ void KafkaPlugin::processCallbacks(NDArray *pArray) {
         droppedArrays++;
         setIntegerParam(NDPluginDriverDroppedArrays, droppedArrays);
     }
-
-    // Get rid of old saved NDArray and then store the latest array
-    //    if (this->pArrays[0])
-    //        this->pArrays[0]->release();
-    //    pArray->reserve();
-    //    this->pArrays[0] = pArray;
-    // We probably do not need that part anymore
-
     callParamCallbacks();
 }
 
@@ -67,10 +61,10 @@ asynStatus KafkaPlugin::writeOctet(asynUser *pasynUser, const char *value, size_
     std::string tempStr;
     if (function == *paramsList.at(PV::kafka_addr).index) {
         tempStr = std::string(value, nChars);
-        prod.SetBrokerAddr(tempStr);
+        producer.SetBrokerAddr(tempStr);
     } else if (function == *paramsList.at(PV::kafka_topic).index) {
         tempStr = std::string(value, nChars);
-        prod.SetTopic(tempStr);
+        producer.SetTopic(tempStr);
     } else if (function < MIN_PARAM_INDEX) {
         status = NDPluginDriver::writeOctet(pasynUser, value, nChars, nActual);
     }
@@ -78,7 +72,6 @@ asynStatus KafkaPlugin::writeOctet(asynUser *pasynUser, const char *value, size_
     // Do callbacks so higher layers see any changes
     status = (asynStatus)callParamCallbacks(addr, addr);
 
-    /// @todo Part of the EPICS message logging system, should be expanded or removed
     if (status) {
         epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize,
                       "%s:%s: status=%d, function=%d, value=%s", driverName, functionName, status,
@@ -102,9 +95,9 @@ asynStatus KafkaPlugin::writeInt32(asynUser *pasynUser, epicsInt32 value) {
     status = (asynStatus)setIntegerParam(function, value);
 
     if (function == *paramsList[stats_time].index) {
-        prod.SetStatsTimeMS(value);
+        producer.SetStatsTimeMS(value);
     } else if (function == *paramsList[queue_size].index) {
-        prod.SetMessageQueueLength(value);
+        producer.SetMessageQueueLength(value);
     } else {
         /* If this parameter belongs to a base class call its method */
         if (function < MIN_PARAM_INDEX)
@@ -131,20 +124,20 @@ KafkaPlugin::KafkaPlugin(const char *portName, int queueSize, int blockingCallba
     : NDPluginDriver(portName, queueSize, blockingCallbacks, NDArrayPort, NDArrayAddr, 1,
                      PV::count + KafkaProducer::GetNumberOfPVs(), 2, maxMemory, intMask, intMask, 0,
                      1, priority, stackSize),
-      prod(brokerAddress, brokerTopic) {
+      producer(brokerAddress, brokerTopic) {
 
     MIN_PARAM_INDEX = InitPvParams(this, paramsList);
 
     // The following three calls must be made in this particular order
-    InitPvParams(this, prod.GetParams());
-    prod.RegisterParamCallbackClass(this);
-    prod.StartThread();
+    InitPvParams(this, producer.GetParams());
+    producer.RegisterParamCallbackClass(this);
+    producer.StartThread();
 
     setStringParam(NDPluginDriverPluginType, "KafkaPlugin");
     setParam(this, paramsList.at(PV::kafka_addr), brokerAddress);
     setParam(this, paramsList.at(PV::kafka_topic), brokerTopic);
-    setParam(this, paramsList.at(PV::stats_time), prod.GetStatsTimeMS());
-    setParam(this, paramsList.at(PV::queue_size), prod.GetMessageQueueLength());
+    setParam(this, paramsList.at(PV::stats_time), producer.GetStatsTimeMS());
+    setParam(this, paramsList.at(PV::queue_size), producer.GetMessageQueueLength());
 
     // Disable ArrayCallbacks.
     // This plugin currently does not do array callbacks, so make the setting

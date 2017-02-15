@@ -32,7 +32,7 @@ public:
   KafkaPluginStandIn()
       : KafkaPlugin(PortName().c_str(), 10, 1, "some_arr_port", 1, 0, 1, 1,
                     usedBrokerAddr.c_str(), usedTopic.c_str()){};
-  using KafkaPlugin::prod;
+  using KafkaPlugin::producer;
   using KafkaPlugin::paramsList;
   using KafkaPlugin::PV;
   using asynPortDriver::pasynUserSelf;
@@ -64,7 +64,7 @@ TEST_F(KafkaPluginEnv, InitParamsIndexTest) {
     ASSERT_NE(*p.index, 0);
   }
 
-  for (auto &p : plugin.prod.GetParams()) {
+  for (auto &p : plugin.producer.GetParams()) {
     ASSERT_NE(*p.index, 0);
   }
 }
@@ -76,14 +76,14 @@ TEST_F(KafkaPluginEnv, ParameterCountTest) {
 
 TEST_F(KafkaPluginEnv, InitIsErrorStateTest) {
   KafkaPluginStandIn plugin;
-  ASSERT_TRUE(plugin.prod.SetStatsTimeMS(10000));
+  ASSERT_TRUE(plugin.producer.SetStatsTimeMS(10000));
 }
 
 TEST_F(KafkaPluginEnv, ParamCallbackIsSetTest) {
   KafkaPluginStandIn plugin;
   int usedValue = 5000;
   EXPECT_CALL(plugin, setIntegerParam(_, Eq(usedValue))).Times(Exactly(1));
-  ASSERT_TRUE(plugin.prod.SetMaxMessageSize(usedValue));
+  ASSERT_TRUE(plugin.producer.SetMaxMessageSize(usedValue));
 }
 
 TEST_F(KafkaPluginEnv, ProducerThreadIsRunningTest) {
@@ -96,8 +96,8 @@ TEST_F(KafkaPluginEnv, ProducerThreadIsRunningTest) {
 
 TEST_F(KafkaPluginEnv, InitBrokerStringsTest) {
   KafkaPluginStandIn plugin;
-  ASSERT_EQ(usedBrokerAddr, plugin.prod.GetBrokerAddr());
-  ASSERT_EQ(usedTopic, plugin.prod.GetTopic());
+  ASSERT_EQ(usedBrokerAddr, plugin.producer.GetBrokerAddr());
+  ASSERT_EQ(usedTopic, plugin.producer.GetTopic());
 
   const int bufferSize = 50;
   char buffer[bufferSize];
@@ -118,7 +118,7 @@ TEST_F(KafkaPluginEnv, ProcessCallbacksCallTest) {
   KafkaPluginStandIn plugin;
   plugin.driverCallback(nullptr, (void *)arr);
   int queueIndex = -1;
-  for (auto &p : plugin.prod.GetParams()) {
+  for (auto &p : plugin.producer.GetParams()) {
     if ("KAFKA_UNSENT_PACKETS" == p.desc) {
       queueIndex = *p.index;
     }
@@ -134,7 +134,7 @@ TEST_F(KafkaPluginEnv, KafkaQueueFullTest) {
   std::chrono::milliseconds sleepTime(1000);
   KafkaPluginStandIn plugin;
   int kafkaMaxQueueSize = 5;
-  plugin.prod.SetMessageQueueLength(kafkaMaxQueueSize);
+  plugin.producer.SetMessageQueueLength(kafkaMaxQueueSize);
   NDArrayGenerator arrGen;
   for (int i = 0; i < kafkaMaxQueueSize; i++) {
     NDArray *ptr = arrGen.GenerateNDArray(5, 10, 3, NDDataType_t::NDUInt8);
@@ -142,7 +142,7 @@ TEST_F(KafkaPluginEnv, KafkaQueueFullTest) {
     ptr->release();
   }
   int queueIndex = -1;
-  for (auto &p : plugin.prod.GetParams()) {
+  for (auto &p : plugin.producer.GetParams()) {
     if ("KAFKA_UNSENT_PACKETS" == p.desc) {
       queueIndex = *p.index;
     }

@@ -57,6 +57,8 @@ bool KafkaProducer::StartThread() {
 }
 
 void KafkaProducer::ThreadFunction() {
+    // Uses std::this_thread::sleep_for() as it can not know if a producer and topic has been
+    // allocated.
     std::chrono::milliseconds sleepTime(KafkaProducer::sleepTime);
     while (runThread) {
         std::this_thread::sleep_for(sleepTime);
@@ -169,6 +171,7 @@ void KafkaProducer::event_cb(RdKafka::Event &event) {
 }
 
 void KafkaProducer::SetConStat(KafkaProducer::ConStat stat, std::string msg) {
+    //Should we add some storage functionality here?
     setParam(paramCallback, paramsList.at(PV::con_status), int(stat));
     setParam(paramCallback, paramsList.at(PV::con_msg), msg);
 }
@@ -180,7 +183,7 @@ void KafkaProducer::ParseStatusString(std::string msg) {
         SetConStat(KafkaProducer::ConStat::ERROR, "Status msg.: Unable to parse.");
         return;
     }
-    brokers = root["brokers"];
+    brokers = root["brokers"]; //Contains broker information, including connection state
     if (brokers.isNull() or brokers.size() == 0) {
         SetConStat(KafkaProducer::ConStat::ERROR, "Status msg.: No brokers.");
     } else {
@@ -241,6 +244,7 @@ void KafkaProducer::InitRdKafka() {
 }
 
 bool KafkaProducer::SetStatsTimeMS(int time) {
+    //We do not set the appropriate PV here as this is done in KafkaDriver.
     if (errorState or time <= 0) {
         return false;
     }
@@ -251,7 +255,6 @@ bool KafkaProducer::SetStatsTimeMS(int time) {
         return false;
     }
     kafka_stats_interval = time;
-    // setParam(paramCallback, paramsList[PV::stats_time], time);
     ShutDownTopic();
     ShutDownProducer();
     MakeConnection();
@@ -298,7 +301,7 @@ bool KafkaProducer::SetBrokerAddr(std::string brokerAddr) {
         SetConStat(KafkaProducer::ConStat::ERROR, "Can not set new broker.");
         return false;
     }
-    brokerAddrStr = brokerAddr;
+    brokerAddr = brokerAddr;
     brokerMutex.lock();
     if (nullptr != topic) {
         brokerMutex.unlock();
@@ -311,12 +314,14 @@ bool KafkaProducer::SetBrokerAddr(std::string brokerAddr) {
     return true;
 }
 
-std::string KafkaProducer::GetBrokerAddr() { return brokerAddrStr; }
+std::string KafkaProducer::GetBrokerAddr() { return brokerAddr; }
 
 bool KafkaProducer::MakeConnection() {
+    //Do we know for sure that all possible paths will work? No!
+    //This code could probably be improved somewhat.
     std::lock_guard<std::mutex> lock(brokerMutex);
     if (nullptr == producer and nullptr == topic) {
-        if (brokerAddrStr.size() > 0) {
+        if (brokerAddr.size() > 0) {
             producer = RdKafka::Producer::create(conf, errstr);
             if (NULL == producer) {
                 SetConStat(KafkaProducer::ConStat::ERROR, "Unable to create producer.");

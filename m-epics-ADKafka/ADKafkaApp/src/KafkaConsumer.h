@@ -297,7 +297,7 @@ class KafkaConsumer : public RdKafka::EventCb {
     asynNDArrayDriver *paramCallback;
 
     std::string topicName;      /// @brief Stores the current topic used by the consumer.
-    std::string brokerAddrStr;  /// @brief Stores the current broker address used by the consumer.
+    std::string brokerAddr;  /// @brief Stores the current broker address used by the consumer.
     std::string groupName;      /// @brief Stores the current group name used by the consumer.
 
     /// @brief Used to take care of error strings returned by verious librdkafka functions.

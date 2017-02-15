@@ -198,8 +198,6 @@ class KafkaProducer : public RdKafka::EventCb {
     virtual void event_cb(RdKafka::Event &event);
 
     /** @brief Thread member function. Should only be called by KafkaProducer::StartThread().
-     * Uses std::this_thread::sleep_for() as it can not know if a producer and topic has been
-     * allocated.
      */
     virtual void ThreadFunction();
 
@@ -267,7 +265,7 @@ class KafkaProducer : public RdKafka::EventCb {
     RdKafka::Producer *producer = nullptr;
 
     std::string topicName; /// @brief Stores the current topic used by the consumer.
-    std::string brokerAddrStr; /// @brief Stores the current broker address used by the consumer.
+    std::string brokerAddr; /// @brief Stores the current broker address used by the consumer.
 
     /// @brief The root and broker json objects extracted from a json string.
     Json::Value root, brokers;
