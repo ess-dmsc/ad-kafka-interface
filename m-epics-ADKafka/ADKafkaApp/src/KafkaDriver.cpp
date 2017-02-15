@@ -86,7 +86,7 @@ asynStatus KafkaDriver::writeInt32(asynUser *pasynUser, epicsInt32 value) {
         }
     }
     callParamCallbacks();
-    
+
     // We need to determine which index is used to store the current message offset
     // This could probably be a bit nicer
     for (auto pv : consumer.GetParams()) {
@@ -202,8 +202,8 @@ KafkaDriver::KafkaDriver(const char *portName, int maxBuffers, size_t maxMemory,
     // The following two calls must be made in this particular order
     InitPvParams(this, consumer.GetParams());
     consumer.RegisterParamCallbackClass(this);
-    
-    //Set start values in the PV database.
+
+    // Set start values in the PV database.
     status = setParam(this, paramsList.at(PV::kafka_addr), brokerAddress);
     status |= setParam(this, paramsList.at(PV::kafka_topic), brokerTopic);
     status |= setParam(this, paramsList.at(PV::kafka_group), consumer.GetGroupId());
@@ -257,7 +257,7 @@ void KafkaDriver::consumeTask() {
             while (status == asynStatus::asynTimeout) {
                 status = epicsEventWaitWithTimeout(startEventId_, startWaitTimeout);
                 if (not keepThreadAlive) {
-                    goto exitConsumeTaskLabel; //This is justified in my opinion
+                    goto exitConsumeTaskLabel; // This is justified in my opinion
                 }
                 auto fbImg = consumer.WaitForPkg(0);
                 if (fbImg != nullptr) {
@@ -314,8 +314,8 @@ void KafkaDriver::consumeTask() {
                 pImage->release();
             }
             /// @todo Make sure that there is actual a free NDArray to which copy the data.
-            DeSerializeData(this->pNDArrayPool, (unsigned char *)fbImg->GetDataPtr(),
-                        fbImg->size(), pImage);
+            DeSerializeData(this->pNDArrayPool, (unsigned char *)fbImg->GetDataPtr(), fbImg->size(),
+                            pImage);
         }
 
         /* Close the shutter */

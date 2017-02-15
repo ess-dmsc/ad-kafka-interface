@@ -71,7 +71,7 @@ class epicsShareClass KafkaPlugin : public NDPluginDriver {
      * @return asynStatus value corresponding to the success of setting a new value.
      */
     asynStatus writeOctet(asynUser *pasynUser, const char *value, size_t nChars, size_t *nActual);
-    
+
     /** @brief Used to set integer paramters of the plugin.
      * @param[in] pasynUser pasynUser structure that encodes the reason and address.
      * @param[in] value The new value of the paramter.
@@ -84,18 +84,18 @@ class epicsShareClass KafkaPlugin : public NDPluginDriver {
      * @todo What does the interrupt mask actually do?
      */
     static const int intMask = asynInt32ArrayMask | asynOctetMask | asynGenericPointerMask;
-    
+
     /** @brief Used to keep track of the lowest PV index in order to know which write events should
      * be passed to the parent class.
      */
     int MIN_PARAM_INDEX;
-    
+
     /// @brief The kafka producer which is used to send serialized NDArray data to the broker.
     KafkaProducer producer;
-    
+
     /// @brief The class instance used to serialize NDArray data.
     NDArraySerializer serializer;
-    
+
     /// @brief Used to keep track of the PV:s made available by this driver.
     enum PV {
         kafka_addr,
@@ -104,7 +104,7 @@ class epicsShareClass KafkaPlugin : public NDPluginDriver {
         queue_size,
         count,
     };
-    
+
     /// @brief The list of PV:s created by the driver and their definition.
     std::vector<PV_param> paramsList = {
         PV_param("KAFKA_BROKER_ADDRESS", asynParamOctet), // kafka_addr

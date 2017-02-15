@@ -2541,7 +2541,7 @@ Value::CZString::~CZString() {
     if (cstr_ && storage_.policy_ == duplicate) {
         releaseStringValue(const_cast<char *>(cstr_),
                            storage_.length_ + 1u); //+1 for null terminating character for sake of
-                                                   //completeness but not actually necessary
+                                                   // completeness but not actually necessary
     }
 }
 
@@ -3076,7 +3076,7 @@ double Value::asDouble() const {
     case uintValue:
 #if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
         return static_cast<double>(value_.uint_);
-#else  // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
+#else // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
         return integerToDouble(value_.uint_);
 #endif // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
     case realValue:

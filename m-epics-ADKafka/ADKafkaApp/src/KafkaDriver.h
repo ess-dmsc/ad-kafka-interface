@@ -40,8 +40,8 @@ class epicsShareClass KafkaDriver : public ADDriver {
      * @param[in] priority The thread priority for the asyn port driver thread if ASYN_CANBLOCK is
      * set in asynFlags. If it is 0 then the default value of epicsThreadPriorityMedium will be
      * assigned by asynManager.
-     * @param[in] stackSize The stack size for the asyn port driver thread if ASYN_CANBLOCK is set in
-     * asynFlags. If it is 0 then the default value of
+     * @param[in] stackSize The stack size for the asyn port driver thread if ASYN_CANBLOCK is set
+     * in asynFlags. If it is 0 then the default value of
      * epicsThreadGetStackSize(epicsThreadStackMedium) will be assigned by asynManager.
      * @param[in] brokerAddress The address of the Kafka broker in the form "address:port". Can take
      * several addresses seperated by a comma (e.g. "address1:port1,address2:port2").
@@ -50,7 +50,7 @@ class epicsShareClass KafkaDriver : public ADDriver {
      */
     KafkaDriver(const char *portName, int maxBuffers, size_t maxMemory, int priority, int stackSize,
                 const char *brokerAddress, const char *brokerTopic);
-    
+
     /** @brief Shuts down consumer thread and deallocates dynamically allocated resources which are
      * not deallocated automatically.
      * The destructor will set a boolean which is used by the processing thread to determine if it
@@ -78,7 +78,7 @@ class epicsShareClass KafkaDriver : public ADDriver {
      */
     virtual asynStatus writeOctet(asynUser *pasynUser, const char *value, size_t nChars,
                                   size_t *nActual);
-    
+
     /** @brief Used to set integer parameters of the Kafka consumer.
      * Implements the setting of integer parameters as well as some logic for doing this. The actual
      * parameters available and honored by the driver are documented in the README.md file of this
@@ -88,7 +88,7 @@ class epicsShareClass KafkaDriver : public ADDriver {
      * @param[in] value New integer value to use.
      */
     virtual asynStatus writeInt32(asynUser *pasynUser, epicsInt32 value);
-    
+
     /** @brief The thread function which does the heavy lifting in this driver.
      * This function uses an endless loop to consume NDArray messages. Should be protected/private
      * but must be public due to the use of the C language to start it. As the main thread can not
@@ -102,11 +102,11 @@ class epicsShareClass KafkaDriver : public ADDriver {
      * be passed to the parent class.
      */
     int MIN_PARAM_INDEX;
-    
+
     /** @brief Implements all communication with the Kafka brokers.
      */
     KafkaConsumer consumer;
-    
+
     /// @brief Used to pass a start acquisition event from writeInt32 to the processing thread.
     epicsEventId startEventId_;
     /// @brief Used to pass a stop acquisition event from writeInt32 to the processing thread.
@@ -115,7 +115,7 @@ class epicsShareClass KafkaDriver : public ADDriver {
      * when the proccesing thread has exited.
      */
     epicsEventId threadExitEventId_;
-    
+
     /// @brief Used to keep track of the PV:s made available by this driver.
     enum PV {
         kafka_addr,
@@ -125,7 +125,7 @@ class epicsShareClass KafkaDriver : public ADDriver {
         set_offset,
         count,
     };
-    
+
     /// @brief Defines possible Kafka message offset settings.
     enum OffsetSetting {
         Beginning = 0,
@@ -133,10 +133,10 @@ class epicsShareClass KafkaDriver : public ADDriver {
         Manual = 2,
         End = 3,
     };
-    
+
     /// @brief Keeps track of the current Kafka message offset setting.
     OffsetSetting usedOffsetSetting;
-    
+
     /// @brief The list of PV:s created by the driver and their definition.
     std::vector<PV_param> paramsList = {
         PV_param("KAFKA_BROKER_ADDRESS", asynParamOctet), // kafka_addr
@@ -145,7 +145,7 @@ class epicsShareClass KafkaDriver : public ADDriver {
         PV_param("KAFKA_STATS_INT_MS", asynParamInt32),   // stats_time
         PV_param("KAFKA_SET_OFFSET", asynParamInt32),     // set_offset
     };
-    
+
     /// @brief The consumeTask() function will keep running as long as this variable is set to true.
     bool keepThreadAlive;
 };

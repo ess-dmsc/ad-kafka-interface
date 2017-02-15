@@ -17,7 +17,7 @@
  * from the class with the same name in librdkafka.
  */
 namespace KafkaInterface {
-    
+
 /** @brief Hides and keeps track of the consumed message as stored in a RdKafka::Message class
  * instance.
  */
@@ -34,7 +34,7 @@ class KafkaMessage {
      * it points to will become unavailable when the class instance is de-allocated.
      */
     void *GetDataPtr();
-    
+
     /** @brief The size of the data in number of bytes as pointed to by the pointer returned by
      * KafkaMessage::GetDataPtr().
      */
@@ -72,7 +72,7 @@ class KafkaConsumer : public RdKafka::EventCb {
      * KafkaConsumer::GetGroupId().
      */
     KafkaConsumer(std::string broker, std::string topic, std::string groupId = "KF");
-    
+
     /** @brief Simple consumer constructor which will not connect to a broker.
      * @note After calling the constructor, the PV:s must be configured and
      * KafkaConsumer::RegisterParamCallbackClass() must be called according to the instructions
@@ -82,18 +82,18 @@ class KafkaConsumer : public RdKafka::EventCb {
      * KafkaConsumer::GetGroupId().
      */
     KafkaConsumer(std::string groupId = "KF");
-    
+
     /** @brief Disconnect topic and deletes dynamically allocated objects.
      */
     ~KafkaConsumer();
-    
+
     /** @brief Used to register the param callback class.
      * @note This member function must be called after the relevant PV:s have been initilaized. See
      * the class documentation for more information.
      * @param ptr Pointer to driver class instance.
      */
     virtual void RegisterParamCallbackClass(asynNDArrayDriver *ptr);
-    
+
     /** @brief Set topic to consume messages from.
      * Will try to set a new topic and if successfull; will attempt to drop the current topic and
      * connect to the new one.
@@ -101,13 +101,13 @@ class KafkaConsumer : public RdKafka::EventCb {
      * @return True on succes, false on failure.
      */
     virtual bool SetTopic(std::string topicName);
-    
+
     /** @brief Get the current topic name.
      * Will return the topic name stored by KafkaInterface::KafkaConsumer.
      * @return The current topic name.
      */
     virtual std::string GetTopic();
-    
+
     /** @brief Set a new broker address.
      * Will drop the current broker/topic connection and attept to create a new one using the new
      * broker address. Has some limited error checking.
@@ -115,16 +115,16 @@ class KafkaConsumer : public RdKafka::EventCb {
      * @return True on success, false on failure.
      */
     virtual bool SetBrokerAddr(std::string brokerAddr);
-    
+
     /** @brief Return the current broker address stored by KafkaInterface::KafkaConsumer.
-     * @return The current broker address as configured using KafkaConsumer::KafkaConsumer() or 
+     * @return The current broker address as configured using KafkaConsumer::KafkaConsumer() or
      * KafkaConsumer::SetBrokerAddr().
      */
     virtual std::string GetBrokerAddr();
-    
+
     /** @brief Used to consume messages made available by a Kafka broker.
      * This function will automatically call event KafkaConsumer::event_cb() at intervals as set by
-     * KafkaConsumer::SetStatsTimeMS(). Note that the function will return immediatly if the 
+     * KafkaConsumer::SetStatsTimeMS(). Note that the function will return immediatly if the
      * librdkafka is not set-up correctly to consume messages. This includes not having set a topic.
      * @todo Better handling of connection errors in order to prevent hammering of this function
      * when it return nullptr.
@@ -133,24 +133,24 @@ class KafkaConsumer : public RdKafka::EventCb {
      * Note that the caller is responsible for calling delete on the returned pointer.
      */
     virtual std::unique_ptr<KafkaMessage> WaitForPkg(int timeout);
-    
+
     /** @brief Start the consumption of messages.
      * KafkaInterface::KafkaConsumer does not start consumption automatically. This function must be
      * called to start consmumption. If consumption is stopped, KafkaConsumer::WaitForPkg() will
      * return nullptr. However, Kafka broker connection stats will be updated.
      */
     virtual void StartConsumption();
-    
+
     /** @brief Stops the consumption of messages.
      * Stops the consumption of messages. If consumption is stopped, KafkaConsumer::WaitForPkg()
      * will return nullptr. However, Kafka broker connection stats will be updated.
      */
     virtual void StopConsumption();
-    
+
     /** @brief Returns the current message offset as stored by KafkaInterface::KafkaConsumer.
      */
     virtual std::int64_t GetCurrentOffset();
-    
+
     /** @brief Set a new message offset.
      * Will drop the current topic and re-create it using the provided new offset. Will also update
      * the relevant PV. This member function accepts three different negative offset values:
@@ -163,12 +163,12 @@ class KafkaConsumer : public RdKafka::EventCb {
      * @return True on succes, false on failure to set the new offset.
      */
     virtual bool SetOffset(std::int64_t offset);
-    
+
     /** @brief Used by the driver class in order for it to be able set the message offset.
      * @return The PV index used to set or get the current offset value in the PV database.
      */
     virtual int GetOffsetPVIndex();
-    
+
     /** @brief Set a new group name/d.
      * The group id is used to keep track of the current message offset for a specific topic and
      * group of consumers. It is also used (I think) to make sure that only one consumer in a group
@@ -177,7 +177,7 @@ class KafkaConsumer : public RdKafka::EventCb {
      * @return True if successfull, false otherwise.
      */
     virtual bool SetGroupId(std::string groupId);
-    
+
     /** @brief Returns the group name/id stored by the KafkaConsumer.
      * Does not gurantee that  the returned string is the configured group name/id.
      * @return A text string which should represent the group name/id in use by the consumer.
@@ -193,13 +193,13 @@ class KafkaConsumer : public RdKafka::EventCb {
      * @return True on success, false on failure.
      */
     virtual bool SetStatsTimeMS(int time);
-    
+
     /** @brief Returns the current Kafka stats interval time as stored by KafkaConsumer.
      * Does not guarantee that this is the acutal interval between times the connection stats are
      * obtained.
      */
     virtual int GetStatsTimeMS();
-    
+
     /** @brief Returns the PV definitions used by the KafkaInterface::KafkaConsumer.
      * KafkaInterface::KafkaConsumer can not initialize its own PV:s as the driver needs to know:
      * * How many PVs will be used in order to allocate enough memory for them.
@@ -209,7 +209,7 @@ class KafkaConsumer : public RdKafka::EventCb {
      * location of the index is kept track of by a std::shared_ptr.
      */
     virtual std::vector<PV_param> &GetParams();
-    
+
     /** @brief Returns KafkaConsumer::PV::count. Required by the driver parent class to allocate
      * enough memory for the PV:s used by this class.
      */
@@ -220,16 +220,16 @@ class KafkaConsumer : public RdKafka::EventCb {
     * KafkaConsumer::InitRdKafka().
     */
     bool errorState = false;
-    
+
     /// @brief Used keep track of if consumption is currently halted.
     bool consumptionHalted = true;
 
     size_t bufferSize = 100000000;
-    
+
     /** @brief Used to store the current message offset. Updated by KafkaConsumer::WaitForPkg().
     */
     std::int64_t topicOffset;
-    
+
     /** @brief Used as a textual representation of the current state of the Kafka broker connection.
      */
     enum class ConStat {
@@ -247,7 +247,7 @@ class KafkaConsumer : public RdKafka::EventCb {
      * be more than 40 characters.
      */
     virtual void SetConStat(ConStat stat, std::string msg);
-    
+
     /** @brief Allocates the broker configuration object and sets some configurations to their
      * initial values.
      * This member function is called by the constructor and although it calls
@@ -255,13 +255,13 @@ class KafkaConsumer : public RdKafka::EventCb {
      * initialized at this point. This should probably be changed.
      */
     virtual void InitRdKafka(std::string groupId);
-    
+
     /** @brief Helper function which recreates a broker connection.
      * Attempts to close the current broker connection and create a new one based on the current
      * configurations. Called by several other member functions.
      */
     virtual bool MakeConnection();
-    
+
     /** @brief Helper function which recreates a topic connection.
      * This function is called by other member functions when some settings relevant to the broker
      * and/or topic connection has changed. If a broker address is set, this function will then
@@ -270,7 +270,7 @@ class KafkaConsumer : public RdKafka::EventCb {
      * @return True on success, false on failure.
      */
     virtual bool UpdateTopic();
-    
+
     /** @brief Parses a Json string as obtained from an Rdkafka::Event object and extract some
      * connection stats.
      * This function currently only extracts number of unsent messages in the librdkafka buffer and
@@ -280,7 +280,7 @@ class KafkaConsumer : public RdKafka::EventCb {
     virtual void ParseStatusString(std::string msg);
 
     int kafka_stats_interval = 500; /// @brief Saved Kafka connection stats interval in ms.
-    
+
     /** @brief The event callback function called by librdkafka for purposes of getting connection
      * information.
      * Calls KafkaConsumer::ParseStatusString() to get current connection information. This function
@@ -290,32 +290,31 @@ class KafkaConsumer : public RdKafka::EventCb {
      * information.
      */
     void event_cb(RdKafka::Event &event);
-    
+
     /** @brief The pointer to the actual driver class which instantiated this class. Required for
      * updating PVs.
      */
     asynNDArrayDriver *paramCallback;
 
-    std::string topicName;      /// @brief Stores the current topic used by the consumer.
-    std::string brokerAddr;  /// @brief Stores the current broker address used by the consumer.
-    std::string groupName;      /// @brief Stores the current group name used by the consumer.
+    std::string topicName;  /// @brief Stores the current topic used by the consumer.
+    std::string brokerAddr; /// @brief Stores the current broker address used by the consumer.
+    std::string groupName;  /// @brief Stores the current group name used by the consumer.
 
     /// @brief Used to take care of error strings returned by verious librdkafka functions.
     std::string errstr;
-    
+
     /// @brief Stores the pointer to a librdkafka configruation object.
     std::unique_ptr<RdKafka::Conf> conf;
-    
+
     /// @brief Pointer to Kafka consumer in librdkafka.
     RdKafka::KafkaConsumer *consumer = nullptr;
-    
-    
+
     /// @brief The root and broker json objects extracted from a json string.
     Json::Value root, brokers;
-    
+
     /// @brief Parses std:string objects into a Json::value.
     Json::Reader reader;
-    
+
     /// @brief Used to keep track of the PV:s made available by this driver.
     enum PV {
         max_msg_size,
@@ -325,7 +324,7 @@ class KafkaConsumer : public RdKafka::EventCb {
         msgs_in_queue,
         count,
     };
-    
+
     /// @brief The list of PV:s created by the driver and their definition.
     std::vector<PV_param> paramsList = {
         PV_param("KAFKA_MAX_MSG_SIZE", asynParamInt32),          // max_msg_size

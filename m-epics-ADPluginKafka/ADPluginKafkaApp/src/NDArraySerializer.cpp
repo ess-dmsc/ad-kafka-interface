@@ -9,7 +9,8 @@
 #include <ciso646>
 #include <vector>
 
-NDArraySerializer::NDArraySerializer(const flatbuffers::uoffset_t bufferSize) : builder(bufferSize) {}
+NDArraySerializer::NDArraySerializer(const flatbuffers::uoffset_t bufferSize)
+    : builder(bufferSize) {}
 
 void NDArraySerializer::SerializeData(NDArray &pArray, unsigned char *&bufferPtr,
                                       size_t &bufferSize) {
@@ -47,7 +48,8 @@ void NDArraySerializer::SerializeData(NDArray &pArray, unsigned char *&bufferPtr
         std::unique_ptr<char[]> attrValueBuffer(new char[bytes]);
         int attrValueRes = attr_ptr->getValue(c_type, (void *)attrValueBuffer.get(), bytes);
         if (ND_SUCCESS == attrValueRes) {
-            auto attrValuePayload = builder.CreateVector((unsigned char *)attrValueBuffer.get(), bytes);
+            auto attrValuePayload =
+                builder.CreateVector((unsigned char *)attrValueBuffer.get(), bytes);
 
             auto attr = FB_Tables::CreateNDAttribute(builder, temp_attr_str, temp_attr_desc,
                                                      temp_attr_src, attrDType, attrValuePayload);

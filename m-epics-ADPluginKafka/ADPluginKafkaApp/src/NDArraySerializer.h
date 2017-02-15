@@ -42,7 +42,7 @@ class NDArraySerializer {
      * @return flatbuffer data type.
      */
     static FB_Tables::DType GetFB_DType(NDDataType_t arrType);
-    
+
     /** @brief Used to convert from flatbuffer data type to areaDetector data type.
      * Could be a function only available in the implementation file but is used by the unit tests
      * and thus has to be made available here.
@@ -59,7 +59,7 @@ class NDArraySerializer {
      * @return flatbuffer data type.
      */
     static FB_Tables::DType GetFB_DType(NDAttrDataType_t attrType);
-    
+
     /** @brief Used to convert from flatbuffer attribute data type to areaDetector data type.
      * Not strictly necessary but is used by the unit tests and thus is made available here.
      * @param[in] attrType flatbuffer attribute data type.

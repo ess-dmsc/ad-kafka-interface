@@ -35,7 +35,7 @@ public:
 private:
 };
 
-    /// @brief Simple stand-in class used for unit tests.
+/// @brief Simple stand-in class used for unit tests.
 class NDPluginDriverStandIn : public NDPluginDriver {
 public:
   NDPluginDriverStandIn(const char *portName, int queueSize,

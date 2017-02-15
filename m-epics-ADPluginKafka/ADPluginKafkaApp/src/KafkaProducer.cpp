@@ -14,18 +14,21 @@ namespace KafkaInterface {
 int KafkaProducer::GetNumberOfPVs() { return PV::count; }
 
 KafkaProducer::KafkaProducer(std::string broker, std::string topic, int queueSize)
-    : errorState(false), doFlush(true), topic(nullptr), producer(nullptr), conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)),
-      tconf(RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC)), flushTimeout(500), maxMessageSize(1000000), topicName(topic),
-      runThread(false), paramCallback(nullptr), msgQueueSize(queueSize) {
+    : errorState(false), doFlush(true), topic(nullptr), producer(nullptr),
+      conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)),
+      tconf(RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC)), flushTimeout(500),
+      maxMessageSize(1000000), topicName(topic), runThread(false), paramCallback(nullptr),
+      msgQueueSize(queueSize) {
     InitRdKafka();
     SetBrokerAddr(broker);
     MakeConnection();
 }
 
 KafkaProducer::KafkaProducer(int queueSize)
-    : errorState(false), doFlush(true), topic(nullptr), producer(nullptr), conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)),
-      tconf(RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC)), flushTimeout(500), maxMessageSize(1000000), runThread(false),
-      paramCallback(nullptr), msgQueueSize(queueSize) {
+    : errorState(false), doFlush(true), topic(nullptr), producer(nullptr),
+      conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)),
+      tconf(RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC)), flushTimeout(500),
+      maxMessageSize(1000000), runThread(false), paramCallback(nullptr), msgQueueSize(queueSize) {
     InitRdKafka();
 }
 
@@ -167,7 +170,7 @@ void KafkaProducer::event_cb(RdKafka::Event &event) {
 }
 
 void KafkaProducer::SetConStat(KafkaProducer::ConStat stat, std::string msg) {
-    //Should we add some storage functionality here?
+    // Should we add some storage functionality here?
     setParam(paramCallback, paramsList.at(PV::con_status), int(stat));
     setParam(paramCallback, paramsList.at(PV::con_msg), msg);
 }
@@ -179,7 +182,7 @@ void KafkaProducer::ParseStatusString(std::string msg) {
         SetConStat(KafkaProducer::ConStat::ERROR, "Status msg.: Unable to parse.");
         return;
     }
-    brokers = root["brokers"]; //Contains broker information, including connection state
+    brokers = root["brokers"]; // Contains broker information, including connection state
     if (brokers.isNull() or brokers.size() == 0) {
         SetConStat(KafkaProducer::ConStat::ERROR, "Status msg.: No brokers.");
     } else {
@@ -237,7 +240,7 @@ void KafkaProducer::InitRdKafka() {
 }
 
 bool KafkaProducer::SetStatsTimeMS(int time) {
-    //We do not set the appropriate PV here as this is done in KafkaDriver.
+    // We do not set the appropriate PV here as this is done in KafkaDriver.
     if (errorState or time <= 0) {
         return false;
     }
@@ -310,8 +313,8 @@ bool KafkaProducer::SetBrokerAddr(std::string brokerAddr) {
 std::string KafkaProducer::GetBrokerAddr() { return brokerAddr; }
 
 bool KafkaProducer::MakeConnection() {
-    //Do we know for sure that all possible paths will work? No!
-    //This code could probably be improved somewhat.
+    // Do we know for sure that all possible paths will work? No!
+    // This code could probably be improved somewhat.
     std::lock_guard<std::mutex> lock(brokerMutex);
     if (nullptr == producer and nullptr == topic) {
         if (brokerAddr.size() > 0) {

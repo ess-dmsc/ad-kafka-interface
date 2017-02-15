@@ -1,7 +1,8 @@
 /** Copyright (C) 2017 European Spallation Source */
 
 /** @file  GenerateNDArray.cpp
- *  @brief Implementation of helper class and helper functions which are used to generate fake data
+ *  @brief Implementation of helper class and helper functions which are used to
+ * generate fake data
  * for the unit tests.
  */
 
@@ -43,7 +44,7 @@ NDArrayGenerator::NDArrayGenerator() : sendPool(new NDArrayPool(1, 0)) {
   eng = std::default_random_engine(r());
 }
 
-NDArrayGenerator::~NDArrayGenerator() { }
+NDArrayGenerator::~NDArrayGenerator() {}
 
 std::string NDArrayGenerator::RandomString(size_t length) {
   auto randchar = []() -> char {
@@ -158,7 +159,8 @@ NDArray *NDArrayGenerator::GenerateNDArray(size_t numAttr, size_t numElem,
     elements *= (numElem + k * 2);
     usedDimensions.push_back(numElem + k * 2);
   }
-  NDArray *pArr = sendPool->alloc(dims, usedDimensions.data(), dType, 0, nullptr);
+  NDArray *pArr =
+      sendPool->alloc(dims, usedDimensions.data(), dType, 0, nullptr);
   GenerateData(dType, elements, pArr->pData);
   pArr->uniqueId = idCtr;
   idCtr++;

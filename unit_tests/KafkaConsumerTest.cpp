@@ -238,7 +238,7 @@ TEST_F(KafkaConsumerEnv, StatsStatusTest) {
   EXPECT_CALL(*asynDrvr, setIntegerParam(_, _)).Times(AtLeast(1));
   EXPECT_CALL(*asynDrvr, setIntegerParam(Eq(statusIndex), _)).Times(AtLeast(1));
   auto msg = cons.WaitForPkg(1000);
-  
+
   Mock::VerifyAndClear(asynDrvr);
 }
 

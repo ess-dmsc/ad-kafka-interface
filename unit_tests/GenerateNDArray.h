@@ -1,7 +1,8 @@
 /** Copyright (C) 2017 European Spallation Source */
 
 /** @file  GenerateNDArray.h
- *  @brief Header file of the helper class which is used to generate fake data for the unit tests.
+ *  @brief Header file of the helper class which is used to generate fake data
+ * for the unit tests.
  */
 
 #pragma once
@@ -18,7 +19,8 @@ public:
   NDArrayGenerator();
   ~NDArrayGenerator();
 
-  NDArray *GenerateNDArray(size_t numAttr, size_t numElem, int dims, NDDataType_t dType);
+  NDArray *GenerateNDArray(size_t numAttr, size_t numElem, int dims,
+                           NDDataType_t dType);
   std::set<std::string> usedAttrStrings;
 
 private:
@@ -46,5 +48,5 @@ private:
   std::default_random_engine eng;
   std::random_device r;
   int idCtr;
-    std::unique_ptr<NDArrayPool> sendPool;
+  std::unique_ptr<NDArrayPool> sendPool;
 };
