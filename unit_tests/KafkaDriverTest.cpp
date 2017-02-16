@@ -19,6 +19,8 @@ using ::testing::Mock;
 using ::testing::Eq;
 using ::testing::AtLeast;
 using ::testing::StrEq;
+using ::testing::Ne;
+using ::testing::NiceMock;
 
 const std::string usedBrokerAddr = "some_broker";
 const std::string usedTopic = "some_topic";
@@ -130,8 +132,8 @@ TEST_F(KafkaDriverEnv, InitStatsTimeTest) {
 }
 
 TEST_F(KafkaDriverEnv, ThreadRunningTest) {
-  KafkaDriverStandIn drvr;
-  EXPECT_CALL(drvr, setStringParam(testing::Ne(drvr.ADStatusMessage), _))
+  NiceMock<KafkaDriverStandIn> drvr;
+  EXPECT_CALL(drvr, setStringParam(Ne(drvr.ADStatusMessage), _))
       .Times(AtLeast(0));
   EXPECT_CALL(drvr, setStringParam(Eq(drvr.ADStatusMessage), _))
       .Times(Exactly(1));
@@ -141,7 +143,7 @@ TEST_F(KafkaDriverEnv, ThreadRunningTest) {
 }
 
 TEST_F(KafkaDriverEnv, ConnectionStatusUpdateTest) {
-  KafkaDriverStandIn drvr;
+  NiceMock<KafkaDriverStandIn> drvr;
   int msgIndex = -1;
   for (auto p : drvr.consumer.GetParams()) {
     if ("KAFKA_CONNECTION_MESSAGE" == p.desc) {
@@ -149,7 +151,7 @@ TEST_F(KafkaDriverEnv, ConnectionStatusUpdateTest) {
       break;
     }
   }
-  EXPECT_CALL(drvr, setIntegerParam(_, _)).Times(testing::AtLeast(1));
+  EXPECT_CALL(drvr, setIntegerParam(Ne(msgIndex), _)).Times(testing::AtLeast(0));
   EXPECT_CALL(drvr, setStringParam(Eq(msgIndex), _)).Times(AtLeast(1));
   EXPECT_CALL(drvr,
               setStringParam(Eq(msgIndex),
