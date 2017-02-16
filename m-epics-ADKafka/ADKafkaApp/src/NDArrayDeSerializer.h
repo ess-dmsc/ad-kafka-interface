@@ -22,5 +22,5 @@
  * caller has ownership of the pointer and must thus call NDArray::release() when the array is no
  * longer needed.
  */
-void DeSerializeData(NDArrayPool *pNDArrayPool, const unsigned char *bufferPtr, const size_t size,
+    void DeSerializeData(NDArrayPool *pNDArrayPool, const unsigned char *bufferPtr, const size_t size,
                      NDArray *&pArray);
