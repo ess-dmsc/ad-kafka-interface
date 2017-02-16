@@ -19,7 +19,7 @@ If a standard EPICS installation is used, modify the appropriate files in the `c
 A simple example illustrating how the plugin works is provided in the `m-epics-ADKafka/startup` directory. When the plugin is installed:
 
 * `cd` to `m-epics-ADKafka/startup`.
-* Run the startup script: `iocsh -r ADPKafka,1.0-BETA -c "requireSnippet(ADKafka_demo.cmd)"`.
+* Run the startup script: `iocsh -r ADKafka,1.0-BETA -c "requireSnippet(ADKafka_demo.cmd)"`.
 
 The example now also makes the PVs available through pvAccess (EPICS v4). It is possible that pvAccess is blocked on your development machine, in which case the following commands can be used to remove all firewall rules:
 
