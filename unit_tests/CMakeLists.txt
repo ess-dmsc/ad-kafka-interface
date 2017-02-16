@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
 
 add_definitions(-std=c++11 -pthread) #-v = verbose
 
+set(CMAKE_CXX_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
+set(CMAKE_C_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
+
 enable_testing()
 
 if (CMAKE_VERSION VERSION_LESS 3.2)
@@ -10,7 +13,7 @@ else()
     set(UPDATE_DISCONNECTED_IF_AVAILABLE "UPDATE_DISCONNECTED 1")
 endif()
 
-include(${CMAKE_MODULE_PATH}/DownloadProject.cmake)
+include(DownloadProject)
 download_project(PROJ                googletest
                  GIT_REPOSITORY      https://github.com/google/googletest.git
                  GIT_TAG             master
@@ -107,3 +110,8 @@ endif()
 configure_file("someNDArray.data" "." COPYONLY)
 
 add_test(TestAll unit_tests)
+
+include(CodeCoverage)
+
+SETUP_TARGET_FOR_COVERAGE_COBERTURA(xml_coverage unit_tests coverage)
+SETUP_TARGET_FOR_COVERAGE(html_coverage unit_tests coverage)
