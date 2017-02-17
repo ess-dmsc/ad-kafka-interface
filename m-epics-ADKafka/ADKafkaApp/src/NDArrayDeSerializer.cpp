@@ -96,18 +96,8 @@ void DeSerializeData(NDArrayPool *pNDArrayPool, const unsigned char *bufferPtr, 
     std::vector<size_t> dims(recvArr->dims()->begin(), recvArr->dims()->end());
     NDDataType_t dataType = GetND_DType(recvArr->dataType());
     void *pData = (void *)recvArr->pData()->Data();
-    //int pData_size = recvArr->pData()->size();
-    size_t pData_size = 1;
-    if (recvArr->dataType() == FB_Tables::DType::DType_c_string) {
-        pData_size = recvArr->pData()->size();
-    } else {
-        for (auto sz : dims) {
-            pData_size *= sz;
-        }
-        size_t typeSize = GetTypeSize(recvArr->dataType());
-        pData_size *= typeSize;
-    }
-
+    int pData_size = recvArr->pData()->size();
+    
     pArray = pNDArrayPool->alloc(int(dims.size()), dims.data(), dataType, 0, nullptr);
 
     NDAttributeList *attrPtr = pArray->pAttributeList;

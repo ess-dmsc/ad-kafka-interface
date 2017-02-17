@@ -199,8 +199,8 @@ struct NDArray FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   DType dataType() const {
     return static_cast<DType>(GetField<int8_t>(VT_DATATYPE, 0));
   }
-  const flatbuffers::Vector<uint64_t> *pData() const {
-    return GetPointer<const flatbuffers::Vector<uint64_t> *>(VT_PDATA);
+  const flatbuffers::Vector<uint8_t> *pData() const {
+    return GetPointer<const flatbuffers::Vector<uint8_t> *>(VT_PDATA);
   }
   const flatbuffers::Vector<flatbuffers::Offset<NDAttribute>> *pAttributeList() const {
     return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<NDAttribute>> *>(VT_PATTRIBUTELIST);
@@ -240,7 +240,7 @@ struct NDArrayBuilder {
   void add_dataType(DType dataType) {
     fbb_.AddElement<int8_t>(NDArray::VT_DATATYPE, static_cast<int8_t>(dataType), 0);
   }
-  void add_pData(flatbuffers::Offset<flatbuffers::Vector<uint64_t>> pData) {
+  void add_pData(flatbuffers::Offset<flatbuffers::Vector<uint8_t>> pData) {
     fbb_.AddOffset(NDArray::VT_PDATA, pData);
   }
   void add_pAttributeList(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<NDAttribute>>> pAttributeList) {
@@ -265,7 +265,7 @@ inline flatbuffers::Offset<NDArray> CreateNDArray(
     const epicsTimeStamp *epicsTS = 0,
     flatbuffers::Offset<flatbuffers::Vector<uint64_t>> dims = 0,
     DType dataType = DType_int8,
-    flatbuffers::Offset<flatbuffers::Vector<uint64_t>> pData = 0,
+    flatbuffers::Offset<flatbuffers::Vector<uint8_t>> pData = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<NDAttribute>>> pAttributeList = 0) {
   NDArrayBuilder builder_(_fbb);
   builder_.add_timeStamp(timeStamp);
@@ -285,7 +285,7 @@ inline flatbuffers::Offset<NDArray> CreateNDArrayDirect(
     const epicsTimeStamp *epicsTS = 0,
     const std::vector<uint64_t> *dims = nullptr,
     DType dataType = DType_int8,
-    const std::vector<uint64_t> *pData = nullptr,
+    const std::vector<uint8_t> *pData = nullptr,
     const std::vector<flatbuffers::Offset<NDAttribute>> *pAttributeList = nullptr) {
   return FB_Tables::CreateNDArray(
       _fbb,
@@ -294,7 +294,7 @@ inline flatbuffers::Offset<NDArray> CreateNDArrayDirect(
       epicsTS,
       dims ? _fbb.CreateVector<uint64_t>(*dims) : 0,
       dataType,
-      pData ? _fbb.CreateVector<uint64_t>(*pData) : 0,
+      pData ? _fbb.CreateVector<uint8_t>(*pData) : 0,
       pAttributeList ? _fbb.CreateVector<flatbuffers::Offset<NDAttribute>>(*pAttributeList) : 0);
 }
 

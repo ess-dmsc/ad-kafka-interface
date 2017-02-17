@@ -136,32 +136,32 @@ TEST_F(DeSerializer, FileContentTest) {
   ASSERT_EQ(recvArr->id(), 2720);
 }
 
-TEST_F(Serializer, SerializeDeserializeProfiling) {
-    NDArraySerializer ser;
-    size_t numAttr = 10;
-    size_t numElements = 50;
-    NDDataType_t dataType = NDInt32;
-    int numDims = 4;
-    NDArray *sendArr = nullptr;
-    NDArray *recvArr = nullptr;
-    for (int i = 0; i < 1000; i++) {
-        sendArr = arrGen->GenerateNDArray(numAttr, numElements, numDims, dataType);
-        unsigned char *bufferPtr = nullptr;
-        size_t bufferSize;
-        ser.SerializeData(*sendArr, bufferPtr, bufferSize);
-        DeSerializeData(recvPool, bufferPtr, bufferSize, recvArr);
-        CompareDataTypes(sendArr, recvArr);
-        CompareSizeAndDims(sendArr, recvArr);
-        CompareTimeStamps(sendArr, recvArr);
-        CompareData(sendArr, recvArr);
-        CompareAttributes(sendArr, recvArr);
-        sendArr->release();
-        recvArr->release();
-        arrGen->usedAttrStrings.clear();
-    }
-    delete sendArr;
-    delete recvArr;
-}
+//TEST_F(Serializer, SerializeDeserializeProfiling) {
+//    NDArraySerializer ser;
+//    size_t numAttr = 10;
+//    size_t numElements = 50;
+//    NDDataType_t dataType = NDInt32;
+//    int numDims = 4;
+//    NDArray *sendArr = nullptr;
+//    NDArray *recvArr = nullptr;
+//    for (int i = 0; i < 2000; i++) {
+//        sendArr = arrGen->GenerateNDArray(numAttr, numElements, numDims, dataType);
+//        unsigned char *bufferPtr = nullptr;
+//        size_t bufferSize;
+//        ser.SerializeData(*sendArr, bufferPtr, bufferSize);
+//        DeSerializeData(recvPool, bufferPtr, bufferSize, recvArr);
+//        CompareDataTypes(sendArr, recvArr);
+//        CompareSizeAndDims(sendArr, recvArr);
+//        CompareTimeStamps(sendArr, recvArr);
+//        CompareData(sendArr, recvArr);
+//        CompareAttributes(sendArr, recvArr);
+//        sendArr->release();
+//        recvArr->release();
+//        arrGen->usedAttrStrings.clear();
+//    }
+//    delete sendArr;
+//    delete recvArr;
+//}
 
 TEST_F(Serializer, SerializeDeserializeTest) {
   NDArraySerializer ser;

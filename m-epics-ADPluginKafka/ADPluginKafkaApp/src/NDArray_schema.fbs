@@ -32,7 +32,7 @@ dims:
 dataType:
     DType;
 pData:
-    [ulong];
+    [ubyte];
 pAttributeList:
     [NDAttribute];
 }
