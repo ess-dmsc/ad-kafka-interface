@@ -62,26 +62,26 @@ NDAttrDataType_t GetND_AttrDType(FB_Tables::DType attrType) {
 
 size_t GetTypeSize(FB_Tables::DType attrType) {
     switch (attrType) {
-        case FB_Tables::DType::DType_int8:
-            return 1;
-        case FB_Tables::DType::DType_uint8:
-            return 1;
-        case FB_Tables::DType::DType_int16:
-            return 2;
-        case FB_Tables::DType::DType_uint16:
-            return 2;
-        case FB_Tables::DType::DType_int32:
-            return 4;
-        case FB_Tables::DType::DType_uint32:
-            return 4;
-        case FB_Tables::DType::DType_float32:
-            return 4;
-        case FB_Tables::DType::DType_float64:
-            return 8;
-        case FB_Tables::DType::DType_c_string:
-            return 1;
-        default:
-            std::abort();
+    case FB_Tables::DType::DType_int8:
+        return 1;
+    case FB_Tables::DType::DType_uint8:
+        return 1;
+    case FB_Tables::DType::DType_int16:
+        return 2;
+    case FB_Tables::DType::DType_uint16:
+        return 2;
+    case FB_Tables::DType::DType_int32:
+        return 4;
+    case FB_Tables::DType::DType_uint32:
+        return 4;
+    case FB_Tables::DType::DType_float32:
+        return 4;
+    case FB_Tables::DType::DType_float64:
+        return 8;
+    case FB_Tables::DType::DType_c_string:
+        return 1;
+    default:
+        std::abort();
     }
     return 1;
 }
@@ -97,7 +97,7 @@ void DeSerializeData(NDArrayPool *pNDArrayPool, const unsigned char *bufferPtr, 
     NDDataType_t dataType = GetND_DType(recvArr->dataType());
     void *pData = (void *)recvArr->pData()->Data();
     int pData_size = recvArr->pData()->size();
-    
+
     pArray = pNDArrayPool->alloc(int(dims.size()), dims.data(), dataType, 0, nullptr);
 
     NDAttributeList *attrPtr = pArray->pAttributeList;

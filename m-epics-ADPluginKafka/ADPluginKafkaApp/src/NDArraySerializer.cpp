@@ -7,8 +7,8 @@
 
 #include "NDArraySerializer.h"
 #include <ciso646>
-#include <vector>
 #include <memory>
+#include <vector>
 
 NDArraySerializer::NDArraySerializer(const flatbuffers::uoffset_t bufferSize)
     : builder(bufferSize) {}
@@ -28,7 +28,7 @@ void NDArraySerializer::SerializeData(NDArray &pArray, unsigned char *&bufferPtr
     }
     auto dims = builder.CreateVector(tempDims);
     auto dType = GetFB_DType(pArray.dataType);
-    
+
     std::uint8_t *tempPtr;
     auto payload = builder.CreateUninitializedVector(ndInfo.totalBytes, 1, &tempPtr);
     std::memcpy(tempPtr, pArray.pData, ndInfo.totalBytes);

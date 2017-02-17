@@ -136,7 +136,7 @@ TEST_F(DeSerializer, FileContentTest) {
   ASSERT_EQ(recvArr->id(), 2720);
 }
 
-//TEST_F(Serializer, SerializeDeserializeProfiling) {
+// TEST_F(Serializer, SerializeDeserializeProfiling) {
 //    NDArraySerializer ser;
 //    size_t numAttr = 10;
 //    size_t numElements = 50;
@@ -145,7 +145,8 @@ TEST_F(DeSerializer, FileContentTest) {
 //    NDArray *sendArr = nullptr;
 //    NDArray *recvArr = nullptr;
 //    for (int i = 0; i < 2000; i++) {
-//        sendArr = arrGen->GenerateNDArray(numAttr, numElements, numDims, dataType);
+//        sendArr = arrGen->GenerateNDArray(numAttr, numElements, numDims,
+//        dataType);
 //        unsigned char *bufferPtr = nullptr;
 //        size_t bufferSize;
 //        ser.SerializeData(*sendArr, bufferPtr, bufferSize);

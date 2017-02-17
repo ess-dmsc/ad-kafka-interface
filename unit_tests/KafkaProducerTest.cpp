@@ -235,7 +235,8 @@ TEST_F(KafkaProducerEnv, TooManyMessagesInQueue) {
     ctr++;
   }
   int maxQueueSize = 11;
-  int msgsQueuedIndex = *params[KafkaProducerStandIn::PV::msgs_in_queue].index.get();
+  int msgsQueuedIndex =
+      *params[KafkaProducerStandIn::PV::msgs_in_queue].index.get();
   ON_CALL(prod, SetConStat(_, _))
       .WillByDefault(Invoke(&prod, &KafkaProducerStandIn::SetConStatParent));
   prod.RegisterParamCallbackClass(plugin);

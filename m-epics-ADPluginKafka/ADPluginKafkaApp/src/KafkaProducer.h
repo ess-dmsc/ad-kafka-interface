@@ -11,10 +11,10 @@
 #include <asynNDArrayDriver.h>
 #include <atomic>
 #include <librdkafka/rdkafkacpp.h>
+#include <memory>
 #include <mutex>
 #include <thread>
 #include <vector>
-#include <memory>
 
 /** @brief The KafkaInterface namespace is used primarily to seperate KafkaInterface::KafkaConsumer
  * from the class with the same name in librdkafka.

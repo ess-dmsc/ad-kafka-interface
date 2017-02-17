@@ -151,7 +151,8 @@ TEST_F(KafkaDriverEnv, ConnectionStatusUpdateTest) {
       break;
     }
   }
-  EXPECT_CALL(drvr, setIntegerParam(Ne(msgIndex), _)).Times(testing::AtLeast(0));
+  EXPECT_CALL(drvr, setIntegerParam(Ne(msgIndex), _))
+      .Times(testing::AtLeast(0));
   EXPECT_CALL(drvr, setStringParam(Eq(msgIndex), _)).Times(AtLeast(1));
   EXPECT_CALL(drvr,
               setStringParam(Eq(msgIndex),

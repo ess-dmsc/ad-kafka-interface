@@ -11,9 +11,9 @@
 #include <algorithm>
 #include <ciso646>
 #include <cstring>
+#include <memory>
 #include <random>
 #include <set>
-#include <memory>
 
 class NDArrayGenerator {
 public:
