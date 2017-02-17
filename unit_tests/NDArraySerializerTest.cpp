@@ -144,7 +144,7 @@ TEST_F(Serializer, SerializeDeserializeProfiling) {
     int numDims = 4;
     NDArray *sendArr = nullptr;
     NDArray *recvArr = nullptr;
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 1000; i++) {
         sendArr = arrGen->GenerateNDArray(numAttr, numElements, numDims, dataType);
         unsigned char *bufferPtr = nullptr;
         size_t bufferSize;

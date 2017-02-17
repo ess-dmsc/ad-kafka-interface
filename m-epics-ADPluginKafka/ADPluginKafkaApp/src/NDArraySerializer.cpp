@@ -28,7 +28,10 @@ void NDArraySerializer::SerializeData(NDArray &pArray, unsigned char *&bufferPtr
     }
     auto dims = builder.CreateVector(tempDims);
     auto dType = GetFB_DType(pArray.dataType);
-    auto payload = builder.CreateVector((std::uint64_t *)pArray.pData, ndInfo.totalBytes / (sizeof(std::uint64_t)));
+    //auto payload = builder.CreateVector(reinterpret_cast<std::uint64_t*>(pArray.pData), ndInfo.totalBytes / (sizeof(std::uint64_t)));
+    std::uint8_t *tempPtr;
+    auto payload = builder.CreateUninitializedVector(ndInfo.totalBytes / 8, 8, &tempPtr);
+    std::memcpy(tempPtr, pArray.pData, ndInfo.totalBytes);
 
     // Get all attributes of this data package
     std::vector<flatbuffers::Offset<FB_Tables::NDAttribute>> attrVec;
