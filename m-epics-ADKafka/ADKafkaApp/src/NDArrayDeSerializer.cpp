@@ -60,6 +60,32 @@ NDAttrDataType_t GetND_AttrDType(FB_Tables::DType attrType) {
     return NDAttrInt8;
 }
 
+size_t GetTypeSize(FB_Tables::DType attrType) {
+    switch (attrType) {
+        case FB_Tables::DType::DType_int8:
+            return 1;
+        case FB_Tables::DType::DType_uint8:
+            return 1;
+        case FB_Tables::DType::DType_int16:
+            return 2;
+        case FB_Tables::DType::DType_uint16:
+            return 2;
+        case FB_Tables::DType::DType_int32:
+            return 4;
+        case FB_Tables::DType::DType_uint32:
+            return 4;
+        case FB_Tables::DType::DType_float32:
+            return 4;
+        case FB_Tables::DType::DType_float64:
+            return 8;
+        case FB_Tables::DType::DType_c_string:
+            return 1;
+        default:
+            std::abort();
+    }
+    return 1;
+}
+
 void DeSerializeData(NDArrayPool *pNDArrayPool, const unsigned char *bufferPtr, const size_t size,
                      NDArray *&pArray) {
     auto recvArr = FB_Tables::GetNDArray(bufferPtr);
@@ -70,7 +96,17 @@ void DeSerializeData(NDArrayPool *pNDArrayPool, const unsigned char *bufferPtr, 
     std::vector<size_t> dims(recvArr->dims()->begin(), recvArr->dims()->end());
     NDDataType_t dataType = GetND_DType(recvArr->dataType());
     void *pData = (void *)recvArr->pData()->Data();
-    int pData_size = recvArr->pData()->size();
+    //int pData_size = recvArr->pData()->size();
+    size_t pData_size = 1;
+    if (recvArr->dataType() == FB_Tables::DType::DType_c_string) {
+        pData_size = recvArr->pData()->size();
+    } else {
+        for (auto sz : dims) {
+            pData_size *= sz;
+        }
+        size_t typeSize = GetTypeSize(recvArr->dataType());
+        pData_size *= typeSize;
+    }
 
     pArray = pNDArrayPool->alloc(int(dims.size()), dims.data(), dataType, 0, nullptr);
 
