@@ -68,4 +68,7 @@ node('eee') {
             throw e
         }
     }
+    if (currentBuild.previousBuild.result == "FAILURE") {
+        slackSend color: 'good', message: 'ad-kafka-interface: Back in the green!'
+    }
 }
