@@ -47,7 +47,7 @@ This driver is somewhat production ready. However, there are some improvements t
 * **More PVs** These are required for more fine grained control of the Kafka producer as well as for improvement in error handling.
 * **Performance tests** It is likely that performance of the plugin could be improved. To determine if this is the case, performance tests and profiling of the code is required.
 * **Modify db-template** The existing PVs could potentially be modified in order to improve usefulness.
-* **Kafka producer parameters** Some Kafka parameters can be set but being able to set more of them is probably useful.
+* **Kafka producer parameters** Some Kafka parameters can be set but being able to set more of them is probably useful. Kafka consumer lag is probably the most useful of these statistics to make available.
 * **More extensive unit tests** It is possible to do more extensive unit testing.
 * **Bug related to setting PVs** When testing the driver some bug related to the setting of PVs was encountered. A problem probably related to this one was that the CPU usage was excessive. This should be fixed.
 
