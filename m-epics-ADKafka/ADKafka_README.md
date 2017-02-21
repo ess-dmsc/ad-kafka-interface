@@ -33,7 +33,6 @@ This plugin provides a few extra process variables besides the ones provided thr
 * `$(P)$(R)KafkaBrokerTopic` and `$(P)$(R)KafkaTopic_RBV` are used to set and retrieve the current topic. Limited to 40 characters.
 * `$(P)$(R)ConnectionStatus_RBV` holds an integer corresponding to the current connection status. Se `ADPluginKafka.template` for possible values.
 * `$(P)$(R)ConnectionMessage_RBV` is a PV that has a text message of at most 40 characters that gives information about the current connection status.
-* `$(P)$(R)KafkaMaxQueueSize` and `$(P)$(R)KafkaMaxQueueSize_RBV` modifies and reads the number of messages allowed in the Kafka output buffer. Never set to a value < 1.
 * `$(P)$(R)UnproccessedMessages_RBV` may show the number of messages received by librdkafka but not yet processed by the driver. This has not been tested though.
 * `$(P)$(R)KafkaMaxMessageSize_RBV` is used to read the maximum message size allowed by librdkafka. This value should be updated automatically as message sizes exceeds their old values. The absolute maximum size is approx. 953 MB.
 * `$(P)$(R)KafkaStatsIntervalTime` and `$(P)$(R)KafkaStatsIntervalTime_RBV` are used to set and read the time between Kafka broker connection stats. This value is given in milliseconds (ms). Setting a very short update time is not advised.
