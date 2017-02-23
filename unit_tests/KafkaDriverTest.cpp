@@ -22,6 +22,7 @@ using ::testing::StrEq;
 using ::testing::Ne;
 using ::testing::NiceMock;
 
+
 const std::string usedBrokerAddr = "some_broker";
 const std::string usedTopic = "some_topic";
 
