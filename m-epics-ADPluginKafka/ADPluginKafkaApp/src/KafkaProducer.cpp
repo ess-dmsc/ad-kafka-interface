@@ -1,12 +1,12 @@
-//
-//  KafkaProducer.cpp
-//  KafkaPlugin
-//
-//  Created by Jonas Nilsson on 2017-01-11.
-//  Copyright © 2017 European Spallation Source. All rights reserved.
-//
+/** Copyright (C) 2017 European Spallation Source */
+
+/** @file  KafkaProducer.cpp
+ *  @brief Implementation of a Kafka producer used with an areaDetector plugin.
+ */
 
 #include <chrono>
+#include <cstdlib>
+#include <ciso646>
 #include "KafkaProducer.h"
 
 namespace KafkaInterface {
@@ -169,7 +169,6 @@ namespace KafkaInterface {
     }
     
     void KafkaProducer::SetConStat(KafkaProducer::ConStat stat, std::string msg) {
-        //std::cout << int(stat) << " : " << msg << std::endl;
         setParam(paramCallback, paramsList.at(PV::con_status), int(stat));
         setParam(paramCallback, paramsList.at(PV::con_msg), msg);
     }
@@ -355,7 +354,7 @@ namespace KafkaInterface {
         } else if (nullptr != producer and nullptr != topic) {
             return true;
         }
-        assert(false);
+        std::abort();
         return true;
     }
     
@@ -395,7 +394,7 @@ namespace KafkaInterface {
         return paramsList;
     }
     
-    void KafkaProducer::RegisterParamCallbackClass(NDPluginDriver *ptr) {
+    void KafkaProducer::RegisterParamCallbackClass(asynNDArrayDriver *ptr) {
         paramCallback = ptr;
         
         setParam(paramCallback, paramsList[PV::max_msg_size], int(maxMessageSize));

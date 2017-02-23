@@ -1,16 +1,16 @@
-//
-//  KafkaConsumer.hpp
-//  KafkaPlugin
-//
-//  Created by Jonas Nilsson on 2017-01-16.
-//  Copyright © 2017 European Spallation Source. All rights reserved.
-//
+/** Copyright (C) 2017 European Spallation Source */
+
+/** @file  KafkaConsumer.h
+ *  @brief Header file of a Kafka consumer class. Used together with an
+ * areaDetector driver.
+ */
 
 #pragma once
 
 #include <librdkafka/rdkafkacpp.h>
 #include <string>
 #include <vector>
+#include <asynNDArrayDriver.h>
 #include "ParamUtility.h"
 #include "json.h"
 
@@ -27,36 +27,50 @@ private:
 
 class KafkaConsumer : public RdKafka::EventCb {
 public:
-    KafkaConsumer(std::string topic, std::string broker, std::string groupId = "KF");
+    KafkaConsumer(std::string broker, std::string topic, std::string groupId = "KF");
     KafkaConsumer(std::string groupId = "KF");
     ~KafkaConsumer();
     
-    virtual void RegisterParamCallbackClass(NDPluginDriver *ptr);
+    virtual void RegisterParamCallbackClass(asynNDArrayDriver *ptr);
     
     virtual bool SetTopic(std::string topicName);
+    virtual std::string GetTopic();
     
     virtual bool SetBrokerAddr(std::string brokerAddr);
+    virtual std::string GetBrokerAddr();
     
     virtual KafkaMessage* WaitForPkg(int timeout);
     
+    virtual void StartConsumption();
+    virtual void StopConsumption();
+    
     virtual std::int64_t GetCurrentOffset();
     
-    virtual void SetOffset(std::int64_t offset);
+    virtual bool SetOffset(std::int64_t offset);
+    
+    virtual int GetOffsetPVIndex();
     
     virtual bool SetGroupId(std::string groupId);
+    virtual std::string GetGroupId();
     
     virtual bool SetStatsTimeMS(int time);
     virtual int GetStatsTimeMS();
+    
+//    virtual bool SetMessageQueueLength(int queue);
+//    virtual int GetMessageQueueLength();
     
     virtual std::vector<PV_param> &GetParams();
     
     static int GetNumberOfPVs();
 protected:
     bool errorState = false;
+    bool consumptionHalted = true;
     
     size_t bufferSize = 100000000;
     
     std::int64_t topicOffset;
+    
+    PV_param offsetParam;
     
     enum class ConStat { CONNECTED = 0, CONNECTING = 1, DISCONNECTED = 2, ERROR = 3, };
     
@@ -84,10 +98,11 @@ protected:
     
     void event_cb(RdKafka::Event &event);
     
-    NDPluginDriver *paramCallback;
+    asynNDArrayDriver *paramCallback;
     
     std::string topicName;
     std::string brokerAddrStr;
+    std::string groupName;
     
     //Variables used by the Kafka producer.
     std::string errstr;
@@ -99,7 +114,6 @@ protected:
     Json::Reader reader;
     
     enum PV {
-        stats_time,
         max_msg_size,
         con_status,
         con_msg,
@@ -109,11 +123,10 @@ protected:
     };
     
     std::vector<PV_param> paramsList = {
-        PV_param("KAFKA_STATS_TIME", asynParamInt32), //stats_time
         PV_param("KAFKA_MAX_MSG_SIZE", asynParamInt32), //max_msg_size
         PV_param("KAFKA_CONNECTION_STATUS", asynParamInt32), //con_status
         PV_param("KAFKA_CONNECTION_MESSAGE", asynParamOctet), //con_msg
-        PV_param("KAFKA_MESSAGE_OFFSET", asynParamInt32), //msg_offset
+        PV_param("KAFKA_CURRENT_OFFSET", asynParamInt32), //msg_offset
         PV_param("KAFKA_UNPROCCESSED_MESSAGES", asynParamInt32), //msgs_in_queue
     };
 };

@@ -1,10 +1,8 @@
-//
-//  KafkaPluginTest.cpp
-//  KafkaInterface
-//
-//  Created by Jonas Nilsson on 2017-01-25.
-//
-//
+/** Copyright (C) 2017 European Spallation Source */
+
+/** @file  KafkaPluginTest.cpp
+ *  @brief Some limited tests of actual plugin class.
+ */
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -13,8 +11,10 @@
 #include <tuple>
 #include <thread>
 #include <chrono>
+#include <ciso646>
 #include "KafkaPlugin.h"
 #include "GenerateNDArray.h"
+#include "PortName.h"
 
 using ::testing::Test;
 using ::testing::_;
@@ -23,12 +23,12 @@ using ::testing::Mock;
 using ::testing::Eq;
 using ::testing::AtLeast;
 
-std::string usedBrokerAddr = "some_broker";
-std::string usedTopic = "some_topic";
+const std::string usedBrokerAddr = "some_broker";
+const std::string usedTopic = "some_topic";
 
 class KafkaPluginStandIn : public KafkaPlugin {
 public:
-    KafkaPluginStandIn(std::string portName) : KafkaPlugin(portName.c_str(), 10, 1, "some_arr_port", 1, 0, 1, 1, usedBrokerAddr.c_str(), usedTopic.c_str()) {};
+    KafkaPluginStandIn() : KafkaPlugin(PortName().c_str(), 10, 1, "some_arr_port", 1, 0, 1, 1, usedBrokerAddr.c_str(), usedTopic.c_str()) {};
     using KafkaPlugin::prod;
     using KafkaPlugin::paramsList;
     using KafkaPlugin::PV;
@@ -56,7 +56,7 @@ public:
 };
 
 TEST_F(KafkaPluginEnv, InitParamsIndexTest) {
-    KafkaPluginStandIn plugin("port_nr_2144");
+    KafkaPluginStandIn plugin;
     for (auto &p : plugin.paramsList) {
         ASSERT_NE(*p.index, 0);
     }
@@ -66,13 +66,18 @@ TEST_F(KafkaPluginEnv, InitParamsIndexTest) {
     }
 }
 
+TEST_F(KafkaPluginEnv, ParameterCountTest) {
+    KafkaPluginStandIn plug;
+    ASSERT_EQ(plug.paramsList.size(), KafkaPluginStandIn::PV::count);
+}
+
 TEST_F(KafkaPluginEnv, InitIsErrorStateTest) {
-    KafkaPluginStandIn plugin("port_nr_222");
+    KafkaPluginStandIn plugin;
     ASSERT_TRUE(plugin.prod.SetStatsTimeMS(10000));
 }
 
 TEST_F(KafkaPluginEnv, ParamCallbackIsSetTest) {
-    KafkaPluginStandIn plugin("port_nr_21o");
+    KafkaPluginStandIn plugin;
     int usedValue = 5000;
     EXPECT_CALL(plugin, setIntegerParam(_, Eq(usedValue))).Times(Exactly(1));
     ASSERT_TRUE(plugin.prod.SetMaxMessageSize(usedValue));
@@ -80,14 +85,14 @@ TEST_F(KafkaPluginEnv, ParamCallbackIsSetTest) {
 
 TEST_F(KafkaPluginEnv, ProducerThreadIsRunningTest) {
     std::chrono::milliseconds sleepTime(1000);
-    KafkaPluginStandIn plugin("port_nr_21");
+    KafkaPluginStandIn plugin;
     EXPECT_CALL(plugin, setIntegerParam(_, _)).Times(AtLeast(1));
     EXPECT_CALL(plugin, setIntegerParam(_, Eq(0))).Times(AtLeast(1));
     std::this_thread::sleep_for(sleepTime);
 }
 
 TEST_F(KafkaPluginEnv, InitBrokerStringsTest) {
-    KafkaPluginStandIn plugin("port_nr_2tr");
+    KafkaPluginStandIn plugin;
     ASSERT_EQ(usedBrokerAddr, plugin.prod.GetBrokerAddr());
     ASSERT_EQ(usedTopic, plugin.prod.GetTopic());
     
@@ -103,7 +108,7 @@ TEST_F(KafkaPluginEnv, InitBrokerStringsTest) {
 TEST_F(KafkaPluginEnv, ProcessCallbacksCallTest) {
     NDArrayGenerator arrGen;
     NDArray *arr = arrGen.GenerateNDArray(5, 10, 3, NDDataType_t::NDUInt8);
-    KafkaPluginStandIn plugin("port_nr_511");
+    KafkaPluginStandIn plugin;
     plugin.driverCallback(nullptr, (void*)arr);
     int queueIndex = -1;
     for (auto &p : plugin.prod.GetParams()) {
@@ -120,7 +125,7 @@ TEST_F(KafkaPluginEnv, ProcessCallbacksCallTest) {
 
 TEST_F(KafkaPluginEnv, KafkaQueueFullTest) {
     std::chrono::milliseconds sleepTime(1000);
-    KafkaPluginStandIn plugin("port_nr_512");
+    KafkaPluginStandIn plugin;
     int kafkaMaxQueueSize = 5;
     plugin.prod.SetMessageQueueLength(kafkaMaxQueueSize);
     NDArrayGenerator arrGen;
@@ -150,70 +155,3 @@ TEST_F(KafkaPluginEnv, KafkaQueueFullTest) {
     std::this_thread::sleep_for(sleepTime);
 }
 
-class KafkaPluginInput : public Test {
-public:
-    static void SetUpTestCase() {
-        plugin = new KafkaPluginStandIn("2324");
-    };
-    
-    static void TearDownTestCase() {
-        delete plugin;
-    };
-    
-    virtual void SetUp() {
-    };
-    
-    virtual void TearDown() {
-        
-    };
-    static int GetIndex(std::string name) {
-        int retIndex = -1;
-        for (auto &p : plugin->paramsList) {
-            if (name == p.desc) {
-                retIndex = *p.index;
-                break;
-            }
-        }
-        
-        return retIndex;
-    }
-    static KafkaPluginStandIn *plugin;
-};
-
-KafkaPluginStandIn *KafkaPluginInput::plugin = nullptr;
-
-//TEST_F(KafkaPluginInput, BrokerAddrTest) {
-//    std::string testString = "some_test_broker";
-//    asynUser usedUser = *plugin->pasynUserSelf;
-//    usedUser.reason = GetIndex("KAFKA_BROKER_ADDRESS");
-//    size_t nChars;
-//    plugin->writeOctet(&usedUser, testString.c_str(), testString.size(), &nChars);
-//    ASSERT_EQ(nChars, testString.size());
-//    ASSERT_EQ(testString, plugin->prod.GetBrokerAddr());
-//}
-//
-//TEST_F(KafkaPluginInput, BrokerTopicTest) {
-//    std::string testString = "some_test_topic";
-//    asynUser usedUser = *plugin->pasynUserSelf;
-//    usedUser.reason = GetIndex("KAFKA_TOPIC");
-//    size_t nChars;
-//    plugin->writeOctet(&usedUser, testString.c_str(), testString.size(), &nChars);
-//    ASSERT_EQ(nChars, testString.size());
-//    ASSERT_EQ(testString, plugin->prod.GetBrokerAddr());
-//}
-//
-//TEST_F(KafkaPluginInput, StatsTimeTest) {
-//    int testValue = 555;
-//    asynUser usedUser = *plugin->pasynUserSelf;
-//    usedUser.reason = GetIndex("KAFKA_STATS_INT_MS");
-//    plugin->writeInt32(&usedUser, testValue);
-//    ASSERT_EQ(testValue, plugin->prod.GetStatsTimeMS());
-//}
-//
-//TEST_F(KafkaPluginInput, QueueSizeTest) {
-//    int testValue = 22;
-//    asynUser usedUser = *plugin->pasynUserSelf;
-//    usedUser.reason = GetIndex("KAFKA_QUEUE_SIZE");
-//    plugin->writeInt32(&usedUser, testValue);
-//    ASSERT_EQ(testValue, plugin->prod.GetMessageQueueLength());
-//}

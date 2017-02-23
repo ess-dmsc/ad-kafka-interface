@@ -1,13 +1,13 @@
-//
-//  KafkaProducerTest.cpp
-//  KafkaPlugin
-//
-//  Created by Jonas Nilsson on 2017-01-11.
-//  Copyright © 2017 European Spallation Source. All rights reserved.
-//
+/** Copyright (C) 2017 European Spallation Source */
+
+/** @file  KafkaProducerTest.cpp
+ *  @brief Unit tests of the Kafka producer part of this project.
+ */
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <NDPluginDriver.h>
+#include <ciso646>
 #include "KafkaProducer.h"
 
 namespace KafkaInterface {
@@ -22,6 +22,7 @@ namespace KafkaInterface {
         using KafkaProducer::PV;
         using KafkaProducer::conf;
         using KafkaProducer::tconf;
+        using KafkaProducer::paramsList;
         void SetConStatParent(KafkaProducerStandIn::ConStat stat, std::string msg) {KafkaProducer::SetConStat(stat, msg);};
         bool MakeConnectionParent() {return KafkaProducer::MakeConnection();};
         MOCK_METHOD0(MakeConnection, bool(void));
@@ -78,6 +79,11 @@ namespace KafkaInterface {
     
     using namespace testing;
     using ::testing::Mock;
+    
+    TEST_F(KafkaProducerEnv, ParameterCountTest) {
+        KafkaProducerStandIn prod;
+        ASSERT_EQ(prod.paramsList.size(), KafkaProducerStandIn::PV::count);
+    }
     
     TEST_F(KafkaProducerEnv, InitTest) {
         KafkaProducer prod;

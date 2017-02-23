@@ -1,18 +1,20 @@
-//
-//  NDArraySerializerTest.cpp
-//  KafkaPlugin
-//
-//  Created by Jonas Nilsson on 2017-01-05.
-//  Copyright © 2017 European Spallation Source. All rights reserved.
-//
+/** Copyright (C) 2017 European Spallation Source */
+
+/** @file  NDArraySerializerTest.cpp
+ *  @brief Unit tests of the serialization and de-serialization of NDArray data.
+ */
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <map>
 #include <set>
 #include <random>
+#include <ciso646>
+#include <fstream>
 #include "NDArraySerializer.h"
+#include "NDArrayDeSerializer.h"
 #include "GenerateNDArray.h"
+#include "NDArray_schema_generated.h"
 
 class NDArraySerializerStandIn : public NDArraySerializer {
 public:
@@ -92,6 +94,47 @@ TEST_F(Serializer, SerializeTest) {
     delete sendArr;
 }
 
+class DeSerializer : public ::testing::Test {
+public:
+    static void SetUpTestCase() {
+        std::ifstream inFile("someNDArray.data", std::ifstream::in | std::ifstream::binary);
+        inFile.seekg(0, inFile.end);
+        fileSize = inFile.tellg();
+        rawData = new unsigned char[fileSize];
+        inFile.seekg(0, inFile.beg);
+        inFile.read((char*)rawData, fileSize);
+    };
+    
+    static void TearDownTestCase() {
+        delete [] rawData;
+    };
+    
+    virtual void SetUp() {
+    };
+    
+    virtual void TearDown() {
+    };
+    static unsigned char *rawData;
+    static size_t fileSize;
+};
+
+unsigned char* DeSerializer::rawData = nullptr;
+size_t DeSerializer::fileSize = 0;
+
+TEST_F(DeSerializer, FileIntegrityTest) {
+    ASSERT_NE(rawData, nullptr);
+    flatbuffers::Verifier verifier(DeSerializer::rawData, DeSerializer::fileSize);
+    ASSERT_GE(DeSerializer::fileSize, 1);
+    ASSERT_TRUE(FB_Tables::VerifyNDArrayBuffer(verifier));
+}
+
+TEST_F(DeSerializer, FileContentTest) {
+    ASSERT_NE(rawData, nullptr);
+    ASSERT_GE(DeSerializer::fileSize, 1);
+    auto recvArr = FB_Tables::GetNDArray(rawData);
+    ASSERT_EQ(recvArr->id(), 2720);
+}
+
 TEST_F(Serializer, SerializeDeserializeTest) {
     NDArraySerializer ser;
     std::vector<size_t> numAttr = {0, 1, 10};
@@ -108,7 +151,7 @@ TEST_F(Serializer, SerializeDeserializeTest) {
                     unsigned char *bufferPtr = nullptr;
                     size_t bufferSize;
                     ser.SerializeData(*sendArr, bufferPtr, bufferSize);
-                    ser.DeSerializeData(recvArr, recvPool, bufferPtr);
+                    DeSerializeData(recvArr, recvPool, bufferPtr, bufferSize);
                     CompareDataTypes(sendArr, recvArr);
                     CompareSizeAndDims(sendArr, recvArr);
                     CompareTimeStamps(sendArr, recvArr);

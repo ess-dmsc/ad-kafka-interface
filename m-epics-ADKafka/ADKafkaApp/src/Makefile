@@ -4,15 +4,19 @@ include $(TOP)/configure/CONFIG
 #----------------------------------------
 #  ADD MACRO DEFINITIONS BELOW HERE
 
-INC += KafkaPlugin.h
+INC += KafkaDriver.h
+INC += KafkaConsumer.h
 INC += json.h
 INC += NDArray_schema_generated.h
-INC_DIR += /opt/epics/base-3.15.4/include
-LIBRARY_IOC += KafkaPlugin
-LIB_SRCS += KafkaPlugin.cpp
+INC += ParamUtility.h
+INC += NDArrayDeSerializer.h
+LIBRARY_IOC += ADKafka
+LIB_SRCS += KafkaDriver.cpp
+LIB_SRCS += KafkaConsumer.cpp
+LIB_SRCS += NDArrayDeSerializer.cpp
 LIB_SRCS += jsoncpp.cpp
 
-DBD += KafkaPlugin.dbd
+DBD += ADKafka.dbd
 
 CXXFLAGS += -std=c++11
 CXXFLAGS += -I${AREA_DETECTOR}/ADCore/include

@@ -1,12 +1,13 @@
-//
-//  KafkaConsumer.cpp
-//  KafkaPlugin
-//
-//  Created by Jonas Nilsson on 2017-01-16.
-//  Copyright © 2017 European Spallation Source. All rights reserved.
-//
+/** Copyright (C) 2017 European Spallation Source */
+
+/** @file  KafkaConsumer.cpp
+ *  @brief Implementation of a Kafka consumer. Used in a kafka areaDetector
+ * driver.
+ */
 
 #include "KafkaConsumer.h"
+#include <ciso646>
+
 namespace KafkaInterface {
     
     int KafkaConsumer::GetNumberOfPVs() {
@@ -29,13 +30,13 @@ namespace KafkaInterface {
         return msg->len();
     }
     
-    KafkaConsumer::KafkaConsumer(std::string topic, std::string broker, std::string groupId) : topicOffset(RdKafka::Topic::OFFSET_END), consumer(nullptr), paramCallback(nullptr), conf(nullptr) {
+    KafkaConsumer::KafkaConsumer(std::string broker, std::string topic, std::string groupId) : topicName(topic), brokerAddrStr(broker), topicOffset(RdKafka::Topic::OFFSET_STORED), consumer(nullptr), paramCallback(nullptr), conf(nullptr) {
         InitRdKafka(groupId);
         SetBrokerAddr(broker);
         SetTopic(topic);
     }
     
-    KafkaConsumer::KafkaConsumer(std::string groupId) : topicOffset(RdKafka::Topic::OFFSET_END), consumer(nullptr), paramCallback(nullptr), conf(nullptr) {
+    KafkaConsumer::KafkaConsumer(std::string groupId) : topicOffset(RdKafka::Topic::OFFSET_STORED), consumer(nullptr), paramCallback(nullptr), conf(nullptr) {
         InitRdKafka(groupId);
     }
     
@@ -83,15 +84,29 @@ namespace KafkaInterface {
             errorState = true;
             return;
         }
+        groupName = groupId;
     }
     
     std::vector<PV_param> &KafkaConsumer::GetParams() {
         return paramsList;
     }
     
-    void KafkaConsumer::SetOffset(std::int64_t offset) {
+    bool KafkaConsumer::SetOffset(std::int64_t offset) {
+        if (offset < -2 and offset != -1000) {
+            return false;
+        }
         topicOffset = offset;
+        setParam(paramCallback, paramsList.at(msg_offset), offset);
         UpdateTopic();
+        return true;
+    }
+    
+    std::string KafkaConsumer::GetTopic() {
+        return topicName;
+    }
+    
+    std::string KafkaConsumer::GetBrokerAddr() {
+        return brokerAddrStr;
     }
     
     KafkaMessage* KafkaConsumer::WaitForPkg(int timeout) {
@@ -99,6 +114,7 @@ namespace KafkaInterface {
             RdKafka::Message *msg = consumer->consume(timeout);
             if (msg->err() == RdKafka::ERR_NO_ERROR) {
                 topicOffset = msg->offset();
+                setParam(paramCallback, paramsList[PV::msg_offset], int(topicOffset));
                 return new KafkaMessage(msg);
             } else {
                 delete msg;
@@ -177,8 +193,29 @@ namespace KafkaInterface {
             std::vector<RdKafka::TopicPartition*> topics;
             topics.push_back(RdKafka::TopicPartition::create(topicName, 0, topicOffset));
             consumer->assign(topics);
+            if (consumptionHalted) {
+                consumer->pause(topics);
+            }
         }
         return true;
+    }
+    
+    void KafkaConsumer::StartConsumption() {
+        if (consumptionHalted) {
+            std::vector<RdKafka::TopicPartition*> topics;
+            consumer->assignment(topics);
+            consumer->resume(topics);
+            consumptionHalted = false;
+        }
+    }
+    
+    void KafkaConsumer::StopConsumption() {
+        if (not consumptionHalted) {
+            std::vector<RdKafka::TopicPartition*> topics;
+            consumer->assignment(topics);
+            consumer->pause(topics);
+            consumptionHalted = true;
+        }
     }
     
     bool KafkaConsumer::MakeConnection() {
@@ -223,6 +260,10 @@ namespace KafkaInterface {
         return true;
     }
     
+    std::string KafkaConsumer::GetGroupId() {
+        return groupName;
+    }
+    
     bool KafkaConsumer::SetGroupId(std::string groupId) {
         if (errorState or groupId.size() == 0) {
             return false;
@@ -233,18 +274,19 @@ namespace KafkaInterface {
             SetConStat(KafkaConsumer::ConStat::ERROR, "Can not set new group id.");
             return false;
         }
+        groupName = groupId;
         MakeConnection();
         return true;
     }
     
     void KafkaConsumer::SetConStat(ConStat stat, std::string msg) {
-        //std::cout << int(stat) << " : " << msg << std::endl;
         setParam(paramCallback, paramsList[PV::con_status], int(stat));
         setParam(paramCallback, paramsList[PV::con_msg], msg);
     }
     
-    void KafkaConsumer::RegisterParamCallbackClass(NDPluginDriver *ptr) {
+    void KafkaConsumer::RegisterParamCallbackClass(asynNDArrayDriver *ptr) {
         paramCallback = ptr;
+        setParam(paramCallback, paramsList[PV::msg_offset], int(RdKafka::Topic::OFFSET_STORED));
     }
     
     bool KafkaConsumer::SetStatsTimeMS(int time) {
@@ -264,5 +306,9 @@ namespace KafkaInterface {
     
     int KafkaConsumer::GetStatsTimeMS() {
         return kafka_stats_interval;
+    }
+    
+    int KafkaConsumer::GetOffsetPVIndex() {
+        return *paramsList[PV::msg_offset].index;
     }
 }

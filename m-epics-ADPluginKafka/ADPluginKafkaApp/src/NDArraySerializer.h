@@ -1,11 +1,8 @@
-//
-//  NDArraySerializer.hpp
-//  KafkaPlugin
-//
-//  Created by Jonas Nilsson on 2017-01-05.
-//  Copyright © 2017 European Spallation Source. All rights reserved.
-//
+/** Copyright (C) 2017 European Spallation Source */
 
+/** @file  NDArraySerializer.h
+ *  @brief Serialisation of NDArray data using Google Flatbuffer.
+ */
 #pragma once
 
 #include "NDArray_schema_generated.h"
@@ -25,8 +22,6 @@ public:
      * @param[out] bufferSize Size of serialized data in bytes.
      */
     void SerializeData(NDArray &pArray, unsigned char *&bufferPtr, size_t &bufferSize);
-    
-    void DeSerializeData(NDArray *&pArray, NDArrayPool *pNDArrayPool, unsigned char *bufferPtr);
     
     void ReleaseSerializedData();
 protected:

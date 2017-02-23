@@ -1,10 +1,8 @@
-//
-//  KafkaProducer.hpp
-//  KafkaPlugin
-//
-//  Created by Jonas Nilsson on 2017-01-11.
-//  Copyright © 2017 European Spallation Source. All rights reserved.
-//
+/** Copyright (C) 2017 European Spallation Source */
+
+/** @file  KafkaProducer.h
+ *  @brief Kafka producer part of EPICS C++ areaDetector plugin.
+ */
 
 #pragma once
 
@@ -14,7 +12,7 @@
 #include <atomic>
 #include <librdkafka/rdkafkacpp.h>
 #include "ParamUtility.h"
-#include "NDPluginDriver.h"
+#include <asynNDArrayDriver.h>
 #include "json.h"
 
 namespace KafkaInterface {
@@ -31,7 +29,7 @@ namespace KafkaInterface {
         virtual std::vector<PV_param> &GetParams();
         
         
-        virtual void RegisterParamCallbackClass(NDPluginDriver *ptr);
+        virtual void RegisterParamCallbackClass(asynNDArrayDriver *ptr);
         
         virtual bool SetTopic(std::string topicName);
         virtual std::string GetTopic();
@@ -141,7 +139,7 @@ namespace KafkaInterface {
         
         std::thread statusThread;
         
-        NDPluginDriver *paramCallback;
+        asynNDArrayDriver *paramCallback;
         
         std::atomic_bool runThread;
         

@@ -1,14 +1,14 @@
-//
-//  KafkaConsumerTest.cpp
-//  KafkaPlugin
-//
-//  Created by Jonas Nilsson on 2017-01-16.
-//  Copyright © 2017 European Spallation Source. All rights reserved.
-//
+/** Copyright (C) 2017 European Spallation Source */
+
+/** @file  KafkaConsumerTest.cpp
+ *  @brief Unit tests of the Kafka consumer class.
+ */
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <chrono>
+#include <asynNDArrayDriver.h>
+#include <ciso646>
 #include "KafkaConsumer.h"
 
 class KafkaConsumerStandIn : public KafkaInterface::KafkaConsumer {
@@ -21,6 +21,7 @@ public:
     using KafkaInterface::KafkaConsumer::consumer;
     using KafkaInterface::KafkaConsumer::paramCallback;
     using KafkaInterface::KafkaConsumer::PV;
+    using KafkaInterface::KafkaConsumer::paramsList;
     void SetConStatParent(KafkaConsumerStandIn::ConStat stat, std::string msg) {KafkaInterface::KafkaConsumer::SetConStat(stat, msg);};
     bool MakeConnectionParent() {return KafkaInterface::KafkaConsumer::MakeConnection();};
     MOCK_METHOD1(ParseStatusString, void(std::string));
@@ -39,9 +40,9 @@ public:
     using KafkaInterface::KafkaConsumer::consumer;
 };
 
-class NDPluginDriverStandIn : public NDPluginDriver {
+class asynNDArrayDriverStandIn : public asynNDArrayDriver {
 public:
-    NDPluginDriverStandIn(const char *portName, int queueSize, int blockingCallbacks, const char *NDArrayPort, int NDArrayAddr, int maxAddr, int numParams, int maxBuffers, size_t maxMemory, int interfaceMask, int interruptMask, int asynFlags, int autoConnect, int priority, int stackSize) : NDPluginDriver(portName, queueSize, blockingCallbacks, NDArrayPort, NDArrayAddr, maxAddr, numParams, maxBuffers, maxMemory, interfaceMask, interruptMask, asynFlags, autoConnect, priority, stackSize) {};
+    asynNDArrayDriverStandIn(const char *portName, int maxAddr, int numParams, int maxBuffers, size_t maxMemory, int interfaceMask, int interruptMask, int asynFlags, int autoConnect, int priority, int stackSize) : asynNDArrayDriver(portName, maxAddr, numParams, maxBuffers, maxMemory, interfaceMask, interruptMask, asynFlags, autoConnect, priority, stackSize) {};
     MOCK_METHOD2(setStringParam, asynStatus(int, const char*));
     MOCK_METHOD2(setIntegerParam, asynStatus(int, int));
     MOCK_METHOD3(createParam, asynStatus(const char*, asynParamType, int*));
@@ -51,10 +52,6 @@ class KafkaConsumerEnv : public ::testing::Test {
 public:
     static void SetUpTestCase() {
         std::string portName("someNameSecond");
-        int queueSize = 10;
-        int blockingCallbacks = 0;
-        std::string NDArrayPort("NDArrayPortName");
-        int NDArrayAddr = 42;
         int numberOfParams = 0;
         size_t maxMemory = 10;
         int mask1 = asynInt8ArrayMask | asynInt16ArrayMask | asynInt32ArrayMask |
@@ -63,13 +60,13 @@ public:
         asynFloat32ArrayMask | asynFloat64ArrayMask;
         int priority = 0;
         int stackSize = 5;
-        plugin = new NDPluginDriverStandIn(portName.c_str(), queueSize, blockingCallbacks, NDArrayPort.c_str(), NDArrayAddr, 1,
+        asynDrvr = new asynNDArrayDriverStandIn(portName.c_str(), 1,
                                            numberOfParams, 2, maxMemory, mask1, mask2, 0, 1, priority, stackSize);
     };
     
     static void TearDownTestCase() {
-        delete plugin;
-        plugin = nullptr;
+        delete asynDrvr;
+        asynDrvr = nullptr;
     };
     
     virtual void SetUp() {
@@ -80,10 +77,10 @@ public:
         
     };
     
-    static NDPluginDriverStandIn *plugin;
+    static asynNDArrayDriverStandIn *asynDrvr;
 };
 
-NDPluginDriverStandIn *KafkaConsumerEnv::plugin = nullptr;
+asynNDArrayDriverStandIn *KafkaConsumerEnv::asynDrvr = nullptr;
 
 typedef std::chrono::milliseconds TimeT;
 using namespace testing;
@@ -93,6 +90,11 @@ namespace KafkaInterface {
     TEST_F(KafkaConsumerEnv, ConnectionSuccessTest) {
         KafkaConsumerStandInAlt cons("some_addr", "some_topic");
         ASSERT_NE(cons.consumer, nullptr);
+    }
+    
+    TEST_F(KafkaConsumerEnv, ParameterCountTest) {
+        KafkaConsumerStandIn cons;
+        ASSERT_EQ(cons.paramsList.size(), KafkaConsumerStandIn::PV::count);
     }
     
     TEST_F(KafkaConsumerEnv, ConnectionFailTest) {
@@ -117,6 +119,66 @@ namespace KafkaInterface {
         delete msg;
     }
     
+    TEST_F(KafkaConsumerEnv, SetOffsetSuccess1Test) {
+        KafkaConsumer cons;
+        cons.RegisterParamCallbackClass(asynDrvr);
+        int ctr = 1;
+        for (auto p : cons.GetParams()) {
+            *p.index = ctr;
+            ctr++;
+        }
+        int usedValue = RdKafka::Topic::OFFSET_BEGINNING;
+        EXPECT_CALL(*asynDrvr, setIntegerParam(_, Eq(usedValue))).Times(Exactly(1));
+        ASSERT_TRUE(cons.SetOffset(usedValue));
+        ASSERT_EQ(cons.GetCurrentOffset(), usedValue);
+        Mock::VerifyAndClear(asynDrvr);
+    }
+    
+    TEST_F(KafkaConsumerEnv, SetOffsetSuccess2Test) {
+        KafkaConsumer cons;
+        cons.RegisterParamCallbackClass(asynDrvr);
+        int ctr = 1;
+        for (auto p : cons.GetParams()) {
+            *p.index = ctr;
+            ctr++;
+        }
+        int usedValue = RdKafka::Topic::OFFSET_END;
+        EXPECT_CALL(*asynDrvr, setIntegerParam(_, Eq(usedValue))).Times(Exactly(1));
+        ASSERT_TRUE(cons.SetOffset(usedValue));
+        ASSERT_EQ(cons.GetCurrentOffset(), usedValue);
+        Mock::VerifyAndClear(asynDrvr);
+    }
+    
+    TEST_F(KafkaConsumerEnv, SetOffsetSuccess3Test) {
+        KafkaConsumer cons;
+        cons.RegisterParamCallbackClass(asynDrvr);
+        int ctr = 1;
+        for (auto p : cons.GetParams()) {
+            *p.index = ctr;
+            ctr++;
+        }
+        int usedValue = RdKafka::Topic::OFFSET_STORED;
+        EXPECT_CALL(*asynDrvr, setIntegerParam(_, Eq(usedValue))).Times(Exactly(1));
+        ASSERT_TRUE(cons.SetOffset(usedValue));
+        ASSERT_EQ(cons.GetCurrentOffset(), usedValue);
+        Mock::VerifyAndClear(asynDrvr);
+    }
+    
+    TEST_F(KafkaConsumerEnv, SetOffsetFailTest) {
+        KafkaConsumer cons;
+        cons.RegisterParamCallbackClass(asynDrvr);
+        int ctr = 1;
+        for (auto p : cons.GetParams()) {
+            *p.index = ctr;
+            ctr++;
+        }
+        int usedValue = -3;
+        EXPECT_CALL(*asynDrvr, setIntegerParam(_, Eq(usedValue))).Times(Exactly(0));
+        ASSERT_FALSE(cons.SetOffset(usedValue));
+        ASSERT_NE(cons.GetCurrentOffset(), usedValue);
+        Mock::VerifyAndClear(asynDrvr);
+    }
+    
     TEST_F(KafkaConsumerEnv, WaitTest) {
         KafkaConsumer cons("some_addr", "some_topic");
         auto start = std::chrono::steady_clock::now();
@@ -133,37 +195,37 @@ namespace KafkaInterface {
     TEST_F(KafkaConsumerEnv, StatsQueueTest) {
         KafkaConsumer cons("some_addr", "some_topic");
         auto params = cons.GetParams();
-        cons.RegisterParamCallbackClass(plugin);
+        cons.RegisterParamCallbackClass(asynDrvr);
         int ctr = 1;
         for (auto p : params) {
             *p.index = ctr;
             ctr++;
         }
         int queueIndex = *params[KafkaConsumerStandIn::PV::msgs_in_queue].index;
-        EXPECT_CALL(*plugin, setIntegerParam(_,_)).Times(AtLeast(1));
-        EXPECT_CALL(*plugin, setIntegerParam(Eq(queueIndex),_)).Times(AtLeast(1));
+        EXPECT_CALL(*asynDrvr, setIntegerParam(_,_)).Times(AtLeast(1));
+        EXPECT_CALL(*asynDrvr, setIntegerParam(Eq(queueIndex),_)).Times(AtLeast(1));
         KafkaMessage *msg = cons.WaitForPkg(1000);
         
         delete msg;
-        Mock::VerifyAndClear(plugin);
+        Mock::VerifyAndClear(asynDrvr);
     }
     
     TEST_F(KafkaConsumerEnv, StatsStatusTest) {
         KafkaConsumer cons("some_addr", "some_topic");
         auto params = cons.GetParams();
-        cons.RegisterParamCallbackClass(plugin);
+        cons.RegisterParamCallbackClass(asynDrvr);
         int ctr = 1;
         for (auto p : params) {
             *p.index = ctr;
             ctr++;
         }
         int statusIndex = *params[KafkaConsumerStandIn::PV::con_status].index;
-        EXPECT_CALL(*plugin, setIntegerParam(_,_)).Times(AtLeast(1));
-        EXPECT_CALL(*plugin, setIntegerParam(Eq(statusIndex),_)).Times(AtLeast(1));
+        EXPECT_CALL(*asynDrvr, setIntegerParam(_,_)).Times(AtLeast(1));
+        EXPECT_CALL(*asynDrvr, setIntegerParam(Eq(statusIndex),_)).Times(AtLeast(1));
         KafkaMessage *msg = cons.WaitForPkg(1000);
         
         delete msg;
-        Mock::VerifyAndClear(plugin);
+        Mock::VerifyAndClear(asynDrvr);
     }
     
     TEST_F(KafkaConsumerEnv, ErrorStateTest) {
@@ -210,8 +272,8 @@ namespace KafkaInterface {
     
     TEST_F(KafkaConsumerEnv, RegCallbackTest) {
         KafkaConsumerStandIn cons;
-        cons.RegisterParamCallbackClass(plugin);
-        ASSERT_EQ(plugin, cons.paramCallback);
+        cons.RegisterParamCallbackClass(asynDrvr);
+        ASSERT_EQ(asynDrvr, cons.paramCallback);
     }
     
     TEST_F(KafkaConsumerEnv, SetTopicTest) {
@@ -251,6 +313,25 @@ namespace KafkaInterface {
         ASSERT_EQ(usedTime, cons.GetStatsTimeMS());
     }
     
+    TEST_F(KafkaConsumerEnv, GetGroupIdTest) {
+        std::string testString = "some_group_id1";
+        KafkaConsumer cons("addr", "tpic", testString);
+        ASSERT_EQ(testString, cons.GetGroupId());
+    }
+    
+    TEST_F(KafkaConsumerEnv, GetGroupIdAltTest) {
+        std::string testString = "some_group_id2";
+        KafkaConsumer cons(testString);
+        ASSERT_EQ(testString, cons.GetGroupId());
+    }
+    
+    TEST_F(KafkaConsumerEnv, SetGetGroupIdTest) {
+        std::string testString = "some_group_id3";
+        KafkaConsumer cons("addr", "topic");
+        cons.SetGroupId(testString);
+        ASSERT_EQ(testString, cons.GetGroupId());
+    }
+    
     TEST_F(KafkaConsumerEnv, SetConStatTest) {
         KafkaConsumerStandIn cons("addr", "tpic");
         auto params = cons.GetParams();
@@ -261,11 +342,11 @@ namespace KafkaInterface {
         }
         int messageIndex = *params[KafkaConsumerStandIn::PV::con_msg].index;
         int statusIndex = *params[KafkaConsumerStandIn::PV::con_status].index;
-        cons.RegisterParamCallbackClass(plugin);
-        EXPECT_CALL(*plugin, setIntegerParam(Eq(statusIndex), Eq(int(KafkaConsumerStandIn::ConStat::ERROR)))).Times(Exactly(1));
-        EXPECT_CALL(*plugin, setStringParam(Eq(messageIndex), _)).Times(Exactly(1));
+        cons.RegisterParamCallbackClass(asynDrvr);
+        EXPECT_CALL(*asynDrvr, setIntegerParam(Eq(statusIndex), Eq(int(KafkaConsumerStandIn::ConStat::ERROR)))).Times(Exactly(1));
+        EXPECT_CALL(*asynDrvr, setStringParam(Eq(messageIndex), _)).Times(Exactly(1));
         cons.SetConStatParent(KafkaConsumerStandIn::ConStat::ERROR, "some message");
-        Mock::VerifyAndClear(plugin);
+        Mock::VerifyAndClear(asynDrvr);
     }
     
     TEST_F(KafkaConsumerEnv, TestNrOfParams) {
