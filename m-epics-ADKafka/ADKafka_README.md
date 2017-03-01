@@ -30,7 +30,7 @@ The example now also makes the PVs available through pvAccess (EPICS v4). It is 
 This plugin provides a few extra process variables besides the ones provided through inheritance from `NDPluginDriver`. These are:
 
 * `$(P)$(R)KafkaBrokerAddress` and `$(P)$(R)KafkaBrokerAddress_RBV` are used to set the address of one or more Kafka broker.The address should include the port and have the following form:`address:port`. When using several addresses they should be seperated by a comma. Note that the text string is limited to 40 characters.
-* `$(P)$(R)KafkaBrokerTopic` and `$(P)$(R)KafkaTopic_RBV` are used to set and retrieve the current topic. Limited to 40 characters.
+* `$(P)$(R)KafkaTopic` and `$(P)$(R)KafkaTopic_RBV` are used to set and retrieve the current topic. Limited to 40 characters.
 * `$(P)$(R)ConnectionStatus_RBV` holds an integer corresponding to the current connection status. Se `ADPluginKafka.template` for possible values.
 * `$(P)$(R)ConnectionMessage_RBV` is a PV that has a text message of at most 40 characters that gives information about the current connection status.
 * `$(P)$(R)UnproccessedMessages_RBV` may show the number of messages received by librdkafka but not yet processed by the driver. This has not been tested though.
