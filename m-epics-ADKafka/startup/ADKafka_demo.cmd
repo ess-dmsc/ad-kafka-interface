@@ -1,6 +1,6 @@
 require adcore
 require pvaSrv
-require ADPluginKafka
+require ADPluginKafka,1.0-BETA
 
 epicsEnvSet("PREFIX", "$(PREFIX=DMSC)")
 epicsEnvSet("KFKDET_PORT", "$(PREFIX)_AD_KAFKA")
