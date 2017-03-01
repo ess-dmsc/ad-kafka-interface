@@ -50,4 +50,5 @@ This driver is somewhat production ready. However, there are some improvements t
 * **Kafka producer parameters** Some Kafka parameters can be set but being able to set more of them is probably useful. Kafka consumer lag is probably the most useful of these statistics to make available.
 * **More extensive unit tests** It is possible to do more extensive unit testing.
 * **Bug related to setting PVs** When testing the driver some bug related to the setting of PVs was encountered. A problem probably related to this one was that the CPU usage was excessive. This should be fixed.
+* **Problems related to changing offset** Changing the used offset is currently problematic. This needs to be fixed. Could also use some proper unit tests.
 
