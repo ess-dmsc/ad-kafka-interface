@@ -101,7 +101,9 @@ asynStatus KafkaDriver::writeInt32(asynUser *pasynUser, epicsInt32 value) {
     if (function == *paramsList[set_offset].index) {
         int cOffsetSetting;
         getIntegerParam(*paramsList[set_offset].index, &cOffsetSetting);
+        //If new start offset value is one of 4 different
         if (value >= 0 and value <= 3) {
+            //Map start offset settings to the ones used by RdKafka.
             if (KafkaDriver::Beginning == value) {
                 consumer.SetOffset(RdKafka::Topic::OFFSET_BEGINNING);
             } else if (KafkaDriver::End == value) {
