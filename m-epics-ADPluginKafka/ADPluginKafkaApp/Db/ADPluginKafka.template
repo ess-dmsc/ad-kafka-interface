@@ -44,7 +44,7 @@ record(stringout, "$(P)$(R)KafkaBrokerAddress")
 {
     field(DTYP, "asynOctetWrite")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_BROKER_ADDRESS")
-	field(PINI, "NO")
+	field(PINI, "YES")
 }
 
 record(stringin, "$(P)$(R)KafkaBrokerAddress_RBV")
@@ -58,7 +58,7 @@ record(stringout, "$(P)$(R)KafkaTopic")
 {
     field(DTYP, "asynOctetWrite")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_TOPIC")
-	field(PINI, "NO")
+	field(PINI, "YES")
 }
 
 record(stringin, "$(P)$(R)KafkaTopic_RBV")
