@@ -86,18 +86,7 @@ asynStatus KafkaDriver::writeInt32(asynUser *pasynUser, epicsInt32 value) {
         }
     }
     callParamCallbacks();
-
-    // We need to determine which index is used to store the current message offset
-    // This could probably be a bit nicer
-    for (auto pv : consumer.GetParams()) {
-        if (*pv.index == function) {
-            if ("KAFKA_CURRENT_OFFSET" == pv.desc) {
-                consumer.SetOffset(value);
-                break;
-            }
-        }
-    }
-
+    
     if (function == *paramsList[set_offset].index) {
         int cOffsetSetting;
         getIntegerParam(*paramsList[set_offset].index, &cOffsetSetting);
@@ -122,6 +111,8 @@ asynStatus KafkaDriver::writeInt32(asynUser *pasynUser, epicsInt32 value) {
     } else if (function == consumer.GetOffsetPVIndex()) {
         if (KafkaDriver::Manual == usedOffsetSetting) {
             consumer.SetOffset(value);
+        } else {
+            getIntegerParam(consumer.GetOffsetPVIndex(), &value);
         }
     } else if (function == *paramsList[stats_time].index) {
         if (value > 0) {
