@@ -82,8 +82,8 @@ void KafkaConsumer::InitRdKafka(std::string groupId) {
 std::vector<PV_param> &KafkaConsumer::GetParams() { return paramsList; }
 
 bool KafkaConsumer::SetOffset(std::int64_t offset) {
-    if (offset < -2) {
-        if (offset != -1000) {
+    if  (offset < 0) {
+        if (RdKafka::Topic::OFFSET_BEGINNING != offset and RdKafka::Topic::OFFSET_STORED != offset and RdKafka::Topic::OFFSET_END != offset) {
             return false;
         }
     }
