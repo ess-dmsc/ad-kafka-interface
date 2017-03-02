@@ -194,7 +194,7 @@ class KafkaConsumer : public RdKafka::EventCb {
      * by librdkafka.
      * @return True on success, false on failure.
      */
-    virtual bool SetStatsTimeMS(int time);
+    virtual bool SetStatsTimeIntervalMS(int timeInterval);
 
     /** @brief Returns the current Kafka stats interval time as stored by KafkaConsumer.
      * Does not guarantee that this is the acutal interval between times the connection stats are

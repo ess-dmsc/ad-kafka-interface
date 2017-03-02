@@ -102,7 +102,7 @@ std::unique_ptr<KafkaMessage> KafkaConsumer::WaitForPkg(int timeout) {
         RdKafka::Message *msg = consumer->consume(timeout);
         if (msg->err() == RdKafka::ERR_NO_ERROR) {
             topicOffset = msg->offset();
-            setParam(paramCallback, paramsList[PV::msg_offset], int(topicOffset));
+            setParam(paramCallback, paramsList[PV::msg_offset], static_cast<int>(topicOffset));
             return std::unique_ptr<KafkaMessage>(new KafkaMessage(msg));
         } else {
             delete msg;
@@ -271,26 +271,26 @@ bool KafkaConsumer::SetGroupId(std::string groupId) {
 }
 
 void KafkaConsumer::SetConStat(ConStat stat, std::string msg) {
-    setParam(paramCallback, paramsList[PV::con_status], int(stat));
+    setParam(paramCallback, paramsList[PV::con_status], static_cast<int>(stat));
     setParam(paramCallback, paramsList[PV::con_msg], msg);
 }
 
 void KafkaConsumer::RegisterParamCallbackClass(asynNDArrayDriver *ptr) {
     paramCallback = ptr;
-    setParam(paramCallback, paramsList[PV::msg_offset], int(RdKafka::Topic::OFFSET_STORED));
+    setParam(paramCallback, paramsList[PV::msg_offset], static_cast<int>(RdKafka::Topic::OFFSET_STORED));
 }
 
-bool KafkaConsumer::SetStatsTimeMS(int time) {
-    if (errorState or time <= 0) {
+bool KafkaConsumer::SetStatsTimeIntervalMS(int timeInterval) {
+    if (errorState or timeInterval <= 0) {
         return false;
     }
     RdKafka::Conf::ConfResult configResult;
-    configResult = conf->set("statistics.interval.ms", std::to_string(time), errstr);
+    configResult = conf->set("statistics.interval.ms", std::to_string(timeInterval), errstr);
     if (RdKafka::Conf::CONF_OK != configResult) {
         SetConStat(KafkaConsumer::ConStat::ERROR, "Unable to set statistics interval.");
         return false;
     }
-    kafka_stats_interval = time;
+    kafka_stats_interval = timeInterval;
     MakeConnection();
     return true;
 }

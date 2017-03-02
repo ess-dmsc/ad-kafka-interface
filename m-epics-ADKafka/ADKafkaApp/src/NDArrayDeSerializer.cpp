@@ -95,10 +95,10 @@ void DeSerializeData(NDArrayPool *pNDArrayPool, const unsigned char *bufferPtr, 
     int nsec = recvArr->epicsTS()->nsec();
     std::vector<size_t> dims(recvArr->dims()->begin(), recvArr->dims()->end());
     NDDataType_t dataType = GetND_DType(recvArr->dataType());
-    void *pData = (void *)recvArr->pData()->Data();
+    const void *pData = reinterpret_cast<const void*>(recvArr->pData()->Data());
     int pData_size = recvArr->pData()->size();
 
-    pArray = pNDArrayPool->alloc(int(dims.size()), dims.data(), dataType, 0, nullptr);
+    pArray = pNDArrayPool->alloc(static_cast<int>(dims.size()), dims.data(), dataType, 0, nullptr);
 
     NDAttributeList *attrPtr = pArray->pAttributeList;
     attrPtr->clear();
@@ -107,7 +107,7 @@ void DeSerializeData(NDArrayPool *pNDArrayPool, const unsigned char *bufferPtr, 
         attrPtr->add(new NDAttribute(cAttr->pName()->c_str(), cAttr->pDescription()->c_str(),
                                      NDAttrSourceDriver, cAttr->pSource()->c_str(),
                                      GetND_AttrDType(cAttr->dataType()),
-                                     (void *)cAttr->pData()->Data()));
+                                     reinterpret_cast<void *>(const_cast<std::uint8_t*>(cAttr->pData()->Data()))));
     }
 
     std::memcpy(pArray->pData, pData, pData_size);

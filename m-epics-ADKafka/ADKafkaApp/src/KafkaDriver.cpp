@@ -116,7 +116,7 @@ asynStatus KafkaDriver::writeInt32(asynUser *pasynUser, epicsInt32 value) {
         }
     } else if (function == *paramsList[stats_time].index) {
         if (value > 0) {
-            consumer.SetStatsTimeMS(value);
+            consumer.SetStatsTimeIntervalMS(value);
         }
     }
     /* Set the parameter and readback in the parameter library.  This may be overwritten when we
@@ -295,7 +295,7 @@ void KafkaDriver::consumeTask() {
         getDoubleParam(ADAcquirePeriod, &acquirePeriod);
         this->unlock();
         {
-            auto fbImg = consumer.WaitForPkg(int(acquirePeriod * 1000));
+            auto fbImg = consumer.WaitForPkg(static_cast<int>(acquirePeriod * 1000));
             this->lock();
 
             // If we get no image, go to start of loop
@@ -307,7 +307,7 @@ void KafkaDriver::consumeTask() {
                 pImage->release();
             }
             /// @todo Make sure that there is actual a free NDArray to which copy the data.
-            DeSerializeData(this->pNDArrayPool, (unsigned char *)fbImg->GetDataPtr(), fbImg->size(),
+            DeSerializeData(this->pNDArrayPool, reinterpret_cast<unsigned char*>(fbImg->GetDataPtr()), fbImg->size(),
                             pImage);
         }
 
