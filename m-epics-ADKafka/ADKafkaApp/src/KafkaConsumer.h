@@ -55,6 +55,7 @@ class KafkaMessage {
  * 3. Call KafkaConsumer::RegisterParamCallbackClass() to enable setting of PV:s.
  * @todo Add code to better keep track of the current client offset.
  * @todo Consider removing the default group id in the constructors.
+ * @todo Move the callback functionality to a separate class when it is extended.
  */
 class KafkaConsumer : public RdKafka::EventCb {
   public:
@@ -72,7 +73,7 @@ class KafkaConsumer : public RdKafka::EventCb {
      * @param[in] groupId The group id of the consumer, see the documentation for
      * KafkaConsumer::GetGroupId().
      */
-    KafkaConsumer(std::string broker, std::string topic, std::string groupId = "KF");
+    KafkaConsumer(std::string broker, std::string topic, std::string groupId);
 
     /** @brief Simple consumer constructor which will not connect to a broker.
      * @note After calling the constructor, the PV:s must be configured and
@@ -82,7 +83,7 @@ class KafkaConsumer : public RdKafka::EventCb {
      * @param[in] groupId The group id of the consumer, see the documentation for
      * KafkaConsumer::GetGroupId().
      */
-    KafkaConsumer(std::string groupId = "KF");
+    KafkaConsumer(std::string groupId);
 
     /** @brief Disconnect topic and deletes dynamically allocated objects.
      */

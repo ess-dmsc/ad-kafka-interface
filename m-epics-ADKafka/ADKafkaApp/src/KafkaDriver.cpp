@@ -168,7 +168,7 @@ KafkaDriver::KafkaDriver(const char *portName, int maxBuffers, size_t maxMemory,
                0,    /* No interfaces beyond those set in ADDriver.cpp */
                0, 1, /* ASYN_CANBLOCK=0, ASYN_MULTIDEVICE=0, autoConnect=1 */
                priority, stackSize),
-      consumer(brokerAddress, brokerTopic) {
+consumer(brokerAddress, brokerTopic, asynPortDriver::portName) {
 
     const char *functionName = "KafkaDriver";
     int status = asynStatus::asynSuccess;

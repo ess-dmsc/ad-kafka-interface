@@ -14,9 +14,9 @@
 /// @brief Simple stand-in class used for unit tests.
 class KafkaConsumerStandIn : public KafkaInterface::KafkaConsumer {
 public:
-  KafkaConsumerStandIn() : KafkaConsumer(){};
+  KafkaConsumerStandIn() : KafkaConsumer("some_group"){};
   KafkaConsumerStandIn(std::string addr, std::string topic)
-      : KafkaInterface::KafkaConsumer(addr, topic){};
+      : KafkaInterface::KafkaConsumer(addr, topic, "some_group"){};
   using KafkaInterface::KafkaConsumer::errorState;
   using KafkaInterface::KafkaConsumer::ConStat;
   using KafkaInterface::KafkaConsumer::kafka_stats_interval;
@@ -39,9 +39,9 @@ public:
 /// @brief Simple stand-in class used for unit tests.
 class KafkaConsumerStandInAlt : public KafkaInterface::KafkaConsumer {
 public:
-  KafkaConsumerStandInAlt() : KafkaConsumer(){};
+  KafkaConsumerStandInAlt() : KafkaConsumer("some_group"){};
   KafkaConsumerStandInAlt(std::string addr, std::string topic)
-      : KafkaInterface::KafkaConsumer(addr, topic){};
+      : KafkaInterface::KafkaConsumer(addr, topic, "some_group"){};
   using KafkaInterface::KafkaConsumer::errorState;
   using KafkaInterface::KafkaConsumer::ConStat;
   using KafkaInterface::KafkaConsumer::kafka_stats_interval;
@@ -126,7 +126,7 @@ TEST_F(KafkaConsumerEnv, StatsTest) {
 }
 
 TEST_F(KafkaConsumerEnv, NoWaitTest) {
-  KafkaConsumer cons;
+  KafkaConsumer cons("some_group");
   auto start = std::chrono::steady_clock::now();
   auto msg = cons.WaitForPkg(1000);
   auto duration = std::chrono::duration_cast<TimeT>(
@@ -136,7 +136,7 @@ TEST_F(KafkaConsumerEnv, NoWaitTest) {
 }
 
 TEST_F(KafkaConsumerEnv, SetOffsetSuccess1Test) {
-  KafkaConsumer cons;
+  KafkaConsumer cons("some_group");
   cons.RegisterParamCallbackClass(asynDrvr);
   int ctr = 1;
   for (auto p : cons.GetParams()) {
@@ -151,7 +151,7 @@ TEST_F(KafkaConsumerEnv, SetOffsetSuccess1Test) {
 }
 
 TEST_F(KafkaConsumerEnv, SetOffsetSuccess2Test) {
-  KafkaConsumer cons;
+  KafkaConsumer cons("some_group");
   cons.RegisterParamCallbackClass(asynDrvr);
   int ctr = 1;
   for (auto p : cons.GetParams()) {
@@ -166,7 +166,7 @@ TEST_F(KafkaConsumerEnv, SetOffsetSuccess2Test) {
 }
 
 TEST_F(KafkaConsumerEnv, SetOffsetSuccess3Test) {
-  KafkaConsumer cons;
+  KafkaConsumer cons("some_group");
   cons.RegisterParamCallbackClass(asynDrvr);
   int ctr = 1;
   for (auto p : cons.GetParams()) {
@@ -181,7 +181,7 @@ TEST_F(KafkaConsumerEnv, SetOffsetSuccess3Test) {
 }
 
 TEST_F(KafkaConsumerEnv, SetOffsetFailTest) {
-  KafkaConsumer cons;
+  KafkaConsumer cons("some_group");
   cons.RegisterParamCallbackClass(asynDrvr);
   int ctr = 1;
   for (auto p : cons.GetParams()) {
@@ -196,7 +196,7 @@ TEST_F(KafkaConsumerEnv, SetOffsetFailTest) {
 }
 
 TEST_F(KafkaConsumerEnv, WaitTest) {
-  KafkaConsumer cons("some_addr", "some_topic");
+  KafkaConsumer cons("some_addr", "some_topic", "some_group");
   auto start = std::chrono::steady_clock::now();
 
   int waitTime = 1000;
@@ -209,7 +209,7 @@ TEST_F(KafkaConsumerEnv, WaitTest) {
 }
 
 TEST_F(KafkaConsumerEnv, StatsQueueTest) {
-  KafkaConsumer cons("some_addr", "some_topic");
+  KafkaConsumer cons("some_addr", "some_topic", "some_group");
   auto params = cons.GetParams();
   cons.RegisterParamCallbackClass(asynDrvr);
   int ctr = 1;
@@ -226,7 +226,7 @@ TEST_F(KafkaConsumerEnv, StatsQueueTest) {
 }
 
 TEST_F(KafkaConsumerEnv, StatsStatusTest) {
-  KafkaConsumer cons("some_addr", "some_topic");
+  KafkaConsumer cons("some_addr", "some_topic", "some_group");
   auto params = cons.GetParams();
   cons.RegisterParamCallbackClass(asynDrvr);
   int ctr = 1;
@@ -252,7 +252,7 @@ TEST_F(KafkaConsumerEnv, ErrorStateTest) {
 }
 
 TEST_F(KafkaConsumerEnv, NoErrorStateTest) {
-  KafkaConsumer cons("addr", "tpic");
+  KafkaConsumer cons("addr", "tpic", "some_group");
   ASSERT_TRUE(cons.SetTopic("some_topic_2"));
   ASSERT_TRUE(cons.SetBrokerAddr("some_topic_2"));
   ASSERT_TRUE(cons.SetGroupId("some_topic_2"));
@@ -260,27 +260,27 @@ TEST_F(KafkaConsumerEnv, NoErrorStateTest) {
 }
 
 TEST_F(KafkaConsumerEnv, NegativeTimeTest) {
-  KafkaConsumer cons("addr", "tpic");
+  KafkaConsumer cons("addr", "tpic", "some_group");
   ASSERT_FALSE(cons.SetStatsTimeMS(-1));
 }
 
 TEST_F(KafkaConsumerEnv, ZeroTimeTest) {
-  KafkaConsumer cons("addr", "tpic");
+  KafkaConsumer cons("addr", "tpic", "some_group");
   ASSERT_FALSE(cons.SetStatsTimeMS(0));
 }
 
 TEST_F(KafkaConsumerEnv, ZeroLengthGroupIdTest) {
-  KafkaConsumer cons("addr", "tpic");
+  KafkaConsumer cons("addr", "tpic", "some_group");
   ASSERT_FALSE(cons.SetGroupId(""));
 }
 
 TEST_F(KafkaConsumerEnv, ZeroLengthBrokerTest) {
-  KafkaConsumer cons("addr", "tpic");
+  KafkaConsumer cons("addr", "tpic", "some_group");
   ASSERT_FALSE(cons.SetBrokerAddr(""));
 }
 
 TEST_F(KafkaConsumerEnv, ZeroLengthTopicTest) {
-  KafkaConsumer cons("addr", "tpic");
+  KafkaConsumer cons("addr", "tpic", "some_group");
   ASSERT_FALSE(cons.SetTopic(""));
 }
 
@@ -321,7 +321,7 @@ TEST_F(KafkaConsumerEnv, SetStatsTimeTest) {
 }
 
 TEST_F(KafkaConsumerEnv, SetStatsTimeValueTest) {
-  KafkaConsumer cons("addr", "tpic");
+  KafkaConsumer cons("addr", "tpic", "some_group");
   int usedTime = 100;
   cons.SetStatsTimeMS(usedTime);
   ASSERT_EQ(usedTime, cons.GetStatsTimeMS());
@@ -341,7 +341,7 @@ TEST_F(KafkaConsumerEnv, GetGroupIdAltTest) {
 
 TEST_F(KafkaConsumerEnv, SetGetGroupIdTest) {
   std::string testString = "some_group_id3";
-  KafkaConsumer cons("addr", "topic");
+  KafkaConsumer cons("addr", "topic", "some_group");
   cons.SetGroupId(testString);
   ASSERT_EQ(testString, cons.GetGroupId());
 }
@@ -367,7 +367,7 @@ TEST_F(KafkaConsumerEnv, SetConStatTest) {
 }
 
 TEST_F(KafkaConsumerEnv, TestNrOfParams) {
-  KafkaConsumer prod("some_addr", "some_topic");
+  KafkaConsumer prod("some_addr", "some_topic", "some_group");
   ASSERT_EQ(prod.GetParams().size(), prod.GetNumberOfPVs());
 }
 }
