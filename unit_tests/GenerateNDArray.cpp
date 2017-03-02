@@ -11,9 +11,9 @@
 #include <cstdlib>
 
 template <typename T> void PopulateArr(size_t elements, void *ptr) {
-  T *arr = (T *)ptr;
+  T *arr = reinterpret_cast<T*>(ptr);
   for (int y = 0; y < elements; y++) {
-    arr[y] = (T)y;
+    arr[y] = static_cast<T>(y);
   }
 }
 
@@ -73,7 +73,7 @@ void *NDArrayGenerator::GenerateAttrData(NDAttrDataType_t type) {
     std::string tempStr = RandomString(strLenDist(e1));
     char *buffer = new char[tempStr.size() + 1];
     std::strncpy(buffer, tempStr.c_str(), tempStr.size() + 1);
-    return (void *)buffer;
+    return reinterpret_cast<void*>(buffer);
   } else if (NDAttrInt8 == type) {
     ptr = GenerateAttrDataT<std::int8_t>(INT8_MIN, INT8_MAX);
   } else if (NDAttrUInt8 == type) {
@@ -98,7 +98,7 @@ void *NDArrayGenerator::GenerateAttrData(NDAttrDataType_t type) {
 
 void NDArrayGenerator::FreeAttrData(void *ptr, NDAttrDataType_t type) {
   if (NDAttrString == type) {
-    char *tempPtr = (char *)ptr;
+    char *tempPtr = reinterpret_cast<char*>(ptr);
     delete[] tempPtr;
   } else if (NDAttrInt8 == type) {
     FreeAttrDataT<std::int8_t>(ptr);

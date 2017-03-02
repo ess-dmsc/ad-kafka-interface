@@ -143,7 +143,7 @@ TEST_F(KafkaConsumerEnv, SetOffsetSuccess1Test) {
     *p.index = ctr;
     ctr++;
   }
-  int usedValue = RdKafka::Topic::OFFSET_BEGINNING;
+    std::int64_t usedValue = RdKafka::Topic::OFFSET_BEGINNING;
   EXPECT_CALL(*asynDrvr, setIntegerParam(_, Eq(usedValue))).Times(Exactly(1));
   ASSERT_TRUE(cons.SetOffset(usedValue));
   ASSERT_EQ(cons.GetCurrentOffset(), usedValue);
@@ -158,7 +158,7 @@ TEST_F(KafkaConsumerEnv, SetOffsetSuccess2Test) {
     *p.index = ctr;
     ctr++;
   }
-  int usedValue = RdKafka::Topic::OFFSET_END;
+  std::int64_t usedValue = RdKafka::Topic::OFFSET_END;
   EXPECT_CALL(*asynDrvr, setIntegerParam(_, Eq(usedValue))).Times(Exactly(1));
   ASSERT_TRUE(cons.SetOffset(usedValue));
   ASSERT_EQ(cons.GetCurrentOffset(), usedValue);
@@ -173,7 +173,7 @@ TEST_F(KafkaConsumerEnv, SetOffsetSuccess3Test) {
     *p.index = ctr;
     ctr++;
   }
-  int usedValue = RdKafka::Topic::OFFSET_STORED;
+  std::int64_t usedValue = RdKafka::Topic::OFFSET_STORED;
   EXPECT_CALL(*asynDrvr, setIntegerParam(_, Eq(usedValue))).Times(Exactly(1));
   ASSERT_TRUE(cons.SetOffset(usedValue));
   ASSERT_EQ(cons.GetCurrentOffset(), usedValue);

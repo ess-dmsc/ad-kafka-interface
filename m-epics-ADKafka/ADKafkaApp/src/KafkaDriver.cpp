@@ -30,7 +30,7 @@ asynStatus KafkaDriver::writeOctet(asynUser *pasynUser, const char *value, size_
         return (status);
 
     /* Set the parameter in the parameter library. */
-    status = (asynStatus)setStringParam(addr, function, (char *)value);
+    status = setStringParam(addr, function, reinterpret_cast<const char*>(value));
 
     if (function == *paramsList.at(PV::kafka_addr).index) {
         consumer.SetBrokerAddr(std::string(value, nChars));
@@ -43,7 +43,7 @@ asynStatus KafkaDriver::writeOctet(asynUser *pasynUser, const char *value, size_
     }
 
     // Do callbacks so higher layers see any changes
-    status = (asynStatus)callParamCallbacks(addr, addr);
+    status = callParamCallbacks(addr, addr);
 
     /// @todo Part of the EPICS message logging system, should be expanded or removed
     if (status) {
@@ -156,7 +156,7 @@ asynStatus KafkaDriver::writeInt32(asynUser *pasynUser, epicsInt32 value) {
 }
 
 static void consumeTaskC(void *drvPvt) {
-    KafkaDriver *pPvt = (KafkaDriver *)drvPvt;
+    KafkaDriver *pPvt = reinterpret_cast<KafkaDriver*>(drvPvt);
 
     pPvt->consumeTask();
 }
@@ -214,7 +214,7 @@ consumer(brokerAddress, brokerTopic, asynPortDriver::portName) {
     /* Create the thread that updates the images */
     status = (epicsThreadCreate("ConsumeKafkaMsgsTask", epicsThreadPriorityMedium,
                                 epicsThreadGetStackSize(epicsThreadStackMedium),
-                                (EPICSTHREADFUNC)consumeTaskC, this) == nullptr);
+                                reinterpret_cast<EPICSTHREADFUNC>(consumeTaskC), this) == nullptr);
     if (status) {
         printf("%s:%s epicsThreadCreate failure for image task\n", driverName, functionName);
         return;
@@ -398,7 +398,8 @@ KafkaDriver::~KafkaDriver() {
 extern "C" int KafkaDriverConfigure(const char *portName, int maxBuffers, size_t maxMemory,
                                     int priority, int stackSize, const char *brokerAddrStr,
                                     const char *topicName) {
-    KafkaDriver *pDriver = new KafkaDriver(portName, maxBuffers, maxMemory, priority, stackSize,
+    KafkaDriver *pDriver = nullptr;
+    pDriver = new KafkaDriver(portName, maxBuffers, maxMemory, priority, stackSize,
                                            brokerAddrStr, topicName);
 
     return (asynSuccess);
