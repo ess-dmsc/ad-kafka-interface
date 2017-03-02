@@ -14,6 +14,7 @@
 #include "NDArrayDeSerializer.h"
 #include <asynDriver.h>
 #include <ciso646>
+#include <cassert>
 #include <epicsExport.h>
 
 static const char *driverName = "KafkaDriver";
@@ -247,7 +248,7 @@ void KafkaDriver::consumeTask() {
             startWaitTimeout = consumer.GetStatsTimeMS() / 1000.0;
             consumer.StopConsumption();
             // Loop waiting for start acquisition event
-            while (status == asynStatus::asynTimeout) {
+            do {
                 status = epicsEventWaitWithTimeout(startEventId_, startWaitTimeout);
                 if (not keepThreadAlive) {
                     goto exitConsumeTaskLabel; // This is justified in my opinion
@@ -259,7 +260,7 @@ void KafkaDriver::consumeTask() {
                               functionName);
                     std::abort(); // This should never happen
                 }
-            }
+            } while (status == asynStatus::asynTimeout);
             consumer.StartConsumption();
             this->lock();
             acquire = 1;
@@ -268,7 +269,6 @@ void KafkaDriver::consumeTask() {
         }
 
         /* We are acquiring. */
-        /* Get the current time */
         getIntegerParam(ADImageMode, &imageMode);
 
         setIntegerParam(ADStatus, ADStatusAcquire);
@@ -302,11 +302,11 @@ void KafkaDriver::consumeTask() {
             if (nullptr == fbImg)
                 continue;
 
-            // We can only now if there is any data in the NDArray at this point
+            // We can only know if there is any data in the NDArray at this point
             if (pImage) {
                 pImage->release();
             }
-            /// @todo Make sure that there is actual a free NDArray to which copy the data.
+            /// @todo Make sure that there is actual a free NDArray to which the data can be copied.
             DeSerializeData(this->pNDArrayPool, reinterpret_cast<unsigned char*>(fbImg->GetDataPtr()), fbImg->size(),
                             pImage);
         }
@@ -361,8 +361,7 @@ void KafkaDriver::consumeTask() {
 
         /* Call the callbacks to update any changes */
         callParamCallbacks();
-
-        /* If we are acquiring then sleep for the acquire period minus elapsed time. */
+        
         if (acquire) {
             setIntegerParam(ADStatus, ADStatusWaiting);
             callParamCallbacks();

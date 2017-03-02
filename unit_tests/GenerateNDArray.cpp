@@ -9,6 +9,7 @@
 #include "GenerateNDArray.h"
 #include <ciso646>
 #include <cstdlib>
+#include <cassert>
 
 template <typename T> void PopulateArr(size_t elements, void *ptr) {
   T *arr = reinterpret_cast<T*>(ptr);
@@ -35,7 +36,7 @@ void GenerateData(NDDataType_t type, size_t elements, void *usedPtr) {
   } else if (NDFloat64 == type) {
     PopulateArr<std::double_t>(elements, usedPtr);
   } else {
-    std::abort();
+      assert(false);
   }
 }
 
@@ -91,7 +92,7 @@ void *NDArrayGenerator::GenerateAttrData(NDAttrDataType_t type) {
   } else if (NDAttrFloat64 == type) {
     ptr = GenerateAttrDataT<std::double_t>(-1, 1);
   } else {
-    std::abort();
+    assert(false);
   }
   return ptr;
 }
@@ -117,7 +118,7 @@ void NDArrayGenerator::FreeAttrData(void *ptr, NDAttrDataType_t type) {
   } else if (NDAttrFloat64 == type) {
     FreeAttrDataT<std::double_t>(ptr);
   } else {
-    std::abort();
+    assert(false);
   }
 }
 

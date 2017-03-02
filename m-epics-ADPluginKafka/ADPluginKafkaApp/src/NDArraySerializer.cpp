@@ -9,6 +9,7 @@
 #include <ciso646>
 #include <memory>
 #include <vector>
+#include <cassert>
 
 NDArraySerializer::NDArraySerializer(const flatbuffers::uoffset_t bufferSize)
     : builder(bufferSize) {}
@@ -59,7 +60,7 @@ void NDArraySerializer::SerializeData(NDArray &pArray, unsigned char *&bufferPtr
                                                      temp_attr_src, attrDType, attrValuePayload);
             attrVec.push_back(attr);
         } else {
-            std::abort();
+            assert(false);
         }
 
         attr_ptr = pArray.pAttributeList->next(attr_ptr);
@@ -94,7 +95,7 @@ FB_Tables::DType NDArraySerializer::GetFB_DType(NDDataType_t arrType) {
     case NDFloat64:
         return FB_Tables::DType::DType_float64;
     default:
-        std::abort();
+        assert(false);
     }
     return FB_Tables::DType::DType_int8;
 }
@@ -118,7 +119,7 @@ NDDataType_t NDArraySerializer::GetND_DType(FB_Tables::DType arrType) {
     case FB_Tables::DType::DType_float64:
         return NDFloat64;
     default:
-        std::abort();
+        assert(false);
     }
     return NDInt8;
 }
@@ -144,7 +145,7 @@ FB_Tables::DType NDArraySerializer::GetFB_DType(NDAttrDataType_t attrType) {
     case NDAttrString:
         return FB_Tables::DType::DType_c_string;
     default:
-        std::abort();
+        assert(false);
     }
     return FB_Tables::DType::DType_int8;
 }
@@ -170,7 +171,7 @@ NDAttrDataType_t NDArraySerializer::GetND_AttrDType(FB_Tables::DType attrType) {
     case FB_Tables::DType::DType_c_string:
         return NDAttrString;
     default:
-        std::abort();
+        assert(false);
     }
     return NDAttrInt8;
 }

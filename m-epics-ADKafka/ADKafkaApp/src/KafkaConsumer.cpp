@@ -21,17 +21,15 @@ void *KafkaMessage::GetDataPtr() { return msg->payload(); }
 size_t KafkaMessage::size() { return msg->len(); }
 
 KafkaConsumer::KafkaConsumer(std::string broker, std::string topic, std::string groupId)
-    : topicName(topic), brokerAddr(broker), topicOffset(RdKafka::Topic::OFFSET_STORED),
-      consumer(nullptr), paramCallback(nullptr),
-      conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)) {
+    : topicOffset(RdKafka::Topic::OFFSET_STORED), topicName(topic), paramCallback(nullptr),
+      conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)), brokerAddr(broker), consumer(nullptr) {
     InitRdKafka(groupId);
     SetBrokerAddr(broker);
     SetTopic(topic);
 }
 
 KafkaConsumer::KafkaConsumer(std::string groupId)
-    : topicOffset(RdKafka::Topic::OFFSET_STORED), consumer(nullptr), paramCallback(nullptr),
-      conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)) {
+    : topicOffset(RdKafka::Topic::OFFSET_STORED), paramCallback(nullptr), conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)), consumer(nullptr) {
     InitRdKafka(groupId);
 }
 

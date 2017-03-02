@@ -8,6 +8,7 @@
 #include <chrono>
 #include <ciso646>
 #include <cstdlib>
+#include <cassert>
 
 namespace KafkaInterface {
 
@@ -350,7 +351,7 @@ bool KafkaProducer::MakeConnection() {
     } else if (nullptr != producer and nullptr != topic) {
         return true;
     }
-    std::abort();
+    assert(false);
     return true;
 }
 

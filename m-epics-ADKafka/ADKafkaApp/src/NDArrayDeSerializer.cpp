@@ -9,6 +9,7 @@
 #include <ciso646>
 #include <cstdlib>
 #include <vector>
+#include <cassert>
 
 NDDataType_t GetND_DType(FB_Tables::DType arrType) {
     switch (arrType) {
@@ -29,7 +30,7 @@ NDDataType_t GetND_DType(FB_Tables::DType arrType) {
     case FB_Tables::DType::DType_float64:
         return NDFloat64;
     default:
-        std::abort();
+        assert(false);
     }
     return NDInt8;
 }
@@ -55,7 +56,7 @@ NDAttrDataType_t GetND_AttrDType(FB_Tables::DType attrType) {
     case FB_Tables::DType::DType_c_string:
         return NDAttrString;
     default:
-        std::abort();
+        assert(false);
     }
     return NDAttrInt8;
 }
@@ -81,7 +82,7 @@ size_t GetTypeSize(FB_Tables::DType attrType) {
     case FB_Tables::DType::DType_c_string:
         return 1;
     default:
-        std::abort();
+        assert(false);
     }
     return 1;
 }
