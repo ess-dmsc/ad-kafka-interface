@@ -168,8 +168,6 @@ void KafkaConsumer::ParseStatusString(std::string msg) {
         }
         SetConStat(tempStat, statString);
     }
-    int unsentMessages = root["msg_cnt"].asInt();
-    setParam(paramCallback, paramsList[PV::msgs_in_queue], unsentMessages);
 }
 
 std::int64_t KafkaConsumer::GetCurrentOffset() { return topicOffset; }

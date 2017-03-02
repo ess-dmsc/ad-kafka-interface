@@ -208,23 +208,6 @@ TEST_F(KafkaConsumerEnv, WaitTest) {
   ASSERT_EQ(msg, nullptr);
 }
 
-TEST_F(KafkaConsumerEnv, StatsQueueTest) {
-  KafkaConsumer cons("some_addr", "some_topic", "some_group");
-  auto params = cons.GetParams();
-  cons.RegisterParamCallbackClass(asynDrvr);
-  int ctr = 1;
-  for (auto p : params) {
-    *p.index = ctr;
-    ctr++;
-  }
-  int queueIndex = *params[KafkaConsumerStandIn::PV::msgs_in_queue].index;
-  EXPECT_CALL(*asynDrvr, setIntegerParam(_, _)).Times(AtLeast(1));
-  EXPECT_CALL(*asynDrvr, setIntegerParam(Eq(queueIndex), _)).Times(AtLeast(1));
-  auto msg = cons.WaitForPkg(1000);
-
-  Mock::VerifyAndClear(asynDrvr);
-}
-
 TEST_F(KafkaConsumerEnv, StatsStatusTest) {
   KafkaConsumer cons("some_addr", "some_topic", "some_group");
   auto params = cons.GetParams();
@@ -235,7 +218,7 @@ TEST_F(KafkaConsumerEnv, StatsStatusTest) {
     ctr++;
   }
   int statusIndex = *params[KafkaConsumerStandIn::PV::con_status].index;
-  EXPECT_CALL(*asynDrvr, setIntegerParam(_, _)).Times(AtLeast(1));
+  EXPECT_CALL(*asynDrvr, setIntegerParam(Ne(statusIndex), _)).Times(AtLeast(0));
   EXPECT_CALL(*asynDrvr, setIntegerParam(Eq(statusIndex), _)).Times(AtLeast(1));
   auto msg = cons.WaitForPkg(1000);
 
