@@ -14,6 +14,8 @@ There are currently two sets of make files provided with the repository. If the 
 * Run gnumake (`make -f EEEmakefile`).
 * Install using gnumake (`sudo -E make -f EEEmakefile install`).
 
+Note that the EEE make file assumes that librdkafka is installed in the standard location (i.e. `/usr/local/`). If this is not the case, the file `EEEmakefile` will have to be modified so that the variables `LIBRDKAFKA_LIB_PATH` and `LIBRDKAFKA_INC_PATH`  point to the locations of the library and header files.
+
 If a standard EPICS installation is used, modify the appropriate files in the `configure` directory and then compile the plugin using make without any arguments. Note that this has not been tested.
 
 A simple example illustrating how the plugin works is provided in the `m-epics-ADPluginKafka/startup` directory. When the plugin is installed:
