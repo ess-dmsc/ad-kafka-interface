@@ -4,6 +4,7 @@ O.*/
 /m-epics-AD*Kafka/lib/
 /m-epics-AD*Kafka/dbd/
 /m-epics-AD*Kafka/include/
+/m-epics-AD*Kafka/builddir/
 /build/
 /KafkaInterface.xcodeproj/*
 /documentation/*
