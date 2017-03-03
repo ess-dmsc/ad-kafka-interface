@@ -11,7 +11,7 @@ The two projects each have a README-file in their directories describing how the
 ### Unit tests
 The repository contains a directory with code for unit tests of the two projects. Do note that the build system of the unit tests (specifically the CMake file) will most likely require some modification to work on your system. Due to differences in EPICS installations, the CMake file has only been tested on the development machine (a MacOSX computer) and virtual machine using the ESS EPICS Environment (EEE).
 
-The unit tests use GTest/GMock for running the test and this library will be downloaded and compiled by CMake when running it. The process for compiling and running the process is as follows:
+The unit tests use GTest/GMock for running the test and this library will be downloaded and compiled by CMake when running it. The process for compiling and running the unit tests is as follows:
 
 ```
 cd ad-kafka-interface
