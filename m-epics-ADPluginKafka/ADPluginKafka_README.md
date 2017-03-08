@@ -4,7 +4,9 @@ An EPICS areaDetector plugin which sends areaDetector data serialised using flat
 ## Requirements
 The `GNUmakefile` used to build this plugin is only compatible with the **ESS EPICS Environment** (EEE) used at ESS in Lund. Make files for building the module when using a regular EPICS installation exist but have not been tested.
 
-For communicating with the Kafka broker, the C++ version of `librdkafka` is used. The source code for this library can be downloaded from [https://github.com/edenhill/librdkafka](https://github.com/edenhill/librdkafka). Note that as of the 2017-02-17 the version of librdkafka cloned from the master branch should be used to avoid some known bugs. To simplify data handling, the plugin uses flatbuffers ([https://github.com/google/flatbuffers](https://github.com/google/flatbuffers)) for data serialisation. `librdkafka` produces statistics messages in JSON and these are parsed using `jsoncpp` ([https://github.com/open-source-parsers/jsoncpp](https://github.com/open-source-parsers/jsoncpp)).
+For communicating with the Kafka broker, the C++ version of `librdkafka` is used. The source code for this library can be downloaded from [https://github.com/edenhill/librdkafka](https://github.com/edenhill/librdkafka). At least version 0.9.4 of `librdkafka` is required for all the features to work though earlier versions will also compile.
+
+To simplify data handling, the plugin uses flatbuffers ([https://github.com/google/flatbuffers](https://github.com/google/flatbuffers)) for data serialisation. `librdkafka` produces statistics messages in JSON and these are parsed using `jsoncpp` ([https://github.com/open-source-parsers/jsoncpp](https://github.com/open-source-parsers/jsoncpp)).
 In order to run the simple demo of the plugin in the `startup` folder, the module `adexample` is required as it contains features for running a simulated areaDetector.
 
 ## Compiling and running the example
