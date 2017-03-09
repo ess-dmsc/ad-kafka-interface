@@ -1,5 +1,4 @@
 require adcore
-require pvaSrv
 require ADPluginKafka,1.0-BETA
 
 epicsEnvSet("PREFIX", "$(PREFIX=DMSC)")
@@ -15,11 +14,7 @@ dbLoadRecords("ADPluginKafka.template", "P=$(PREFIX):, R=KFK_PLG:,PORT=$(K_PORT)
 
 iocInit
 
-startPVAServer
-
 dbpf $(PREFIX):KFK_PLG:EnableCallbacks Enable
 dbpf $(PREFIX):KFK_DRVR:Acquire 1
-
-#asynSetTraceMask("DMSC_AD_KAFKA", 0, 0xff)
 
 #Remember; file MUST end with a new line

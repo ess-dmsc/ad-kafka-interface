@@ -1,6 +1,5 @@
 require adcore
 require adexample
-require pvaSrv
 
 epicsEnvSet("PREFIX", "$(PREFIX=DMSC)")
 epicsEnvSet("SIMDET_PORT", "$(PREFIX)SIMDET")
@@ -16,8 +15,6 @@ KafkaPluginConfigure("$(K_PORT)", 3, 1, "$(SIMDET_PORT)", 0, -1, "10.4.0.216:909
 dbLoadRecords("ADPluginKafka.template", "P=$(PREFIX),R=:KFK:,PORT=$(K_PORT),ADDR=0,TIMEOUT=1,NDARRAY_PORT=$(SIMDET_PORT)")
 
 iocInit
-
-startPVAServer
 
 dbpf $(PREFIX):KFK:EnableCallbacks Enable
 dbpf $(PREFIX):CAM:AcquirePeriod 2

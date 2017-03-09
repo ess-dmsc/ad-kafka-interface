@@ -2,15 +2,18 @@
 An EPICS areaDetector plugin which sends areaDetector data serialised using flatbuffers to a Kafka broker. The plugin is in a state which should make it useful (ignoring unknown bugs). Several suggestions on improvements are listed last in this document however.
 
 ## Requirements
-The `GNUmakefile` used to build this plugin is only compatible with the **ESS EPICS Environment** (EEE) used at ESS in Lund. Make files for building the module when using a regular EPICS installation exist but have not been tested.
+This plugin has been developed primarily for use with the **ESS EPICS Environment** (EEE) used at ESS in Lund. Make files for building the module when using a regular EPICS installation are included but have received very little testing.
 
 For communicating with the Kafka broker, the C++ version of `librdkafka` is used. The source code for this library can be downloaded from [https://github.com/edenhill/librdkafka](https://github.com/edenhill/librdkafka). At least version 0.9.4 of `librdkafka` is required for all the features to work though earlier versions will also compile.
 
 To simplify data handling, the plugin uses flatbuffers ([https://github.com/google/flatbuffers](https://github.com/google/flatbuffers)) for data serialisation. `librdkafka` produces statistics messages in JSON and these are parsed using `jsoncpp` ([https://github.com/open-source-parsers/jsoncpp](https://github.com/open-source-parsers/jsoncpp)).
-In order to run the simple demo of the plugin in the `startup` folder, the module `adexample` is required as it contains features for running a simulated areaDetector.
+In order to run the demo of the plugin in the `startup` (or `iocs`) directory, the module `ADSimDetector` is required as it contains features for running a simulated areaDetector.
 
 ## Compiling and running the example
-There are currently two sets of make files provided with the repository. If the ESS EPICS Environment is available, the *EEEmakefile* should be used as an input to gnumake:
+There are currently two sets of make files provided with the repository. One for use with the ESS EPICS Environment and one for use with a standard EPICS installation.
+
+###ESS EPICS Environment
+If the ESS EPICS Environment is available, the *EEEmakefile* should be used as an input to gnumake:
 
 * `cd` to the `m-epics-ADPluginKafka` directory.
 * Run gnumake (`make -f EEEmakefile`).
@@ -18,8 +21,7 @@ There are currently two sets of make files provided with the repository. If the 
 
 Note that the EEE make file assumes that librdkafka is installed in the standard location (i.e. `/usr/local/`). If this is not the case, the file `EEEmakefile` will have to be modified so that the variables `LIBRDKAFKA_LIB_PATH` and `LIBRDKAFKA_INC_PATH`  point to the locations of the library and header files.
 
-If a standard EPICS installation is used, modify the appropriate files in the `configure` directory and then compile the plugin using make without any arguments. Note that this has not been tested.
-
+####Running an example IOC using the ESS EPICS Environment
 A simple example illustrating how the plugin works is provided in the `m-epics-ADPluginKafka/startup` directory. When the plugin is installed:
 
 * `cd` to `m-epics-ADPluginKafka/startup`.
@@ -29,6 +31,17 @@ The example now also makes the PV:s available through pvAccess (EPICS v4). It is
 
     sudo iptables -F INPUT
     sudo iptables -F FORWARD
+
+###Compiling and running the driver in a standard EPICS installation
+Note that **NO** support or help for compiling or running this application under a standard EPICS installation will be provided. The steps shown here worked on the development machine but has been tested nowhere else.
+
+1. Copy the `m-epics-ADPluginKafka` directory to your `$(EPICS_MODULES_PATH)/areaDetector` directory.
+2. Set the variable `SIMDET` in the file `m-epics-ADPluginKafka/iocs/ADPluginKafkaIOC/configure/RELEASE` to point to the location of `ADSimDetector` in your EPICS installation.
+3. Modify the files `Makefile` and `start_epics` in the `m-epics-ADPluginKafka/iocs/ADPluginKafkaIOC/iocBoot/iocADPluginKafka` directory to reflect the current platform.
+4. Change (`cd`) to the `m-epics-ADPluginKafka` directory and compile by running `make`.
+5. Modify the `m-epics-ADPluginKafka/iocs/ADPluginKafkaIOC/iocBoot/iocADPluginKafka/st.cmd` file to use the address of your Kafka broker.
+6. Run `sh start_epics` from that directory.
+
 
 ## Process variables (PV:s)
 This plugin provides a few extra process variables (PV) besides the ones provided through inheritance from `NDPluginDriver`. The plugin also modifies one process variable inherited from `NDPluginDriver` directly. All the relevant PVs are listed below.
