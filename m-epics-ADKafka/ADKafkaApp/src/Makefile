@@ -24,6 +24,8 @@ LDFLAGS += -lrdkafka++
 CXXFLAGS += -std=c++11
 CXXFLAGS += -I${AREA_DETECTOR}/ADCore/include
 
+include $(ADCORE)/ADApp/commonLibraryMakefile
+
 include $(TOP)/configure/RULES
 #----------------------------------------
 #  ADD EXTRA GNUMAKE RULES BELOW HERE
