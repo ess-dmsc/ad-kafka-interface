@@ -18,10 +18,7 @@ iocInit
 startPVAServer
 
 dbpf $(PREFIX):KFK_PLG:EnableCallbacks Enable
-dbpf $(PREFIX):KFK_DRVR:ArrayCallbacks Enable
 dbpf $(PREFIX):KFK_DRVR:Acquire 1
-#dbpf $(PREFIX):KFK:KafkaBrokers "10.4.0.215:9092"
-#dbpf $(PREFIX):KFK:KafkaBrokerTopic "ad_topic"
 
 #asynSetTraceMask("DMSC_AD_KAFKA", 0, 0xff)
 

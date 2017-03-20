@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
 
 add_definitions(-std=c++11 -pthread) #-v = verbose
 
+set(CMAKE_CXX_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
+set(CMAKE_C_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
+
 enable_testing()
 
 if (CMAKE_VERSION VERSION_LESS 3.2)
@@ -10,7 +13,7 @@ else()
     set(UPDATE_DISCONNECTED_IF_AVAILABLE "UPDATE_DISCONNECTED 1")
 endif()
 
-include(${CMAKE_MODULE_PATH}/DownloadProject.cmake)
+include(DownloadProject)
 download_project(PROJ                googletest
                  GIT_REPOSITORY      https://github.com/google/googletest.git
                  GIT_TAG             master
@@ -49,9 +52,9 @@ FOREACH(item ${DRIVER_SRC_FILES})
   ENDIF(${item} MATCHES "jsoncpp.cpp")
 ENDFOREACH(item)
 
-find_path(rdkafka_INC NAMES librdkafka/rdkafka.h librdkafka/rdkafkacpp.h PATHS /usr/local/include)
+find_path(rdkafka_INC NAMES librdkafka/rdkafka.h librdkafka/rdkafkacpp.h PATHS /usr/local/include /opt/dm_group/usr/include)
 
-find_path(flatbuffers_INC NAMES flatbuffers/flatbuffers.h PATHS /usr/local/include)
+find_path(flatbuffers_INC NAMES flatbuffers/flatbuffers.h PATHS /usr/local/include /opt/dm_group/usr/include)
 
 include_directories(${plugin_SRC} ${driver_SRC} ${rdkafka_INC} ${flatbuffers_INC} ".")
 
@@ -93,8 +96,8 @@ endif()
 
 include_directories("$ENV{EPICS_BASE}/include")
 
-find_library(rdkafka_LIB NAMES rdkafka PATHS /usr/local/lib)
-find_library(rdkafkacpp_LIB NAMES rdkafka++ PATHS /usr/local/lib)
+find_library(rdkafka_LIB NAMES rdkafka PATHS /usr/local/lib /opt/dm_group/usr/lib)
+find_library(rdkafkacpp_LIB NAMES rdkafka++ PATHS /usr/local/lib /opt/dm_group/usr/lib)
 
 add_executable(unit_tests ${TEST_FILES} ${PLUGIN_SRC_FILES} ${DRIVER_SRC_FILES})
 
@@ -107,3 +110,8 @@ endif()
 configure_file("someNDArray.data" "." COPYONLY)
 
 add_test(TestAll unit_tests)
+
+include(CodeCoverage)
+
+SETUP_TARGET_FOR_COVERAGE_COBERTURA(xml_coverage unit_tests coverage)
+SETUP_TARGET_FOR_COVERAGE(html_coverage unit_tests coverage)

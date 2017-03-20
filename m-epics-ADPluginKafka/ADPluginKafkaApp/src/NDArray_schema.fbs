@@ -3,26 +3,38 @@ namespace FB_Tables;
 enum DType:byte { int8, uint8, int16, uint16, int32, uint32, float32, float64, c_string }
 
 struct epicsTimeStamp {
-  secPastEpoch:int;
-  nsec:int;
+    secPastEpoch : int;
+    nsec : int;
 }
 
 table NDAttribute {
-  pName:string;
-  pDescription:string;
-  pSource:string;
-  dataType:DType;
-  pData:[ubyte];
+pName:
+    string;
+pDescription:
+    string;
+pSource:
+    string;
+dataType:
+    DType;
+pData:
+    [ubyte];
 }
 
 table NDArray {
-  id:int;
-  timeStamp:double;
-  epicsTS:epicsTimeStamp;
-  dims:[ulong];
-  dataType:DType;
-  pData:[ubyte];
-  pAttributeList:[NDAttribute];
+id:
+    int;
+timeStamp:
+    double;
+epicsTS:
+    epicsTimeStamp;
+dims:
+    [ulong];
+dataType:
+    DType;
+pData:
+    [ubyte];
+pAttributeList:
+    [NDAttribute];
 }
 
 root_type NDArray;
