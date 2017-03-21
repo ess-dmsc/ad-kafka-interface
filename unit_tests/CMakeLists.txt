@@ -52,11 +52,11 @@ FOREACH(item ${DRIVER_SRC_FILES})
   ENDIF(${item} MATCHES "jsoncpp.cpp")
 ENDFOREACH(item)
 
-find_path(rdkafka_INC NAMES librdkafka/rdkafka.h librdkafka/rdkafkacpp.h PATHS /usr/local/include /opt/dm_group/usr/include)
+find_package(LibRDKafka)
 
 find_path(flatbuffers_INC NAMES flatbuffers/flatbuffers.h PATHS /usr/local/include /opt/dm_group/usr/include)
 
-include_directories(${plugin_SRC} ${driver_SRC} ${rdkafka_INC} ${flatbuffers_INC} ".")
+include_directories(${plugin_SRC} ${driver_SRC} ${LibRDKafka_INCLUDE_DIR} ${flatbuffers_INC} ".")
 
 if (NOT DEFINED ENV{EPICS_BASE})
     message(FATAL_ERROR "Missing environment variable \"EPICS_BASE\".")
@@ -96,15 +96,12 @@ endif()
 
 include_directories("$ENV{EPICS_BASE}/include")
 
-find_library(rdkafka_LIB NAMES rdkafka PATHS /usr/local/lib /opt/dm_group/usr/lib)
-find_library(rdkafkacpp_LIB NAMES rdkafka++ PATHS /usr/local/lib /opt/dm_group/usr/lib)
-
 add_executable(unit_tests ${TEST_FILES} ${PLUGIN_SRC_FILES} ${DRIVER_SRC_FILES})
 
 if (${APPLE})
-    target_link_libraries(unit_tests gtest gmock_main NDPlugin ADBase asyn Com ${rdkafka_LIB} ${rdkafkacpp_LIB})
+    target_link_libraries(unit_tests gtest gmock_main NDPlugin ADBase asyn Com ${LibRDKafka_LIBRARIES})
 else()
-    target_link_libraries(unit_tests gtest gmock_main xml sz busy calc seq ca dbCore ${ZLIB_LIBRARY} ${TIFF_LIBRARY} ${JPEG_LIBRARY} ${HDF5_LIBRARIES} normativeTypesCPP pvAccessCPP pvDataCPP pvDatabaseCPP adcore asyn Com ${rdkafka_LIB} ${rdkafkacpp_LIB})
+    target_link_libraries(unit_tests gtest gmock_main xml sz busy calc seq ca dbCore ${ZLIB_LIBRARY} ${TIFF_LIBRARY} ${JPEG_LIBRARY} ${HDF5_LIBRARIES} normativeTypesCPP pvAccessCPP pvDataCPP pvDatabaseCPP adcore asyn Com ${LibRDKafka_LIBRARIES})
 endif()
 
 configure_file("someNDArray.data" "." COPYONLY)

@@ -11,6 +11,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <cassert>
 
 /** @brief A simple class for collection all the relevant information about a PV in a single
  * location.
@@ -28,7 +29,7 @@ class PV_param {
         : desc(desc), type(type), index(std::make_shared<int>(index)){};
 
     /** @brief An empty constructor for PV_param. It is required by some parts of the code.
-     * This constructor is required by some parts of the code though its use is minimised in order
+     * This constructor is required by some parts of the code though its use is minimised in order to
      * decrease the probability of bugs. Will set the PV description to "Not used" which aids in
      * debugging.
      */
@@ -71,12 +72,12 @@ int InitPvParams(asynNDArrType *driverPtr, std::vector<PV_param> &paramList) {
 
 /** @brief Overloaded function used to set PV string values.
  * Implemented as a template in order to minimise casting. Should probably be modified to only
- * accept types which inherits from asynPortDriver. Note that if the type of the PV is not
- * asynParamOctet this function will call std::arbort() which quits the application. This might not
+ * accept types which inherit from asynPortDriver. Note that if the type of the PV is not
+ * asynParamOctet this function will call std::abort() which quits the application. This might not
  * be the best choice.
  * @param[in] driverPtr Pointer to the instance of the class which calls this function. Must be
  * pointer to type which inherits from asynPortDriver though this is currently not enforced.
- * @param[in] param Has the relevant PV information for updating the value in the PV database.
+ * @param[in] param Has the relevant PV index for updating the correct value in the PV database.
  * @param[in] value The new value of the PV.
  * @return The result of setting the parameter in the form of asynPortDriver::asynStatus.
  */
@@ -89,19 +90,19 @@ asynStatus setParam(asynNDArrType *driverPtr, const PV_param &param, const std::
     if (asynParamOctet == param.type) {
         retStatus = driverPtr->setStringParam(*param.index, value.c_str());
     } else {
-        std::abort();
+        assert(false);
     }
     return retStatus;
 }
 
 /** @brief Overloaded function used to set PV integer values.
  * Implemented as a template in order to minimise casting. Should probably be modified to only
- * accept types which inherits from asynPortDriver. Note that if the type of the PV is not
- * asynParamInt32 this function will call std::arbort() which quits the application. This might not
+ * accept types which inherit from asynPortDriver. Note that if the type of the PV is not
+ * asynParamInt32 this function will call std::abort() which quits the application. This might not
  * be the best choice.
  * @param[in] driverPtr Pointer to the instance of the class which calls this function. Must be
  * pointer to type which inherits from asynPortDriver though this is currently not enforced.
- * @param[in] param Has the relevant PV information for updating the value in the PV database.
+ * @param[in] param Has the relevant PV index for updating the correct value in the PV database.
  * @param[in] value The new value of the PV.
  * @return The result of setting the parameter in the form of asynPortDriver::asynStatus.
  */
@@ -114,7 +115,7 @@ asynStatus setParam(asynNDArrType *driverPtr, const PV_param &param, const int v
     if (asynParamInt32 == param.type) {
         retStatus = driverPtr->setIntegerParam(*param.index, value);
     } else {
-        std::abort();
+        assert(false);
     }
     return retStatus;
 }

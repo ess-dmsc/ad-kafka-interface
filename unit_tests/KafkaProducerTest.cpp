@@ -215,7 +215,7 @@ TEST_F(KafkaProducerEnv, MaxMessagesInQueue) {
   prod.StartThread();
   std::string msg("Some message");
   for (int i = 0; i < sendMsgs; i++) {
-    ASSERT_TRUE(prod.SendKafkaPacket((unsigned char *)msg.c_str(), msg.size()));
+    ASSERT_TRUE(prod.SendKafkaPacket(reinterpret_cast<const unsigned char *>(msg.c_str()), msg.size()));
   }
 
   std::chrono::milliseconds sleepTime(int(prod.kafka_stats_interval * 1.5));
@@ -247,9 +247,9 @@ TEST_F(KafkaProducerEnv, TooManyMessagesInQueue) {
   prod.StartThread();
   std::string msg("Some message");
   for (int i = 0; i < maxQueueSize; i++) {
-    ASSERT_TRUE(prod.SendKafkaPacket((unsigned char *)msg.c_str(), msg.size()));
+    ASSERT_TRUE(prod.SendKafkaPacket(reinterpret_cast<const unsigned char*>(msg.c_str()), msg.size()));
   }
-  ASSERT_FALSE(prod.SendKafkaPacket((unsigned char *)msg.c_str(), msg.size()));
+  ASSERT_FALSE(prod.SendKafkaPacket(reinterpret_cast<const unsigned char*>(msg.c_str()), msg.size()));
   std::chrono::milliseconds sleepTime(int(prod.kafka_stats_interval * 1.5));
   std::this_thread::sleep_for(sleepTime);
   Mock::VerifyAndClear(plugin);

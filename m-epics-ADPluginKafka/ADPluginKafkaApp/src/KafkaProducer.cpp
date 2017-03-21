@@ -8,6 +8,7 @@
 #include <chrono>
 #include <ciso646>
 #include <cstdlib>
+#include <cassert>
 
 namespace KafkaInterface {
 
@@ -110,7 +111,7 @@ bool KafkaProducer::SetMessageQueueLength(int queue) {
 
 int KafkaProducer::GetMessageQueueLength() { return msgQueueSize; }
 
-bool KafkaProducer::SendKafkaPacket(unsigned char *buffer, size_t buffer_size) {
+bool KafkaProducer::SendKafkaPacket(const unsigned char *buffer, size_t buffer_size) {
     if (errorState or 0 == buffer_size) {
         return false;
     }
@@ -126,7 +127,7 @@ bool KafkaProducer::SendKafkaPacket(unsigned char *buffer, size_t buffer_size) {
         return false;
     }
     RdKafka::ErrorCode resp =
-        producer->produce(topic, -1, RdKafka::Producer::RK_MSG_COPY /* Copy payload */, buffer,
+        producer->produce(topic, -1, RdKafka::Producer::RK_MSG_COPY /* Copy payload */, const_cast<unsigned char*>(buffer),
                           buffer_size, nullptr, nullptr);
 
     if (RdKafka::ERR_NO_ERROR != resp) {
@@ -350,7 +351,7 @@ bool KafkaProducer::MakeConnection() {
     } else if (nullptr != producer and nullptr != topic) {
         return true;
     }
-    std::abort();
+    assert(false);
     return true;
 }
 

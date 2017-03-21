@@ -167,7 +167,7 @@ class KafkaProducer : public RdKafka::EventCb {
     /** @brief Sends the binary data stored in the buffer to the Kafka broker.
      * \todo Complete documentation.
      */
-    virtual bool SendKafkaPacket(unsigned char *buffer, size_t buffer_size);
+    virtual bool SendKafkaPacket(const unsigned char *buffer, size_t buffer_size);
 
     static int GetNumberOfPVs();
 

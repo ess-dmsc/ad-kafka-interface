@@ -76,7 +76,7 @@ TEST_F(KafkaDriverEnv, InitParamsIndexTest) {
 
 TEST_F(KafkaDriverEnv, InitIsErrorStateTest) {
   KafkaDriverStandIn drvr;
-  ASSERT_TRUE(drvr.consumer.SetStatsTimeMS(10000));
+  ASSERT_TRUE(drvr.consumer.SetStatsTimeIntervalMS(10000));
   // Ugly hack to make sure that the thread actually starts
   std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }

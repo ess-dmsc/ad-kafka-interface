@@ -14,6 +14,7 @@
 #include "NDArrayDeSerializer.h"
 #include <asynDriver.h>
 #include <ciso646>
+#include <cassert>
 #include <epicsExport.h>
 
 static const char *driverName = "KafkaDriver";
@@ -30,7 +31,7 @@ asynStatus KafkaDriver::writeOctet(asynUser *pasynUser, const char *value, size_
         return (status);
 
     /* Set the parameter in the parameter library. */
-    status = (asynStatus)setStringParam(addr, function, (char *)value);
+    status = setStringParam(addr, function, reinterpret_cast<const char*>(value));
 
     if (function == *paramsList.at(PV::kafka_addr).index) {
         consumer.SetBrokerAddr(std::string(value, nChars));
@@ -43,7 +44,7 @@ asynStatus KafkaDriver::writeOctet(asynUser *pasynUser, const char *value, size_
     }
 
     // Do callbacks so higher layers see any changes
-    status = (asynStatus)callParamCallbacks(addr, addr);
+    status = callParamCallbacks(addr, addr);
 
     /// @todo Part of the EPICS message logging system, should be expanded or removed
     if (status) {
@@ -86,22 +87,13 @@ asynStatus KafkaDriver::writeInt32(asynUser *pasynUser, epicsInt32 value) {
         }
     }
     callParamCallbacks();
-
-    // We need to determine which index is used to store the current message offset
-    // This could probably be a bit nicer
-    for (auto pv : consumer.GetParams()) {
-        if (*pv.index == function) {
-            if ("KAFKA_CURRENT_OFFSET" == pv.desc) {
-                consumer.SetOffset(value);
-                break;
-            }
-        }
-    }
-
+    
     if (function == *paramsList[set_offset].index) {
         int cOffsetSetting;
         getIntegerParam(*paramsList[set_offset].index, &cOffsetSetting);
+        //If new start offset value is one of 4 different
         if (value >= 0 and value <= 3) {
+            //Map start offset settings to the ones used by RdKafka.
             if (KafkaDriver::Beginning == value) {
                 consumer.SetOffset(RdKafka::Topic::OFFSET_BEGINNING);
             } else if (KafkaDriver::End == value) {
@@ -120,10 +112,12 @@ asynStatus KafkaDriver::writeInt32(asynUser *pasynUser, epicsInt32 value) {
     } else if (function == consumer.GetOffsetPVIndex()) {
         if (KafkaDriver::Manual == usedOffsetSetting) {
             consumer.SetOffset(value);
+        } else {
+            getIntegerParam(consumer.GetOffsetPVIndex(), &value);
         }
     } else if (function == *paramsList[stats_time].index) {
         if (value > 0) {
-            consumer.SetStatsTimeMS(value);
+            consumer.SetStatsTimeIntervalMS(value);
         }
     }
     /* Set the parameter and readback in the parameter library.  This may be overwritten when we
@@ -163,7 +157,7 @@ asynStatus KafkaDriver::writeInt32(asynUser *pasynUser, epicsInt32 value) {
 }
 
 static void consumeTaskC(void *drvPvt) {
-    KafkaDriver *pPvt = (KafkaDriver *)drvPvt;
+    KafkaDriver *pPvt = reinterpret_cast<KafkaDriver*>(drvPvt);
 
     pPvt->consumeTask();
 }
@@ -175,7 +169,7 @@ KafkaDriver::KafkaDriver(const char *portName, int maxBuffers, size_t maxMemory,
                0,    /* No interfaces beyond those set in ADDriver.cpp */
                0, 1, /* ASYN_CANBLOCK=0, ASYN_MULTIDEVICE=0, autoConnect=1 */
                priority, stackSize),
-      consumer(brokerAddress, brokerTopic) {
+consumer(brokerAddress, brokerTopic, asynPortDriver::portName) {
 
     const char *functionName = "KafkaDriver";
     int status = asynStatus::asynSuccess;
@@ -221,7 +215,7 @@ KafkaDriver::KafkaDriver(const char *portName, int maxBuffers, size_t maxMemory,
     /* Create the thread that updates the images */
     status = (epicsThreadCreate("ConsumeKafkaMsgsTask", epicsThreadPriorityMedium,
                                 epicsThreadGetStackSize(epicsThreadStackMedium),
-                                (EPICSTHREADFUNC)consumeTaskC, this) == nullptr);
+                                reinterpret_cast<EPICSTHREADFUNC>(consumeTaskC), this) == nullptr);
     if (status) {
         printf("%s:%s epicsThreadCreate failure for image task\n", driverName, functionName);
         return;
@@ -254,7 +248,7 @@ void KafkaDriver::consumeTask() {
             startWaitTimeout = consumer.GetStatsTimeMS() / 1000.0;
             consumer.StopConsumption();
             // Loop waiting for start acquisition event
-            while (status == asynStatus::asynTimeout) {
+            do {
                 status = epicsEventWaitWithTimeout(startEventId_, startWaitTimeout);
                 if (not keepThreadAlive) {
                     goto exitConsumeTaskLabel; // This is justified in my opinion
@@ -266,7 +260,7 @@ void KafkaDriver::consumeTask() {
                               functionName);
                     std::abort(); // This should never happen
                 }
-            }
+            } while (status == asynStatus::asynTimeout);
             consumer.StartConsumption();
             this->lock();
             acquire = 1;
@@ -275,7 +269,6 @@ void KafkaDriver::consumeTask() {
         }
 
         /* We are acquiring. */
-        /* Get the current time */
         getIntegerParam(ADImageMode, &imageMode);
 
         setIntegerParam(ADStatus, ADStatusAcquire);
@@ -302,19 +295,19 @@ void KafkaDriver::consumeTask() {
         getDoubleParam(ADAcquirePeriod, &acquirePeriod);
         this->unlock();
         {
-            auto fbImg = consumer.WaitForPkg(int(acquirePeriod * 1000));
+            auto fbImg = consumer.WaitForPkg(static_cast<int>(acquirePeriod * 1000));
             this->lock();
 
             // If we get no image, go to start of loop
             if (nullptr == fbImg)
                 continue;
 
-            // We can only now if there is any data in the NDArray at this point
+            // We can only know if there is any data in the NDArray at this point
             if (pImage) {
                 pImage->release();
             }
-            /// @todo Make sure that there is actual a free NDArray to which copy the data.
-            DeSerializeData(this->pNDArrayPool, (unsigned char *)fbImg->GetDataPtr(), fbImg->size(),
+            /// @todo Make sure that there is actual a free NDArray to which the data can be copied.
+            DeSerializeData(this->pNDArrayPool, reinterpret_cast<unsigned char*>(fbImg->GetDataPtr()), fbImg->size(),
                             pImage);
         }
 
@@ -368,8 +361,7 @@ void KafkaDriver::consumeTask() {
 
         /* Call the callbacks to update any changes */
         callParamCallbacks();
-
-        /* If we are acquiring then sleep for the acquire period minus elapsed time. */
+        
         if (acquire) {
             setIntegerParam(ADStatus, ADStatusWaiting);
             callParamCallbacks();
@@ -405,7 +397,8 @@ KafkaDriver::~KafkaDriver() {
 extern "C" int KafkaDriverConfigure(const char *portName, int maxBuffers, size_t maxMemory,
                                     int priority, int stackSize, const char *brokerAddrStr,
                                     const char *topicName) {
-    KafkaDriver *pDriver = new KafkaDriver(portName, maxBuffers, maxMemory, priority, stackSize,
+    KafkaDriver *pDriver = nullptr;
+    pDriver = new KafkaDriver(portName, maxBuffers, maxMemory, priority, stackSize,
                                            brokerAddrStr, topicName);
 
     return (asynSuccess);

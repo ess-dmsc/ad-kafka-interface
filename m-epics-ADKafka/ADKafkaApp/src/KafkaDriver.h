@@ -17,8 +17,8 @@
 using KafkaInterface::KafkaConsumer;
 
 /** @brief An EPICS areaDetector driver which consumes Kafka messages containing NDArray data.
- * This class the interface and some of the logic required by an EPICS areaDetector driver which
- * consumes Kafka messages contianing NDArray data serialized using flatbuffers. In order to
+ * This class implements the interface and some of the logic required by an EPICS areaDetector driver which
+ * consumes Kafka messages containing NDArray data serialized using flatbuffers. In order to
  * simplify developement, including unit testing, the Kafka communication code is implemented in
  * the class KafkaInterface::KafkaConsumer().
  */
@@ -67,7 +67,7 @@ class epicsShareClass KafkaDriver : public ADDriver {
     /** @brief Used to set the string parameters of the Kafka consumer.
      * When called, the underlying implementation will try to keep the connection to the broker if
      * possible. However, if the broker address is changed the current connection must be destroyed.
-     * @note Due to the use of writeOctet to set configuration strings. These strings are limited in
+     * @note Due to the use of writeOctet to set configuration strings, these strings are limited in
      * length to 40 characters.
      * @todo Possibly, change from writeOctet to writeInt8Array in order to make it possible to have
      * longer configuration strings.
@@ -93,7 +93,7 @@ class epicsShareClass KafkaDriver : public ADDriver {
      * This function uses an endless loop to consume NDArray messages. Should be protected/private
      * but must be public due to the use of the C language to start it. As the main thread can not
      * keep track of the processing thread directly, communication between it and the main thread
-     * is done by the use of events (see KafkaDriver::~kafkaDriver().
+     * is done by the use of events (see KafkaDriver::~KafkaDriver()).
      */
     virtual void consumeTask();
 

@@ -3,13 +3,6 @@
 
 include "ADBase.template"
 
-record(longin, "$(P)$(R)UnproccessedMessages_RBV") #Integer in from device
-{
-    field(DTYP, "asynInt32")	#Data type
-    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_UNPROCCESSED_MESSAGES")
-	field(SCAN, "I/O Intr")		#Update value on interrupt
-}
-
 record(longout, "$(P)$(R)CurrentMessageOffset") #Integer in from device
 {
     field(DTYP, "asynInt32")	#Data type

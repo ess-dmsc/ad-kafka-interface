@@ -18,8 +18,13 @@ LIB_SRCS += jsoncpp.cpp
 
 DBD += ADKafka.dbd
 
+LDFLAGS += -lrdkafka
+LDFLAGS += -lrdkafka++
+
 CXXFLAGS += -std=c++11
 CXXFLAGS += -I${AREA_DETECTOR}/ADCore/include
+
+include $(ADCORE)/ADApp/commonLibraryMakefile
 
 include $(TOP)/configure/RULES
 #----------------------------------------

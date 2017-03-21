@@ -9,11 +9,12 @@
 #include "GenerateNDArray.h"
 #include <ciso646>
 #include <cstdlib>
+#include <cassert>
 
 template <typename T> void PopulateArr(size_t elements, void *ptr) {
-  T *arr = (T *)ptr;
+  T *arr = reinterpret_cast<T*>(ptr);
   for (int y = 0; y < elements; y++) {
-    arr[y] = (T)y;
+    arr[y] = static_cast<T>(y);
   }
 }
 
@@ -35,7 +36,7 @@ void GenerateData(NDDataType_t type, size_t elements, void *usedPtr) {
   } else if (NDFloat64 == type) {
     PopulateArr<std::double_t>(elements, usedPtr);
   } else {
-    std::abort();
+      assert(false);
   }
 }
 
@@ -73,7 +74,7 @@ void *NDArrayGenerator::GenerateAttrData(NDAttrDataType_t type) {
     std::string tempStr = RandomString(strLenDist(e1));
     char *buffer = new char[tempStr.size() + 1];
     std::strncpy(buffer, tempStr.c_str(), tempStr.size() + 1);
-    return (void *)buffer;
+    return reinterpret_cast<void*>(buffer);
   } else if (NDAttrInt8 == type) {
     ptr = GenerateAttrDataT<std::int8_t>(INT8_MIN, INT8_MAX);
   } else if (NDAttrUInt8 == type) {
@@ -91,14 +92,14 @@ void *NDArrayGenerator::GenerateAttrData(NDAttrDataType_t type) {
   } else if (NDAttrFloat64 == type) {
     ptr = GenerateAttrDataT<std::double_t>(-1, 1);
   } else {
-    std::abort();
+    assert(false);
   }
   return ptr;
 }
 
 void NDArrayGenerator::FreeAttrData(void *ptr, NDAttrDataType_t type) {
   if (NDAttrString == type) {
-    char *tempPtr = (char *)ptr;
+    char *tempPtr = reinterpret_cast<char*>(ptr);
     delete[] tempPtr;
   } else if (NDAttrInt8 == type) {
     FreeAttrDataT<std::int8_t>(ptr);
@@ -117,7 +118,7 @@ void NDArrayGenerator::FreeAttrData(void *ptr, NDAttrDataType_t type) {
   } else if (NDAttrFloat64 == type) {
     FreeAttrDataT<std::double_t>(ptr);
   } else {
-    std::abort();
+    assert(false);
   }
 }
 

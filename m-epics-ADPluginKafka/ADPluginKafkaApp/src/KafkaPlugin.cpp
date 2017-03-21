@@ -56,7 +56,7 @@ asynStatus KafkaPlugin::writeOctet(asynUser *pasynUser, const char *value, size_
         return (status);
 
     /* Set the parameter in the parameter library. */
-    status = (asynStatus)setStringParam(addr, function, (char *)value);
+    status = setStringParam(addr, function, const_cast<char*>(value));
 
     std::string tempStr;
     if (function == *paramsList.at(PV::kafka_addr).index) {
@@ -70,7 +70,7 @@ asynStatus KafkaPlugin::writeOctet(asynUser *pasynUser, const char *value, size_
     }
 
     // Do callbacks so higher layers see any changes
-    status = (asynStatus)callParamCallbacks(addr, addr);
+    status = callParamCallbacks(addr, addr);
 
     if (status) {
         epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize,
@@ -92,7 +92,7 @@ asynStatus KafkaPlugin::writeInt32(asynUser *pasynUser, epicsInt32 value) {
     static const char *functionName = "writeInt32";
 
     /* Set the parameter in the parameter library. */
-    status = (asynStatus)setIntegerParam(function, value);
+    status = setIntegerParam(function, value);
 
     if (function == *paramsList[stats_time].index) {
         producer.SetStatsTimeMS(value);
@@ -105,7 +105,7 @@ asynStatus KafkaPlugin::writeInt32(asynUser *pasynUser, epicsInt32 value) {
     }
 
     /* Do callbacks so higher layers see any changes */
-    status = (asynStatus)callParamCallbacks();
+    status = callParamCallbacks();
 
     if (status)
         epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize,

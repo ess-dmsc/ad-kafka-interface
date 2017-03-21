@@ -9,6 +9,7 @@
 #include <ciso646>
 #include <cstdlib>
 #include <vector>
+#include <cassert>
 
 NDDataType_t GetND_DType(FB_Tables::DType arrType) {
     switch (arrType) {
@@ -29,7 +30,7 @@ NDDataType_t GetND_DType(FB_Tables::DType arrType) {
     case FB_Tables::DType::DType_float64:
         return NDFloat64;
     default:
-        std::abort();
+        assert(false);
     }
     return NDInt8;
 }
@@ -55,7 +56,7 @@ NDAttrDataType_t GetND_AttrDType(FB_Tables::DType attrType) {
     case FB_Tables::DType::DType_c_string:
         return NDAttrString;
     default:
-        std::abort();
+        assert(false);
     }
     return NDAttrInt8;
 }
@@ -81,7 +82,7 @@ size_t GetTypeSize(FB_Tables::DType attrType) {
     case FB_Tables::DType::DType_c_string:
         return 1;
     default:
-        std::abort();
+        assert(false);
     }
     return 1;
 }
@@ -95,10 +96,10 @@ void DeSerializeData(NDArrayPool *pNDArrayPool, const unsigned char *bufferPtr, 
     int nsec = recvArr->epicsTS()->nsec();
     std::vector<size_t> dims(recvArr->dims()->begin(), recvArr->dims()->end());
     NDDataType_t dataType = GetND_DType(recvArr->dataType());
-    void *pData = (void *)recvArr->pData()->Data();
+    const void *pData = reinterpret_cast<const void*>(recvArr->pData()->Data());
     int pData_size = recvArr->pData()->size();
 
-    pArray = pNDArrayPool->alloc(int(dims.size()), dims.data(), dataType, 0, nullptr);
+    pArray = pNDArrayPool->alloc(static_cast<int>(dims.size()), dims.data(), dataType, 0, nullptr);
 
     NDAttributeList *attrPtr = pArray->pAttributeList;
     attrPtr->clear();
@@ -107,7 +108,7 @@ void DeSerializeData(NDArrayPool *pNDArrayPool, const unsigned char *bufferPtr, 
         attrPtr->add(new NDAttribute(cAttr->pName()->c_str(), cAttr->pDescription()->c_str(),
                                      NDAttrSourceDriver, cAttr->pSource()->c_str(),
                                      GetND_AttrDType(cAttr->dataType()),
-                                     (void *)cAttr->pData()->Data()));
+                                     reinterpret_cast<void *>(const_cast<std::uint8_t*>(cAttr->pData()->Data()))));
     }
 
     std::memcpy(pArray->pData, pData, pData_size);

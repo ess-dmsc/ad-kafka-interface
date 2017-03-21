@@ -9,7 +9,7 @@
 #include "NDArray_schema_generated.h"
 #include <NDArray.h>
 
-/** @brief Deserializes NDArray data previouslt serilized byt flatbuffers into a NDArray.
+/** @brief Deserializes NDArray data previously serialized by flatbuffers.
  * The deserialization requires that a NDArrayPool provides a NDArray instance to which the data can
  * be copied. The function currently does no checks to ensure that there is memory available. This
  * should probably be rectified and taken care of here.
