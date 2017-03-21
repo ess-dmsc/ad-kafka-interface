@@ -33,7 +33,7 @@ The example now also makes the PV:s available through pvAccess (EPICS v4). It is
     sudo iptables -F FORWARD
 
 ###Compiling and running the driver in a standard EPICS installation
-Note that **NO** support or help for compiling or running this application under a standard EPICS installation will be provided. The steps shown here worked on the development machine but has been tested nowhere else.
+The steps shown here worked on the development machine but has been tested nowhere else.
 
 1. Copy the `m-epics-ADPluginKafka` directory to your `$(EPICS_MODULES_PATH)/areaDetector` directory.
 2. Set the variable `SIMDET` in the file `m-epics-ADPluginKafka/iocs/ADPluginKafkaIOC/configure/RELEASE` to point to the location of `ADSimDetector` in your EPICS installation.
@@ -62,7 +62,7 @@ The plugin is somewhat production ready but improvements would be useful. Some o
 * **Improvements to error handling** There are several types of connection, buffer full and data transmission error that this plugin will not handle gracefully.
 * **More PV:s** These are required for more fine grained control of the Kafka producer as well as for improvement in error handling.
 * **Performance tests** It is likely that performance of the plugin could be improved. To determine if this is the case, performance tests and profiling of the code is required.
-* **Modify db-template** The existing PV:s needs to be modified in order to be slightly more useful.
+* **Modify db-template** The existing PV:s could be modified in order to be slightly more useful.
 * **Kafka producer parameters** Kafka producer settings such as memory buffers, timeouts and so on needs to be adjusted for optimal performance.
 * **More extensive unit tests** It is possible to do more extensive unit testing.
 

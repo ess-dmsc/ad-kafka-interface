@@ -1,8 +1,8 @@
 # Area detector Kafka interface
 
-This repository contains two separate projects which facilitates the transmission of data between an EPICS IOC and Kafka brokers. The two projects are:
+This repository contains two separate projects which facilitates the transmission of data between an EPICS IOC and a Kafka broker. The two projects are:
 
-* [An EPICS areaDetector driver](m-epics-ADKafka/ADKafka_README.md) which acts as a Kafka consumer and makes NDArray data received from the broker available to the IOC and over CA/PV-access.
+* [An EPICS areaDetector driver](m-epics-ADKafka/ADKafka_README.md) which acts as a Kafka consumer and makes NDArray data received from the broker available to the IOC.
 * [An EPICS areaDetector plugin](m-epics-ADPluginKafka/ADPluginKafka_README.md) which connects to an areaDetector and serialises NDArray data it receives and sends it to a Kafka broker.
 
 ### Documentation
