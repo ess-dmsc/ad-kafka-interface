@@ -1,5 +1,5 @@
 include ${EPICS_ENV_PATH}/module.Makefile
-LIBVERSION = 1.0-BETA
+LIBVERSION = 1.0.0-BETA
 EXCLUDE_ARCHS = eldk
 
 LIBRDKAFKA_LIB_PATH = /usr/local/lib/
