@@ -62,6 +62,7 @@ node('eee') {
         try {
             stage("Compile ADPluginKafka") {
                 sh "make -f EEEmakefile"
+                sh "python /opt/epics/modules/environment/1.8.2/3.15.4/bin/centos7-x86_64/module_manager.py --prefix=`pwd` --assumeyes --builddir='builddir' install 'ADPluginKafka' '1.0-INTTEST'"
             } 
         } catch (e) {
             slackSend color: 'danger', message: '@jonasn ad-kafka-interface: ADPluginKafka build failed'
