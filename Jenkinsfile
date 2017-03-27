@@ -69,6 +69,13 @@ node('eee') {
             throw e
         }
     }
+    dir("code/m-epics-ADPluginKafka") {
+        stage("Archive ADPluginKafka") {
+            sh "tar czf ADPluginKafka.tar.gz ADPluginKafka"
+            archiveArtifacts "ADPluginKafka.tar.gz"
+            } 
+
+    }
     if (currentBuild.previousBuild.result == "FAILURE") {
         slackSend color: 'good', message: 'ad-kafka-interface: Back in the green!'
     }
