@@ -50,7 +50,7 @@ node('eee') {
     dir("code/m-epics-ADKafka") {
         try {
             stage("Compile ADKafka") {
-                sh "make -f EEEmakefile"
+                sh "make -f EEEmakefile LIBRDKAFKA_LIB_PATH=/opt/dm_group/usr/lib LIBRDKAFKA_INC_PATH=/opt/dm_group/usr/include"
             } 
         } catch (e) {
             slackSend color: 'danger', message: '@jonasn ad-kafka-interface: ADKafka build failed'
@@ -61,7 +61,7 @@ node('eee') {
     dir("code/m-epics-ADPluginKafka") {
         try {
             stage("Compile ADPluginKafka") {
-                sh "make -f EEEmakefile"
+                sh "make -f EEEmakefile LIBRDKAFKA_LIB_PATH=/opt/dm_group/usr/lib LIBRDKAFKA_INC_PATH=/opt/dm_group/usr/include"
 /*                sh "python /opt/epics/modules/environment/2.0.0/3.15.4/bin/centos7-x86_64/module_manager.py --prefix=`pwd` --assumeyes --builddir='builddir' install 'ADPluginKafka' '1.0.0-INTTEST'"*/
             } 
         } catch (e) {
