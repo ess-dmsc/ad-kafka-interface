@@ -1,5 +1,5 @@
-require adcore,2.5.7
-require adexample,2.2.0
+require adcore,2.6+
+require adsimdetector,2.4+
 
 epicsEnvSet("PREFIX", "$(PREFIX=DMSC)")
 epicsEnvSet("SIMDET_PORT", "$(PREFIX)SIMDET")

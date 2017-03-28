@@ -1,5 +1,5 @@
 require adcore,2.6+
-require ADPluginKafka,1.0-BETA
+require ADPluginKafka,1.0.0-BETA
 
 epicsEnvSet("PREFIX", "$(PREFIX=DMSC)")
 epicsEnvSet("KFKDET_PORT", "$(PREFIX)_AD_KAFKA")

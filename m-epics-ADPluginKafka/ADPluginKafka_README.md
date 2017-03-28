@@ -12,7 +12,7 @@ In order to run the demo of the plugin in the `startup` (or `iocs`) directory, t
 ## Compiling and running the example
 There are currently two sets of make files provided with the repository. One for use with the ESS EPICS Environment and one for use with a standard EPICS installation.
 
-###ESS EPICS Environment
+### ESS EPICS Environment
 If the ESS EPICS Environment is available, the *EEEmakefile* should be used as an input to gnumake:
 
 * `cd` to the `m-epics-ADPluginKafka` directory.
@@ -21,18 +21,13 @@ If the ESS EPICS Environment is available, the *EEEmakefile* should be used as a
 
 Note that the EEE make file assumes that librdkafka is installed in the standard location (i.e. `/usr/local/`). If this is not the case, the file `EEEmakefile` will have to be modified so that the variables `LIBRDKAFKA_LIB_PATH` and `LIBRDKAFKA_INC_PATH`  point to the locations of the library and header files.
 
-####Running an example IOC using the ESS EPICS Environment
+#### Running an example IOC using the ESS EPICS Environment
 A simple example illustrating how the plugin works is provided in the `m-epics-ADPluginKafka/startup` directory. When the plugin is installed:
 
 * `cd` to `m-epics-ADPluginKafka/startup`.
-* Run the startup script: `iocsh -r ADPluginKafka,1.0-BETA -c "requireSnippet(ADPluginKafka_demo.cmd)"`.
+* Run the startup script: `iocsh -r ADPluginKafka,1.0.0-BETA -c "requireSnippet(ADPluginKafka_demo.cmd)"`.
 
-The example now also makes the PV:s available through pvAccess (EPICS v4). It is possible that pvAccess is blocked on your development machine, in which case the following commands can be used to remove all firewall rules:
-
-    sudo iptables -F INPUT
-    sudo iptables -F FORWARD
-
-###Compiling and running the driver in a standard EPICS installation
+### Compiling and running the driver in a standard EPICS installation
 The steps shown here worked on the development machine but has been tested nowhere else.
 
 1. Copy the `m-epics-ADPluginKafka` directory to your `$(EPICS_MODULES_PATH)/areaDetector` directory.
@@ -56,7 +51,7 @@ This plugin provides a few extra process variables (PV) besides the ones provide
 * `$(P)$(R)KafkaStatsIntervalTime` and `$(P)$(R)KafkaStatsIntervalTime_RBV` are used to set and read the time between Kafka broker connection stats. This value is given in milliseconds (ms). Setting a very short update time is not advised.
 * `$(P)$(R)DroppedArrays_RBV` is increased if the Kafka producer messages queue is full (i.e `$(P)$(R)UnsentPackets_RBV` is equal to `$(P)$(R)KafkaMaxQueueSize_RBV`.
 
-##To-do
+## To-do
 The plugin is somewhat production ready but improvements would be useful. Some of these (in no particular order) are:
 
 * **Improvements to error handling** There are several types of connection, buffer full and data transmission error that this plugin will not handle gracefully.

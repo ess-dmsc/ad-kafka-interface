@@ -11,7 +11,7 @@ To simplify data handling, the plugin uses flatbuffers ([https://github.com/goog
 ## Compiling and running the example
 There are currently two sets of make files provided with the repository. One for use with the ESS EPICS Environment and one for use with a standard EPICS installation.
 
-###ESS EPICS Environment
+### ESS EPICS Environment
 If the ESS EPICS Environment is available, the *EEEmakefile* should be used as an input to gnumake:
 
 * `cd` to the `m-epics-ADKafka` directory.
@@ -20,18 +20,13 @@ If the ESS EPICS Environment is available, the *EEEmakefile* should be used as a
 
 Note that the EEE make file assumes that librdkafka is installed in the standard location (i.e. `/usr/local/`). If this is not the case, the file `EEEmakefile` will have to be modified so that the variables `LIBRDKAFKA_LIB_PATH` and `LIBRDKAFKA_INC_PATH`  point to the locations of the library and header files.
 
-####Running an example IOC using the ESS EPICS Environment
+#### Running an example IOC using the ESS EPICS Environment
 A simple example illustrating how the plugin works is provided in the `m-epics-ADKafka/startup` directory. When the plugin is installed:
 
 * `cd` to `m-epics-ADKafka/startup`.
-* Run the startup script: `iocsh -r ADKafka,1.0-BETA -c "requireSnippet(ADKafka_demo.cmd)"`.
+* Run the startup script: `iocsh -r ADKafka,1.0.0-BETA -c "requireSnippet(ADKafka_demo.cmd)"`.
 
-The example makes the PVs available through pvAccess (EPICS v4). It is possible that pvAccess is blocked on your development machine, in which case the following commands can be used to remove all firewall rules:
-
-    sudo iptables -F INPUT
-    sudo iptables -F FORWARD
-
-###Compiling and running the driver in a standard EPICS installation
+### Compiling and running the driver in a standard EPICS installation
 The steps shown here worked on the development machine but has been tested nowhere else.
 
 1. Copy the `m-epics-ADKafka` directory to your `$(EPICS_MODULES_PATH)/areaDetector` directory.
@@ -53,7 +48,7 @@ This plugin provides a few extra process variables besides the ones provided thr
 * `$(P)$(R)CurrentMessageOffset` and `$(P)$(R)CurrentMessageOffset_RBV` sets and reads the current message offset. Note that it is only possible to set the offset if `$(P)$(R)StartMessageOffset` is set to **Manual**.
 * `$(P)$(R)KafkaGroup` and `$(P)$(R)KafkaGroup_RBV` are used to set the Kafka consumer group name/id. The group name is used if several consumers should share consumption from one topic and to store the current message offset on the Kafka broker.
 
-##To-do
+## To-do
 This driver is somewhat production ready. However, there are some improvements that could increase its usefulness:
 
 * **Improvements to error handling** The plugin has some error handling code. It could be significantly expanded however. This includes the error reporting capability of the plugin.
