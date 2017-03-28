@@ -62,16 +62,16 @@ node('eee') {
         try {
             stage("Compile ADPluginKafka") {
                 sh "make -f EEEmakefile"
-                sh "python /opt/epics/modules/environment/2.0.0/3.15.4/bin/centos7-x86_64/module_manager.py --prefix=`pwd` --assumeyes --builddir='builddir' install 'ADPluginKafka' '1.0.0-INTTEST'"
+/*                sh "python /opt/epics/modules/environment/2.0.0/3.15.4/bin/centos7-x86_64/module_manager.py --prefix=`pwd` --assumeyes --builddir='builddir' install 'ADPluginKafka' '1.0.0-INTTEST'"*/
             } 
         } catch (e) {
             slackSend color: 'danger', message: '@jonasn ad-kafka-interface: ADPluginKafka build failed'
             throw e
         }
     }
-    dir("code/m-epics-ADPluginKafka") {
+    dir("code") {
         stage("Archive ADPluginKafka") {
-            sh "tar czf ADPluginKafka.tar.gz ADPluginKafka"
+            sh "tar czf ADPluginKafka.tar.gz m-epics-ADPluginKafka"
             archiveArtifacts "ADPluginKafka.tar.gz"
             } 
 
