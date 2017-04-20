@@ -239,13 +239,19 @@ inline const FB_Tables::NDArray *GetNDArray(const void *buf) {
     return flatbuffers::GetRoot<FB_Tables::NDArray>(buf);
 }
 
+inline const char *NDArrayIdentifier() { return "NDAr"; }
+
+inline bool NDArrayBufferHasIdentifier(const void *buf) {
+    return flatbuffers::BufferHasIdentifier(buf, NDArrayIdentifier());
+}
+
 inline bool VerifyNDArrayBuffer(flatbuffers::Verifier &verifier) {
-    return verifier.VerifyBuffer<FB_Tables::NDArray>(nullptr);
+    return verifier.VerifyBuffer<FB_Tables::NDArray>(NDArrayIdentifier());
 }
 
 inline void FinishNDArrayBuffer(flatbuffers::FlatBufferBuilder &fbb,
                                 flatbuffers::Offset<FB_Tables::NDArray> root) {
-    fbb.Finish(root);
+    fbb.Finish(root, NDArrayIdentifier());
 }
 
 } // namespace FB_Tables
