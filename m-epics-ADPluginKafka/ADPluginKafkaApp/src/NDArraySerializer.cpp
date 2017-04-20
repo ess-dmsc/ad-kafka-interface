@@ -70,7 +70,7 @@ void NDArraySerializer::SerializeData(NDArray &pArray, unsigned char *&bufferPtr
                                            dims, dType, payload, attributes);
 
     // Write data to buffer
-    builder.Finish(kf_pkg);
+    builder.Finish(kf_pkg, FB_Tables::NDArrayIdentifier());
 
     bufferPtr = builder.GetBufferPointer();
     bufferSize = builder.GetSize();
