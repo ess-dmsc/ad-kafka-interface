@@ -13,8 +13,8 @@
 #include "KafkaDriver.h"
 #include "NDArrayDeSerializer.h"
 #include <asynDriver.h>
-#include <ciso646>
 #include <cassert>
+#include <ciso646>
 #include <epicsExport.h>
 
 static const char *driverName = "KafkaDriver";
@@ -31,7 +31,7 @@ asynStatus KafkaDriver::writeOctet(asynUser *pasynUser, const char *value, size_
         return (status);
 
     /* Set the parameter in the parameter library. */
-    status = setStringParam(addr, function, reinterpret_cast<const char*>(value));
+    status = setStringParam(addr, function, reinterpret_cast<const char *>(value));
 
     if (function == *paramsList.at(PV::kafka_addr).index) {
         consumer.SetBrokerAddr(std::string(value, nChars));
@@ -87,13 +87,13 @@ asynStatus KafkaDriver::writeInt32(asynUser *pasynUser, epicsInt32 value) {
         }
     }
     callParamCallbacks();
-    
+
     if (function == *paramsList[set_offset].index) {
         int cOffsetSetting;
         getIntegerParam(*paramsList[set_offset].index, &cOffsetSetting);
-        //If new start offset value is one of 4 different
+        // If new start offset value is one of 4 different
         if (value >= 0 and value <= 3) {
-            //Map start offset settings to the ones used by RdKafka.
+            // Map start offset settings to the ones used by RdKafka.
             if (KafkaDriver::Beginning == value) {
                 consumer.SetOffset(RdKafka::Topic::OFFSET_BEGINNING);
             } else if (KafkaDriver::End == value) {
@@ -157,7 +157,7 @@ asynStatus KafkaDriver::writeInt32(asynUser *pasynUser, epicsInt32 value) {
 }
 
 static void consumeTaskC(void *drvPvt) {
-    KafkaDriver *pPvt = reinterpret_cast<KafkaDriver*>(drvPvt);
+    KafkaDriver *pPvt = reinterpret_cast<KafkaDriver *>(drvPvt);
 
     pPvt->consumeTask();
 }
@@ -169,7 +169,7 @@ KafkaDriver::KafkaDriver(const char *portName, int maxBuffers, size_t maxMemory,
                0,    /* No interfaces beyond those set in ADDriver.cpp */
                0, 1, /* ASYN_CANBLOCK=0, ASYN_MULTIDEVICE=0, autoConnect=1 */
                priority, stackSize),
-consumer(brokerAddress, brokerTopic, asynPortDriver::portName) {
+      consumer(brokerAddress, brokerTopic, asynPortDriver::portName) {
 
     const char *functionName = "KafkaDriver";
     int status = asynStatus::asynSuccess;
@@ -307,7 +307,8 @@ void KafkaDriver::consumeTask() {
                 pImage->release();
             }
             /// @todo Make sure that there is actual a free NDArray to which the data can be copied.
-            DeSerializeData(this->pNDArrayPool, reinterpret_cast<unsigned char*>(fbImg->GetDataPtr()), fbImg->size(),
+            DeSerializeData(this->pNDArrayPool,
+                            reinterpret_cast<unsigned char *>(fbImg->GetDataPtr()), fbImg->size(),
                             pImage);
         }
 
@@ -361,7 +362,7 @@ void KafkaDriver::consumeTask() {
 
         /* Call the callbacks to update any changes */
         callParamCallbacks();
-        
+
         if (acquire) {
             setIntegerParam(ADStatus, ADStatusWaiting);
             callParamCallbacks();
@@ -398,8 +399,8 @@ extern "C" int KafkaDriverConfigure(const char *portName, int maxBuffers, size_t
                                     int priority, int stackSize, const char *brokerAddrStr,
                                     const char *topicName) {
     KafkaDriver *pDriver = nullptr;
-    pDriver = new KafkaDriver(portName, maxBuffers, maxMemory, priority, stackSize,
-                                           brokerAddrStr, topicName);
+    pDriver = new KafkaDriver(portName, maxBuffers, maxMemory, priority, stackSize, brokerAddrStr,
+                              topicName);
 
     return (asynSuccess);
 }

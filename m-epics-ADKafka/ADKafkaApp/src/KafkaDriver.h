@@ -17,7 +17,8 @@
 using KafkaInterface::KafkaConsumer;
 
 /** @brief An EPICS areaDetector driver which consumes Kafka messages containing NDArray data.
- * This class implements the interface and some of the logic required by an EPICS areaDetector driver which
+ * This class implements the interface and some of the logic required by an EPICS areaDetector
+ * driver which
  * consumes Kafka messages containing NDArray data serialized using flatbuffers. In order to
  * simplify developement, including unit testing, the Kafka communication code is implemented in
  * the class KafkaInterface::KafkaConsumer().

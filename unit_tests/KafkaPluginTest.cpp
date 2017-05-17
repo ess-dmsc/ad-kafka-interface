@@ -116,7 +116,7 @@ TEST_F(KafkaPluginEnv, ProcessCallbacksCallTest) {
   NDArrayGenerator arrGen;
   NDArray *arr = arrGen.GenerateNDArray(5, 10, 3, NDDataType_t::NDUInt8);
   KafkaPluginStandIn plugin;
-  plugin.driverCallback(nullptr, reinterpret_cast<void*>(arr));
+  plugin.driverCallback(nullptr, reinterpret_cast<void *>(arr));
   int queueIndex = -1;
   for (auto &p : plugin.producer.GetParams()) {
     if ("KAFKA_UNSENT_PACKETS" == p.desc) {
@@ -138,7 +138,7 @@ TEST_F(KafkaPluginEnv, KafkaQueueFullTest) {
   NDArrayGenerator arrGen;
   for (int i = 0; i < kafkaMaxQueueSize; i++) {
     NDArray *ptr = arrGen.GenerateNDArray(5, 10, 3, NDDataType_t::NDUInt8);
-    plugin.driverCallback(nullptr, reinterpret_cast<void*>(ptr));
+    plugin.driverCallback(nullptr, reinterpret_cast<void *>(ptr));
     ptr->release();
   }
   int queueIndex = -1;
@@ -154,7 +154,7 @@ TEST_F(KafkaPluginEnv, KafkaQueueFullTest) {
   std::this_thread::sleep_for(sleepTime);
   testing::Mock::VerifyAndClear(&plugin);
   NDArray *ptr = arrGen.GenerateNDArray(5, 10, 3, NDDataType_t::NDUInt8);
-  plugin.driverCallback(nullptr, reinterpret_cast<void*>(ptr));
+  plugin.driverCallback(nullptr, reinterpret_cast<void *>(ptr));
   ptr->release();
 
   EXPECT_CALL(plugin, setIntegerParam(testing::Ne(queueIndex), _))

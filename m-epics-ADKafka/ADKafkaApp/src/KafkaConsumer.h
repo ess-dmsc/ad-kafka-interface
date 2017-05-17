@@ -328,10 +328,10 @@ class KafkaConsumer : public RdKafka::EventCb {
 
     /// @brief The list of PV:s created by the driver and their definition.
     std::vector<PV_param> paramsList = {
-        PV_param("KAFKA_MAX_MSG_SIZE", asynParamInt32),          // max_msg_size
-        PV_param("KAFKA_CONNECTION_STATUS", asynParamInt32),     // con_status
-        PV_param("KAFKA_CONNECTION_MESSAGE", asynParamOctet),    // con_msg
-        PV_param("KAFKA_CURRENT_OFFSET", asynParamInt32),        // msg_offset
+        PV_param("KAFKA_MAX_MSG_SIZE", asynParamInt32),       // max_msg_size
+        PV_param("KAFKA_CONNECTION_STATUS", asynParamInt32),  // con_status
+        PV_param("KAFKA_CONNECTION_MESSAGE", asynParamOctet), // con_msg
+        PV_param("KAFKA_CURRENT_OFFSET", asynParamInt32),     // msg_offset
     };
 };
 }

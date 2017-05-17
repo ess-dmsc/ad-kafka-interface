@@ -29,7 +29,7 @@ private:
   void *GenerateAttrData(NDAttrDataType_t type);
 
   template <typename T> void FreeAttrDataT(void *ptr) {
-    T *tempPtr = reinterpret_cast<T*>(ptr);
+    T *tempPtr = reinterpret_cast<T *>(ptr);
     delete tempPtr;
   }
 
@@ -37,10 +37,10 @@ private:
     if (std::is_same<T, std::double_t>::value or
         std::is_same<T, std::float_t>::value) {
       std::uniform_real_distribution<> valueDist(min, max);
-      return reinterpret_cast<void*>(new T(valueDist(eng)));
+      return reinterpret_cast<void *>(new T(valueDist(eng)));
     }
     std::uniform_int_distribution<> valueDist(min, max);
-    return reinterpret_cast<void*>(new T(valueDist(eng)));
+    return reinterpret_cast<void *>(new T(valueDist(eng)));
   }
 
   void FreeAttrData(void *ptr, NDAttrDataType_t type);

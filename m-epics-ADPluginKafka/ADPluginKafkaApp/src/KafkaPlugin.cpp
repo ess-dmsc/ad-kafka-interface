@@ -56,7 +56,7 @@ asynStatus KafkaPlugin::writeOctet(asynUser *pasynUser, const char *value, size_
         return (status);
 
     /* Set the parameter in the parameter library. */
-    status = setStringParam(addr, function, const_cast<char*>(value));
+    status = setStringParam(addr, function, const_cast<char *>(value));
 
     std::string tempStr;
     if (function == *paramsList.at(PV::kafka_addr).index) {

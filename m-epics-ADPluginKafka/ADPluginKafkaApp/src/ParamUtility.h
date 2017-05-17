@@ -7,11 +7,11 @@
 #pragma once
 
 #include <asynNDArrayDriver.h>
+#include <cassert>
 #include <cstdlib>
 #include <memory>
 #include <string>
 #include <vector>
-#include <cassert>
 
 /** @brief A simple class for collection all the relevant information about a PV in a single
  * location.
@@ -29,7 +29,8 @@ class PV_param {
         : desc(desc), type(type), index(std::make_shared<int>(index)){};
 
     /** @brief An empty constructor for PV_param. It is required by some parts of the code.
-     * This constructor is required by some parts of the code though its use is minimised in order to
+     * This constructor is required by some parts of the code though its use is minimised in order
+     * to
      * decrease the probability of bugs. Will set the PV description to "Not used" which aids in
      * debugging.
      */

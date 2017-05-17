@@ -5,10 +5,10 @@
  */
 
 #include "KafkaProducer.h"
+#include <cassert>
 #include <chrono>
 #include <ciso646>
 #include <cstdlib>
-#include <cassert>
 
 namespace KafkaInterface {
 
@@ -127,8 +127,8 @@ bool KafkaProducer::SendKafkaPacket(const unsigned char *buffer, size_t buffer_s
         return false;
     }
     RdKafka::ErrorCode resp =
-        producer->produce(topic, -1, RdKafka::Producer::RK_MSG_COPY /* Copy payload */, const_cast<unsigned char*>(buffer),
-                          buffer_size, nullptr, nullptr);
+        producer->produce(topic, -1, RdKafka::Producer::RK_MSG_COPY /* Copy payload */,
+                          const_cast<unsigned char *>(buffer), buffer_size, nullptr, nullptr);
 
     if (RdKafka::ERR_NO_ERROR != resp) {
         SetConStat(KafkaProducer::ConStat::ERROR,

@@ -6,10 +6,10 @@
  */
 
 #include "NDArrayDeSerializer.h"
+#include <cassert>
 #include <ciso646>
 #include <cstdlib>
 #include <vector>
-#include <cassert>
 
 NDDataType_t GetND_DType(FB_Tables::DType arrType) {
     switch (arrType) {
@@ -96,7 +96,7 @@ void DeSerializeData(NDArrayPool *pNDArrayPool, const unsigned char *bufferPtr, 
     int nsec = recvArr->epicsTS()->nsec();
     std::vector<size_t> dims(recvArr->dims()->begin(), recvArr->dims()->end());
     NDDataType_t dataType = GetND_DType(recvArr->dataType());
-    const void *pData = reinterpret_cast<const void*>(recvArr->pData()->Data());
+    const void *pData = reinterpret_cast<const void *>(recvArr->pData()->Data());
     int pData_size = recvArr->pData()->size();
 
     pArray = pNDArrayPool->alloc(static_cast<int>(dims.size()), dims.data(), dataType, 0, nullptr);
@@ -105,10 +105,10 @@ void DeSerializeData(NDArrayPool *pNDArrayPool, const unsigned char *bufferPtr, 
     attrPtr->clear();
     for (int i = 0; i < recvArr->pAttributeList()->size(); i++) {
         auto cAttr = recvArr->pAttributeList()->Get(i);
-        attrPtr->add(new NDAttribute(cAttr->pName()->c_str(), cAttr->pDescription()->c_str(),
-                                     NDAttrSourceDriver, cAttr->pSource()->c_str(),
-                                     GetND_AttrDType(cAttr->dataType()),
-                                     reinterpret_cast<void *>(const_cast<std::uint8_t*>(cAttr->pData()->Data()))));
+        attrPtr->add(new NDAttribute(
+            cAttr->pName()->c_str(), cAttr->pDescription()->c_str(), NDAttrSourceDriver,
+            cAttr->pSource()->c_str(), GetND_AttrDType(cAttr->dataType()),
+            reinterpret_cast<void *>(const_cast<std::uint8_t *>(cAttr->pData()->Data()))));
     }
 
     std::memcpy(pArray->pData, pData, pData_size);
