@@ -2,6 +2,13 @@
  * ADKafkaInterface Jenkinsfile
  */
 
+def failure_function(exception_obj, failureMessage) {
+    def toEmails = [[$class: 'DevelopersRecipientProvider']]
+    emailext body: '${DEFAULT_CONTENT}\n\"' + failureMessage + '\"\n\nCheck console output at $BUILD_URL to view the results.', recipientProviders: toEmails, subject: '${DEFAULT_SUBJECT}'
+    slackSend color: 'danger', message: "@jonasn ad-kafka-interface: " + failureMessage
+    throw exception_obj
+}
+
 node('eee') {
     dir("code") {
         try {
@@ -9,8 +16,7 @@ node('eee') {
                 checkout scm
             }
         } catch (e) {
-            slackSend color: 'danger', message: '@jonasn ad-kafka-interface: Checkout failed'
-            throw e
+            failure_function(e, 'Checkout failed')
         }
     }
 
@@ -20,8 +26,7 @@ node('eee') {
                 sh "cmake ../code"
             }
         } catch (e) {
-            slackSend color: 'danger', message: '@jonasn ad-kafka-interface: CMake failed'
-            throw e
+            failure_function(e, 'CMake failed')
         }
 
         try {
@@ -29,20 +34,19 @@ node('eee') {
                 sh "make"
             }
         } catch (e) {
-            slackSend color: 'danger', message: '@jonasn ad-kafka-interface: Unit tests build failed'
-            throw e
+            failure_function(e, 'Unit tests build failed')
         }
 
-        try {
-            dir("unit_tests"){
-                stage("Run unit tests") {
+        dir("unit_tests"){
+            stage("Run unit tests") {
+                try {
                     sh "./unit_tests --gtest_output=xml:AllResultsUnitTests.xml"
+                } catch (e) {
                     junit '*Tests.xml'
+                    failure_function(e, 'Unit tests failed')
                 }
+                junit '*Tests.xml'
             }
-        } catch (e) {
-            slackSend color: 'danger', message: '@jonasn ad-kafka-interface: Unit tests failed'
-            throw e
         }
 
     }
@@ -53,8 +57,7 @@ node('eee') {
                 sh "make -f EEEmakefile LIBRDKAFKA_LIB_PATH=/opt/dm_group/usr/lib LIBRDKAFKA_INC_PATH=/opt/dm_group/usr/include"
             }
         } catch (e) {
-            slackSend color: 'danger', message: '@jonasn ad-kafka-interface: ADKafka build failed'
-            throw e
+            failure_function(e, 'ADKafka build failed')
         }
     }
 
@@ -65,8 +68,7 @@ node('eee') {
 /*                sh "python /opt/epics/modules/environment/2.0.0/3.15.4/bin/centos7-x86_64/module_manager.py --prefix=`pwd` --assumeyes --builddir='builddir' install 'ADPluginKafka' '1.0.0-INTTEST'"*/
             }
         } catch (e) {
-            slackSend color: 'danger', message: '@jonasn ad-kafka-interface: ADPluginKafka build failed'
-            throw e
+            failure_function(e, 'ADPluginKafka build failed')
         }
     }
     dir("code") {
@@ -88,8 +90,7 @@ node('clang-format') {
                 checkout scm
             }
         } catch (e) {
-            slackSend color: 'danger', message: '@jonasn ad-kafka-interface: Checkout failed'
-            throw e
+            failure_function(e, 'Checkout failed')
         }
 
         try {
@@ -98,8 +99,7 @@ node('clang-format') {
                     -exec $DM_ROOT/usr/bin/clangformatdiff.sh {} +"
             }
         } catch (e) {
-            slackSend color: 'danger', message: '@jonasn ad-kafka-interface: Formatting check failed'
-            throw e
+            failure_function(e, 'Formatting check failed')
         }
     }
 }
