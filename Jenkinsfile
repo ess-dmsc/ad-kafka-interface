@@ -10,6 +10,8 @@ def failure_function(exception_obj, failureMessage) {
 }
 
 node('eee') {
+    cleanWs()
+
     dir("code") {
         try {
             stage("Checkout projects") {
@@ -84,6 +86,8 @@ node('eee') {
 }
 
 node('clang-format') {
+    cleanWs()
+    
     dir("code") {
         try {
             stage("Checkout projects") {
