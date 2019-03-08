@@ -2,6 +2,7 @@ TOP = ..
 include $(TOP)/configure/CONFIG
 
 DIRS += ADKafkaIOC
+DIRS += ADPluginKafkaIOC
 
 include $(TOP)/configure/RULES_TOP
 

@@ -7,6 +7,7 @@ DIRS := $(DIRS) $(filter-out $(DIRS), $(wildcard *app))
 ifeq ($(BUILD_IOCS), YES)
 DIRS := $(DIRS) $(filter-out $(DIRS), $(wildcard iocs))
 iocs_DEPEND_DIRS += ADKafkaApp
+iocs_DEPEND_DIRS += ADPluginKafkaApp
 endif
 include $(TOP)/configure/RULES_TOP
 
@@ -19,3 +20,4 @@ realuninstall: realuninstall_iocs
 realuninstall_iocs:
 	$(MAKE) -C iocs realuninstall
 .PHONY: realuninstall realuninstall_iocs
+
