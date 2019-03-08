@@ -3,7 +3,7 @@
 # top directory each time this file is changed.
 
 ADPLUGINKAFKA = $(TOP)/../..
-SIMDET = /opt/epics/modules/areaDetector/ADSimDetector
+SIMDET = /dls_sw/prod/R3.14.12.7/support/ADSimDetector/2-8dls2/
 
 -include $(TOP)/../../../configure/RELEASE_PRODS_INCLUDE
 -include $(TOP)/RELEASE.local
