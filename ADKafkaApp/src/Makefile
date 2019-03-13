@@ -22,7 +22,7 @@ LDFLAGS += -lrdkafka
 LDFLAGS += -lrdkafka++
 
 CXXFLAGS += -std=c++11
-CXXFLAGS += -I${AREA_DETECTOR}/ADCore/include
+CXXFLAGS += -I${AREA_DETECTOR}/ADCore/3-4dls1/include
 
 include $(ADCORE)/ADApp/commonLibraryMakefile
 

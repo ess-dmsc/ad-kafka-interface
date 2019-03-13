@@ -5,7 +5,7 @@ include $(TOP)/configure/CONFIG
 #ARCH = windows-x64-debug
 #ARCH = windows-x64
 #ARCH = cygwin-x86
-ARCH = linux-x86
+ARCH = linux-x86_64
 #ARCH = darwin-x86
 #ARCH = solaris-sparc
 #ARCH = vxWorks-ppc603
