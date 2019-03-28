@@ -4,7 +4,7 @@ errlogInit(20000)
 dbLoadDatabase("$(TOP)/dbd/ADKafkaApp.dbd")
 ADKafkaApp_registerRecordDeviceDriver(pdbbase)
 
-epicsEnvSet("PREFIX", "$(PREFIX=DMSC)")
+epicsEnvSet("PREFIX", "$(PREFIX=YSX26594)")
 epicsEnvSet("KFKDET_PORT", "$(PREFIX)_AD_KAFKA")
 epicsEnvSet("K_PORT", "$(PREFIX)K")
 epicsEnvSet("QSIZE", "20")

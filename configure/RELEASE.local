@@ -19,6 +19,13 @@ TEMPLATE_TOP = $(EPICS_BASE)/templates/makeBaseApp/top
 
 # ASYN is needed for base classes
 ASYN = $(SUPPORT)/asyn/4-34
+BUSY = $(SUPPORT)/busy/1-7dls1
+ADSUPPORT = $(SUPPORT)/ADSupport/1-4
+
+PVACCESSCPP       = $(SUPPORT)/pvAccessCPP/6-0-0
+PVDATABASECPP     = $(SUPPORT)/pvDatabaseCPP/4-3-0
+PVDATACPP         = $(SUPPORT)/pvDataCPP/7-0-0
+NORMATIVETYPESCPP = $(SUPPORT)/normativeTypesCPP/5-2-0
 
 # ADCORE is needed for areaDetector base classes
 ADCORE = $(SUPPORT)/ADCore/3-4dls1

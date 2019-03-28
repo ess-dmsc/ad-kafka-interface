@@ -1,7 +1,7 @@
 require adcore,2.6+
 require adsimdetector,2.4+
 
-epicsEnvSet("PREFIX", "$(PREFIX=DMSC)")
+epicsEnvSet("PREFIX", "$(PREFIX=YSX26594)")
 epicsEnvSet("SIMDET_PORT", "$(PREFIX)SIMDET")
 epicsEnvSet("K_PORT", "$(PREFIX)K")
 epicsEnvSet("XSIZE", "$(XSIZE=200)")
