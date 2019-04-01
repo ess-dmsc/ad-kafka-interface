@@ -1,16 +1,16 @@
 # Common prefixes
 SUPPORT = /dls_sw/prod/R3.14.12.7/support
-WORK = /dls_sw/work/R3.14.12.7/support
+#WORK = /dls_sw/work/R3.14.12.7/support
 # Module definitions
 ADCORE = $(SUPPORT)/ADCore/3-4dls1
 #ADSIMDETECTOR = $(SUPPORT)/ADSimDetector/2-8dls2
 ADSUPPORT = $(SUPPORT)/ADSupport/1-4
 ASYN = $(SUPPORT)/asyn/4-34
 BUSY = $(SUPPORT)/busy/1-7dls1
-CALC = $(SUPPORT)/calc/3-7
-GENERIC = $(WORK)/generic
-SSCAN = $(SUPPORT)/sscan/2-11
-STD = $(SUPPORT)/std/3-4-1dls1
+#CALC = $(SUPPORT)/calc/3-7
+#GENERIC = $(WORK)/generic
+#SSCAN = $(SUPPORT)/sscan/2-11
+#STD = $(SUPPORT)/std/3-4-1dls1
 
 # PVA Sources
 PVACCESSCPP       = $(SUPPORT)/pvAccessCPP/6-0-0

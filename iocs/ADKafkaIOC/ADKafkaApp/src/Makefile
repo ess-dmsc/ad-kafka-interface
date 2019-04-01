@@ -12,6 +12,7 @@ endif
 
 PROD_NAME = ADKafkaApp
 PROD_IOC = $(PROD_NAME)
+DBD_NAME = $(PROD_NAME)
 
 # <name>.dbd will be created from <name>Include.dbd
 DBD += $(PROD_NAME).dbd
