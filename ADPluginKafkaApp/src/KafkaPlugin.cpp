@@ -25,7 +25,7 @@ void KafkaPlugin::processCallbacks(NDArray *pArray) {
   /// @todo Check the order of these calls and if all of them are needed.
   NDArrayInfo_t arrayInfo;
 
-  //NDPluginDriver::processCallbacks(pArray);
+  NDPluginDriver::beginProcessCallbacks(pArray);
 
   pArray->getInfo(&arrayInfo);
 
@@ -126,8 +126,8 @@ KafkaPlugin::KafkaPlugin(const char *portName, int queueSize,
     // Invoke the base class constructor
     : NDPluginDriver(portName, queueSize, blockingCallbacks, NDArrayPort,
                      NDArrayAddr, 1,
-                     PV::count + KafkaProducer::GetNumberOfPVs(), 2, maxMemory,
-                     intMask, intMask, 0, 1, priority, stackSize),
+                     2, maxMemory,
+                     intMask, intMask, 0, 1, priority, stackSize, 1),
       producer(brokerAddress, brokerTopic) {
 
   MIN_PARAM_INDEX = InitPvParams(this, paramsList);
