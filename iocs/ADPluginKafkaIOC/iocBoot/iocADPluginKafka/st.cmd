@@ -21,7 +21,13 @@ dbLoadRecords("$(ADPLUGINKAFKA)/db/ADPluginKafka.template", "P=$(PREFIX),R=:KFK:
 iocInit()
 
 dbpf $(PREFIX):KFK:EnableCallbacks Enable
-dbpf $(PREFIX):SIM:AcquirePeriod 2
+dbpf $(PREFIX):SIM:AcquirePeriod 0.00001
+dbpf $(PREFIX):SIM:AcquireTime 0.00001
+dbpf $(PREFIX):SIM:SizeY 1024
+dbpf $(PREFIX):SIM:SizeX 1024
+dbpf $(PREFIX):KFK:KafkaMaxQueueSize 10000
+dbpf $(PREFIX):KFK:QueueSize 1000
 dbpf $(PREFIX):SIM:Acquire 1
+
 
 #Always end with a new line
