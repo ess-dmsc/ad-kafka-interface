@@ -81,9 +81,9 @@ bool KafkaProducer::SetMaxMessageSize(size_t msgSize) {
   }
   RdKafka::Conf::ConfResult configResult1, configResult2;
   configResult1 =
-      conf->set("message.max.bytes", std::to_string(msgSize), errstr);
+      conf->set("message.max.bytes", std::to_string(100000000), errstr);
   configResult2 =
-      conf->set("message.copy.max.bytes", std::to_string(msgSize), errstr);
+      conf->set("message.copy.max.bytes", std::to_string(100000000), errstr);
   if (RdKafka::Conf::CONF_OK != configResult1 or
       RdKafka::Conf::CONF_OK != configResult2) {
     SetConStat(KafkaProducer::ConStat::ERROR,
@@ -106,7 +106,14 @@ bool KafkaProducer::SetMessageQueueLength(int queue) {
   }
   RdKafka::Conf::ConfResult configResult;
   configResult =
-      conf->set("queue.buffering.max.messages", std::to_string(queue), errstr);
+      conf->set("queue.buffering.max.messages", std::to_string(10000000), errstr);
+  if (RdKafka::Conf::CONF_OK != configResult) {
+    SetConStat(KafkaProducer::ConStat::ERROR,
+               "Unable to set message queue length.");
+    return false;
+  }
+  configResult =
+      conf->set("queue.buffering.max.kbytes", std::to_string(2097151), errstr);
   if (RdKafka::Conf::CONF_OK != configResult) {
     SetConStat(KafkaProducer::ConStat::ERROR,
                "Unable to set message queue length.");
@@ -250,7 +257,12 @@ void KafkaProducer::InitRdKafka() {
   }
 
   configResult = conf->set("queue.buffering.max.messages",
-                           std::to_string(msgQueueSize), errstr);
+                           std::to_string(10000000), errstr);
+  if (RdKafka::Conf::CONF_OK != configResult) {
+    SetConStat(KafkaProducer::ConStat::ERROR, "Unable to set queue length.");
+  }
+  configResult = conf->set("queue.buffering.max.kbytes",
+                           std::to_string(2097151), errstr);
   if (RdKafka::Conf::CONF_OK != configResult) {
     SetConStat(KafkaProducer::ConStat::ERROR, "Unable to set queue length.");
   }
