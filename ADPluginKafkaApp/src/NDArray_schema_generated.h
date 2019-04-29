@@ -4,7 +4,7 @@
 #ifndef FLATBUFFERS_GENERATED_NDARRAYSCHEMA_FB_TABLES_H_
 #define FLATBUFFERS_GENERATED_NDARRAYSCHEMA_FB_TABLES_H_
 
-#include "flatbuffers/flatbuffers.h"
+#include "flatbuffers.h"
 
 namespace FB_Tables {
 
