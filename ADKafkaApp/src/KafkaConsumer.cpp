@@ -20,19 +20,19 @@ void *KafkaMessage::GetDataPtr() { return msg->payload(); }
 
 size_t KafkaMessage::size() { return msg->len(); }
 
-KafkaConsumer::KafkaConsumer(std::string broker, std::string topic,
-                             std::string groupId)
+KafkaConsumer::KafkaConsumer(std::string const &broker, std::string const &topic,
+                             std::string const &groupId)
     : topicName(topic),
       conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)),
       brokerAddr(broker) {
-  InitRdKafka(groupId);
-  SetBrokerAddr(broker);
-  SetTopic(topic);
+  KafkaConsumer::InitRdKafka(groupId);
+  KafkaConsumer::SetBrokerAddr(broker);
+  KafkaConsumer::SetTopic(topic);
 }
 
-KafkaConsumer::KafkaConsumer(std::string groupId)
+KafkaConsumer::KafkaConsumer(std::string const &groupId)
     : conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)) {
-  InitRdKafka(groupId);
+  KafkaConsumer::InitRdKafka(groupId);
 }
 
 KafkaConsumer::~KafkaConsumer() {
@@ -233,7 +233,7 @@ bool KafkaConsumer::MakeConnection() {
   return true;
 }
 
-bool KafkaConsumer::SetTopic(std::string topicName) {
+bool KafkaConsumer::SetTopic(std::string const &topicName) {
   if (errorState or 0 == topicName.size()) {
     return false;
   }
@@ -242,7 +242,7 @@ bool KafkaConsumer::SetTopic(std::string topicName) {
   return true;
 }
 
-bool KafkaConsumer::SetBrokerAddr(std::string brokerAddr) {
+bool KafkaConsumer::SetBrokerAddr(std::string const &brokerAddr) {
   if (errorState or brokerAddr.size() == 0) {
     return false;
   }

@@ -28,7 +28,7 @@ public:
    * if the data does
    * not fit.
    */
-  NDArraySerializer(const flatbuffers::uoffset_t bufferSize = 1048576);
+  explicit NDArraySerializer(const flatbuffers::uoffset_t bufferSize = 1048576);
 
   /** @brief Serializes data held in the input NDArray.
    * Note that the returned pointer is only valid until next time

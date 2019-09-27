@@ -14,21 +14,21 @@ namespace KafkaInterface {
 
 int KafkaProducer::GetNumberOfPVs() { return PV::count; }
 
-KafkaProducer::KafkaProducer(std::string broker, std::string topic,
+KafkaProducer::KafkaProducer(std::string const &broker, std::string const &topic,
                              int queueSize)
     : msgQueueSize(queueSize), conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)),
       tconf(RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC)),
       topicName(topic) {
-  InitRdKafka();
-  SetBrokerAddr(broker);
-  MakeConnection();
+  KafkaProducer::InitRdKafka();
+  KafkaProducer::SetBrokerAddr(broker);
+  KafkaProducer::MakeConnection();
 }
 
 KafkaProducer::KafkaProducer(int queueSize)
     : msgQueueSize(queueSize), conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)),
       tconf(RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC))
        {
-  InitRdKafka();
+  KafkaProducer::InitRdKafka();
 }
 
 KafkaProducer::~KafkaProducer() {
@@ -36,8 +36,8 @@ KafkaProducer::~KafkaProducer() {
     runThread = false;
     statusThread.join();
   }
-  ShutDownTopic();
-  ShutDownProducer();
+  KafkaProducer::ShutDownTopic();
+  KafkaProducer::ShutDownProducer();
 }
 
 bool KafkaProducer::StartThread() {
@@ -286,7 +286,7 @@ bool KafkaProducer::SetStatsTimeMS(int time) {
 
 int KafkaProducer::GetStatsTimeMS() { return kafka_stats_interval; }
 
-bool KafkaProducer::SetTopic(std::string topicName) {
+bool KafkaProducer::SetTopic(std::string const &topicName) {
   if (errorState or 0 == topicName.size()) {
     return false;
   }
@@ -314,7 +314,7 @@ bool KafkaProducer::SetTopic(std::string topicName) {
 
 std::string KafkaProducer::GetTopic() { return topicName; }
 
-bool KafkaProducer::SetBrokerAddr(std::string brokerAddr) {
+bool KafkaProducer::SetBrokerAddr(std::string const &brokerAddr) {
   if (errorState or brokerAddr.size() == 0) {
     return false;
   }

@@ -30,7 +30,7 @@ public:
   /** @brief Stores a pointer to a RdKafka:Message.
    * @param[in] msg The pointer to the RdKafka::Message which is to be stored.
    */
-  KafkaMessage(RdKafka::Message *msg);
+  explicit KafkaMessage(RdKafka::Message *msg);
   /// @brief De-allocates the stored RdKafka::Message.
   ~KafkaMessage();
   /** @brief Returns the pointer to the data stored in the RdKafka::message.
@@ -92,7 +92,7 @@ public:
    * @param[in] groupId The group id of the consumer, see the documentation for
    * KafkaConsumer::GetGroupId().
    */
-  KafkaConsumer(std::string broker, std::string topic, std::string groupId);
+  KafkaConsumer(std::string const &broker, std::string const &topic, std::string const &groupId);
 
   /** @brief Simple consumer constructor which will not connect to a broker.
    * @note After calling the constructor, the PV:s must be configured and
@@ -104,7 +104,7 @@ public:
    * @param[in] groupId The group id of the consumer, see the documentation for
    * KafkaConsumer::GetGroupId().
    */
-  KafkaConsumer(std::string groupId);
+  KafkaConsumer(std::string const &groupId);
 
   /** @brief Disconnect topic and deletes dynamically allocated objects.
    */
@@ -125,7 +125,7 @@ public:
    * @param topicName The new topic.
    * @return True on succes, false on failure.
    */
-  virtual bool SetTopic(std::string topicName);
+  virtual bool SetTopic(std::string const &topicName);
 
   /** @brief Get the current topic name.
    * Will return the topic name stored by KafkaInterface::KafkaConsumer.
@@ -140,7 +140,7 @@ public:
    * @param[in] brokerAddr The new broker address to use.
    * @return True on success, false on failure.
    */
-  virtual bool SetBrokerAddr(std::string brokerAddr);
+  virtual bool SetBrokerAddr(std::string const &brokerAddr);
 
   /** @brief Return the current broker address stored by
    * KafkaInterface::KafkaConsumer.

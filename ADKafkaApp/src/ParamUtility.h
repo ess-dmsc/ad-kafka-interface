@@ -28,7 +28,7 @@ public:
    * @param[in] type The data type of PV in question.
    * @param[in] index The index value of the PV.
    */
-  PV_param(std::string desc, asynParamType type, int index = 0)
+  PV_param(std::string const &desc, asynParamType type, int index = 0)
       : desc(desc), type(type), index(std::make_shared<int>(index)){};
 
   /** @brief An empty constructor for PV_param. It is required by some parts of
@@ -104,7 +104,7 @@ int InitPvParams(asynNDArrType *driverPtr, std::vector<PV_param> &paramList) {
  */
 template <class asynNDArrType>
 asynStatus setParam(asynNDArrType *driverPtr, const PV_param &param,
-                    const std::string value) {
+                    std::string const &value) {
   if (nullptr == driverPtr or 0 == *param.index) {
     return asynStatus::asynError;
   }

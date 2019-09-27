@@ -56,7 +56,7 @@ public:
    * will store in its
    * buffer.
    */
-  KafkaProducer(std::string broker, std::string topic, int queueSize = 10);
+  KafkaProducer(std::string const &broker, std::string const &topic, int queueSize = 10);
 
   /** @brief Simple consumer constructor which will not connect to a broker.
    * @note After calling the constructor, the rest of the instructions given in
@@ -68,7 +68,7 @@ public:
    * will store in its
    * buffer.
    */
-  KafkaProducer(int queueSize = 10);
+  explicit KafkaProducer(int queueSize = 10);
 
   /** @brief Destructor.
    * Will signal the stats thread to exit and will only return when it has done
@@ -106,7 +106,7 @@ public:
    * @param topicName The new topic.
    * @return True on succes, false on failure.
    */
-  virtual bool SetTopic(std::string topicName);
+  virtual bool SetTopic(std::string const &topicName);
 
   /** @brief Get the current topic name.
    * Will return the topic name stored by KafkaInterface::KafkaProducer.
@@ -121,7 +121,7 @@ public:
    * @param[in] brokerAddr The new broker address to use.
    * @return True on success, false on failure.
    */
-  virtual bool SetBrokerAddr(std::string brokerAddr);
+  virtual bool SetBrokerAddr(std::string const &brokerAddr);
 
   /** @brief Return the current broker address stored by
    * KafkaInterface::KafkaProducer.
