@@ -2,8 +2,8 @@
 
 This repository contains two separate projects which facilitates the transmission of data between an EPICS IOC and an Apache Kafka broker. The two projects are:
 
-* [An EPICS areaDetector driver](m-epics-ADKafka/ADKafka_README.md) which acts as a Kafka consumer and makes NDArray data received from the broker available to the IOC.
-* [An EPICS areaDetector plugin](m-epics-ADPluginKafka/ADPluginKafka_README.md) which connects to an areaDetector and serializes NDArray data it receives and sends it to a Kafka broker.
+* [An EPICS areaDetector driver](ADKafka_README.md) which acts as a Kafka consumer and makes NDArray data received from the broker available to the IOC.
+* [An EPICS areaDetector plugin](ADPluginKafka_README.md) which connects to an areaDetector and serializes NDArray data it receives and sends it to a Kafka broker.
 
 Apache Kafka is an open-source platform for handling streaming data one or more data brokers in order to maximize throughput and reliability. More information on Apache Kafka can be found at [the website of that project.](https://kafka.apache.org/intro)
 

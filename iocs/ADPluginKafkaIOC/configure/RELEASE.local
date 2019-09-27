@@ -1,0 +1,23 @@
+# Common prefixes
+SUPPORT = /dls_sw/prod/R3.14.12.7/support
+WORK = /dls_sw/work/R3.14.12.7/support
+# Module definitions
+ADCORE = $(SUPPORT)/ADCore/3-4dls1
+#ADSIMDETECTOR = $(SUPPORT)/ADSimDetector/2-8dls2
+ADSUPPORT = $(SUPPORT)/ADSupport/1-4
+ASYN = $(SUPPORT)/asyn/4-34
+BUSY = $(SUPPORT)/busy/1-7dls1
+#CALC = $(SUPPORT)/calc/3-7
+#GENERIC = $(WORK)/generic
+#SSCAN = $(SUPPORT)/sscan/2-11
+#STD = $(SUPPORT)/std/3-4-1dls1
+
+# PVA Sources
+PVACCESSCPP       = $(SUPPORT)/pvAccessCPP/6-0-0
+PVDATABASECPP     = $(SUPPORT)/pvDatabaseCPP/4-3-0
+PVDATACPP         = $(SUPPORT)/pvDataCPP/7-0-0
+NORMATIVETYPESCPP = $(SUPPORT)/normativeTypesCPP/5-2-0
+
+# EPICS Base appears last
+EPICS_BASE = /dls_sw/epics/R3.14.12.7/base
+
