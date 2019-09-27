@@ -280,17 +280,17 @@ protected:
   /** @brief I set to tru if initialization of librdkafka fails. Only changed by
   * KafkaConsumer::InitRdKafka().
   */
-  bool errorState = false;
+  bool errorState{false};
 
   /// @brief Used keep track of if consumption is currently halted.
-  bool consumptionHalted = true;
+  bool consumptionHalted{true};
 
-  size_t bufferSize = 100000000;
+  size_t bufferSize{100000000};
 
   /** @brief Used to store the current message offset. Updated by
    * KafkaConsumer::WaitForPkg().
   */
-  std::int64_t topicOffset;
+  std::int64_t topicOffset{RdKafka::Topic::OFFSET_STORED};
   
   std::string
   topicName; /// @brief Stores the current topic used by the consumer.
@@ -356,8 +356,7 @@ protected:
    */
   virtual void ParseStatusString(std::string msg);
 
-  int kafka_stats_interval =
-      500; /// @brief Saved Kafka connection stats interval in ms.
+  int kafka_stats_interval{500}; /// @brief Saved Kafka connection stats interval in ms.
 
   /** @brief The event callback function called by librdkafka for purposes of
    * getting connection
@@ -378,7 +377,7 @@ protected:
    * class. Required for
    * updating PVs.
    */
-  asynNDArrayDriver *paramCallback;
+  asynNDArrayDriver *paramCallback{nullptr};
 
   std::string
       groupName; /// @brief Stores the current group name used by the consumer.
@@ -394,7 +393,7 @@ protected:
   /// the consumer.
 
   /// @brief Pointer to Kafka consumer in librdkafka.
-  RdKafka::KafkaConsumer *consumer = nullptr;
+  RdKafka::KafkaConsumer *consumer{nullptr};
 
   /// @brief The root and broker json objects extracted from a json string.
   Json::Value root, brokers;

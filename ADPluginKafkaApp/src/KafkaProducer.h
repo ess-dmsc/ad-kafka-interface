@@ -279,8 +279,7 @@ protected:
    */
   virtual void ParseStatusString(std::string msg);
 
-  int kafka_stats_interval =
-      500; /// @brief Saved Kafka connection stats interval in ms.
+  int kafka_stats_interval{500}; /// @brief Saved Kafka connection stats interval in ms.
 
   /// @brief Sleep time between poll()-calls. See
   /// KafkaProducer::ThreadFunction().
