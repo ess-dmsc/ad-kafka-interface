@@ -212,13 +212,13 @@ public:
   static int GetNumberOfPVs();
 
 protected:
-  size_t maxMessageSize; /// @brief Stored maximum message size in bytes.
-  int msgQueueSize;      /// @brief Stored maximum Kafka producer queue length.
-
-  bool doFlush;     /// @brief Should a flush attempt be made at disconnect?
-  int flushTimeout; /// @brief What is the timeout of the flush attempt?
   bool
-      errorState; /// @brief Set to true if librdkafka could not be initialized.
+  errorState{false}; /// @brief Set to true if librdkafka could not be initialized.
+  bool doFlush{true};     /// @brief Should a flush attempt be made at disconnect?
+  int flushTimeout{500}; /// @brief What is the timeout of the flush attempt?
+  
+  size_t maxMessageSize{1000000}; /// @brief Stored maximum message size in bytes.
+  int msgQueueSize;      /// @brief Stored maximum Kafka producer queue length.
 
   /** @brief Helper function for cleanly shutting down a topic.
    * Implements the flushing functionality.
@@ -284,7 +284,7 @@ protected:
 
   /// @brief Sleep time between poll()-calls. See
   /// KafkaProducer::ThreadFunction().
-  const int sleepTime = 50;
+  const int sleepTime{50};
 
   mutable std::mutex
       brokerMutex; /// @brief Prevents access to shared resources.
@@ -311,17 +311,17 @@ protected:
   /// functions.
   std::string errstr;
 
+  /// @brief Pointer to Kafka topic in librdkafka.
+  RdKafka::Topic *topic{nullptr};
+
+  /// @brief Pointer to Kafka producer in librdkafka.
+  RdKafka::Producer *producer{nullptr};
+  
   /// @brief Stores the pointer to a librdkafka configruation object.
   std::unique_ptr<RdKafka::Conf> conf;
 
   /// @brief Stores the pointer to a librdkafka topic configruation object.
   std::unique_ptr<RdKafka::Conf> tconf;
-
-  /// @brief Pointer to Kafka topic in librdkafka.
-  RdKafka::Topic *topic = nullptr;
-
-  /// @brief Pointer to Kafka producer in librdkafka.
-  RdKafka::Producer *producer = nullptr;
 
   std::string
       topicName; /// @brief Stores the current topic used by the consumer.
@@ -339,10 +339,10 @@ protected:
    * class. Required for
    * updating PVs.
    */
-  asynNDArrayDriver *paramCallback;
+  asynNDArrayDriver *paramCallback{nullptr};
 
   /// @brief Used to shut down the stats thread.
-  std::atomic_bool runThread;
+  std::atomic_bool runThread{false};
 
   /// @brief Used to keep track of the PV:s made available by this driver.
   enum PV {

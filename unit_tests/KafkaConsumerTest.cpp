@@ -51,11 +51,11 @@ public:
 /// @brief Simple stand-in class used for unit tests.
 class asynNDArrayDriverStandIn : public asynNDArrayDriver {
 public:
-  asynNDArrayDriverStandIn(const char *portName, int maxAddr, int numParams,
+  asynNDArrayDriverStandIn(const char *portName, int maxAddr,
                            int maxBuffers, size_t maxMemory, int interfaceMask,
                            int interruptMask, int asynFlags, int autoConnect,
                            int priority, int stackSize)
-      : asynNDArrayDriver(portName, maxAddr, numParams, maxBuffers, maxMemory,
+      : asynNDArrayDriver(portName, maxAddr, maxBuffers, maxMemory,
                           interfaceMask, interruptMask, asynFlags, autoConnect,
                           priority, stackSize){};
   MOCK_METHOD2(setStringParam, asynStatus(int, const char *));
@@ -68,7 +68,6 @@ class KafkaConsumerEnv : public ::testing::Test {
 public:
   static void SetUpTestCase() {
     std::string portName("someNameSecond");
-    int numberOfParams = 0;
     size_t maxMemory = 10;
     int mask1 = asynInt8ArrayMask | asynInt16ArrayMask | asynInt32ArrayMask |
                 asynFloat32ArrayMask | asynFloat64ArrayMask;
@@ -76,7 +75,7 @@ public:
                 asynFloat32ArrayMask | asynFloat64ArrayMask;
     int priority = 0;
     int stackSize = 5;
-    asynDrvr = new asynNDArrayDriverStandIn(portName.c_str(), 1, numberOfParams,
+    asynDrvr = new asynNDArrayDriverStandIn(portName.c_str(), 1,
                                             2, maxMemory, mask1, mask2, 0, 1,
                                             priority, stackSize);
   };

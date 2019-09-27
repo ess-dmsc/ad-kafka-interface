@@ -40,7 +40,7 @@ void GenerateData(NDDataType_t type, size_t elements, void *usedPtr) {
   }
 }
 
-NDArrayGenerator::NDArrayGenerator() : sendPool(new NDArrayPool(1, 0)) {
+NDArrayGenerator::NDArrayGenerator() : sendPool(new NDArrayPool(nullptr, 0)) {
   idCtr = 0;
   eng = std::default_random_engine(r());
 }

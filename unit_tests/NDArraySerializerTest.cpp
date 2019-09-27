@@ -54,7 +54,7 @@ public:
 
   virtual void SetUp() {
     arrGen = new NDArrayGenerator();
-    recvPool = new NDArrayPool(1, 0);
+    recvPool = new NDArrayPool(nullptr, 0);
   };
 
   virtual void TearDown() {

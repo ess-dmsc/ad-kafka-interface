@@ -291,6 +291,9 @@ protected:
    * KafkaConsumer::WaitForPkg().
   */
   std::int64_t topicOffset;
+  
+  std::string
+  topicName; /// @brief Stores the current topic used by the consumer.
 
   /** @brief Used as a textual representation of the current state of the Kafka
    * broker connection.
@@ -378,10 +381,6 @@ protected:
   asynNDArrayDriver *paramCallback;
 
   std::string
-      topicName; /// @brief Stores the current topic used by the consumer.
-  std::string brokerAddr; /// @brief Stores the current broker address used by
-                          /// the consumer.
-  std::string
       groupName; /// @brief Stores the current group name used by the consumer.
 
   /// @brief Used to take care of error strings returned by verious librdkafka
@@ -390,6 +389,9 @@ protected:
 
   /// @brief Stores the pointer to a librdkafka configruation object.
   std::unique_ptr<RdKafka::Conf> conf;
+  
+  std::string brokerAddr; /// @brief Stores the current broker address used by
+  /// the consumer.
 
   /// @brief Pointer to Kafka consumer in librdkafka.
   RdKafka::KafkaConsumer *consumer = nullptr;

@@ -16,22 +16,18 @@ int KafkaProducer::GetNumberOfPVs() { return PV::count; }
 
 KafkaProducer::KafkaProducer(std::string broker, std::string topic,
                              int queueSize)
-    : errorState(false), doFlush(true), topic(nullptr), producer(nullptr),
-      conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)),
+    : msgQueueSize(queueSize), conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)),
       tconf(RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC)),
-      flushTimeout(500), maxMessageSize(1000000), topicName(topic),
-      runThread(false), paramCallback(nullptr), msgQueueSize(queueSize) {
+      topicName(topic) {
   InitRdKafka();
   SetBrokerAddr(broker);
   MakeConnection();
 }
 
 KafkaProducer::KafkaProducer(int queueSize)
-    : errorState(false), doFlush(true), topic(nullptr), producer(nullptr),
-      conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)),
-      tconf(RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC)),
-      flushTimeout(500), maxMessageSize(1000000), runThread(false),
-      paramCallback(nullptr), msgQueueSize(queueSize) {
+    : msgQueueSize(queueSize), conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)),
+      tconf(RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC))
+       {
   InitRdKafka();
 }
 
