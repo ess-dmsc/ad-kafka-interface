@@ -102,14 +102,7 @@ bool KafkaProducer::SetMessageQueueLength(int queue) {
   }
   RdKafka::Conf::ConfResult configResult;
   configResult =
-      conf->set("queue.buffering.max.messages", std::to_string(10000000), errstr);
-  if (RdKafka::Conf::CONF_OK != configResult) {
-    SetConStat(KafkaProducer::ConStat::ERROR,
-               "Unable to set message queue length.");
-    return false;
-  }
-  configResult =
-      conf->set("queue.buffering.max.kbytes", std::to_string(2097151), errstr);
+      conf->set("queue.buffering.max.messages", std::to_string(queue), errstr);
   if (RdKafka::Conf::CONF_OK != configResult) {
     SetConStat(KafkaProducer::ConStat::ERROR,
                "Unable to set message queue length.");

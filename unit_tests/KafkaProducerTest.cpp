@@ -25,12 +25,12 @@ public:
   using KafkaProducer::conf;
   using KafkaProducer::tconf;
   using KafkaProducer::paramsList;
-  void SetConStatParent(KafkaProducerStandIn::ConStat stat, std::string msg) {
+  void SetConStatParent(KafkaProducerStandIn::ConStat stat, std::string const &msg) {
     KafkaProducer::SetConStat(stat, msg);
   };
   bool MakeConnectionParent() { return KafkaProducer::MakeConnection(); };
   MOCK_METHOD0(MakeConnection, bool(void));
-  MOCK_METHOD2(SetConStat, void(KafkaProducerStandIn::ConStat, std::string));
+  MOCK_METHOD2(SetConStat, void(KafkaProducerStandIn::ConStat, std::string const&));
 
 private:
 };
@@ -54,11 +54,13 @@ public:
   MOCK_METHOD1(processCallbacks, void(NDArray*));
 };
 
+static int NameCtr{0};
+
 /// @brief A testing fixture used for setting up unit tests.
 class KafkaProducerEnv : public ::testing::Test {
 public:
-  static void SetUpTestCase() {
-    std::string portName("someNameFirst");
+  virtual void SetUp() {
+    std::string portName("someNameFirst" + std::to_string(NameCtr++));
     int queueSize = 10;
     int blockingCallbacks = 0;
     std::string NDArrayPort("NDArrayPortName");
@@ -71,29 +73,17 @@ public:
                 asynFloat32ArrayMask | asynFloat64ArrayMask;
     int priority = 0;
     int stackSize = 5;
-    plugin = new NDPluginDriverStandIn(
+    plugin.reset(new NDPluginDriverStandIn(
         portName.c_str(), queueSize, blockingCallbacks, NDArrayPort.c_str(),
         NDArrayAddr, 1, numberOfParams, 2, maxMemory, mask1, mask2, 0, 1,
-        priority, stackSize);
+        priority, stackSize));
   };
 
-  static void TearDownTestCase() {
-    delete plugin;
-    plugin = nullptr;
+  virtual void TearDown() {
+    plugin.reset();
   };
-
-  virtual void SetUp(){
-
-  };
-
-  virtual void TearDown(){
-
-  };
-
-  static NDPluginDriverStandIn *plugin;
+  std::unique_ptr<NDPluginDriverStandIn> plugin;
 };
-
-NDPluginDriverStandIn *KafkaProducerEnv::plugin = nullptr;
 
 using namespace testing;
 using ::testing::Mock;
@@ -168,11 +158,11 @@ TEST_F(KafkaProducerEnv, ParamCallFailure) {
   prod.errorState = true;
   ON_CALL(prod, SetConStat(_, _))
       .WillByDefault(Invoke(&prod, &KafkaProducerStandIn::SetConStatParent));
-  prod.RegisterParamCallbackClass(plugin);
+  prod.RegisterParamCallbackClass(plugin.get());
   EXPECT_CALL(*plugin, setIntegerParam(_, _)).Times(Exactly(0));
   EXPECT_CALL(*plugin, setStringParam(_, _)).Times(Exactly(0));
   prod.StartThread();
-  Mock::VerifyAndClear(plugin);
+//  Mock::VerifyAndClear(plugin);
 }
 
 TEST_F(KafkaProducerEnv, ParamCallSuccess) {
@@ -186,11 +176,11 @@ TEST_F(KafkaProducerEnv, ParamCallSuccess) {
   }
   ON_CALL(prod, SetConStat(_, _))
       .WillByDefault(Invoke(&prod, &KafkaProducerStandIn::SetConStatParent));
-  prod.RegisterParamCallbackClass(plugin);
+  prod.RegisterParamCallbackClass(plugin.get());
   EXPECT_CALL(*plugin, setIntegerParam(_, _)).Times(AtLeast(1));
   EXPECT_CALL(*plugin, setStringParam(_, _)).Times(AtLeast(1));
   prod.StartThread();
-  Mock::VerifyAndClear(plugin);
+//  Mock::VerifyAndClear(plugin);
 }
 
 TEST_F(KafkaProducerEnv, MaxMessagesInQueue) {
@@ -208,7 +198,7 @@ TEST_F(KafkaProducerEnv, MaxMessagesInQueue) {
   int msg_queued = *params[KafkaProducerStandIn::PV::msgs_in_queue].index.get();
   ON_CALL(prod, SetConStat(_, _))
       .WillByDefault(Invoke(&prod, &KafkaProducerStandIn::SetConStatParent));
-  prod.RegisterParamCallbackClass(plugin);
+  prod.RegisterParamCallbackClass(plugin.get());
   prod.SetMessageQueueLength(sendMsgs);
   EXPECT_CALL(*plugin, setIntegerParam(_, _)).Times(AtLeast(0));
   EXPECT_CALL(*plugin, setIntegerParam(Eq(msg_queued), Eq(sendMsgs)))
@@ -222,7 +212,7 @@ TEST_F(KafkaProducerEnv, MaxMessagesInQueue) {
 
   std::chrono::milliseconds sleepTime(int(prod.kafka_stats_interval * 1.5));
   std::this_thread::sleep_for(sleepTime);
-  Mock::VerifyAndClear(plugin);
+//  Mock::VerifyAndClear(plugin);
 }
 
 TEST_F(KafkaProducerEnv, TooManyMessagesInQueue) {
@@ -237,15 +227,21 @@ TEST_F(KafkaProducerEnv, TooManyMessagesInQueue) {
     ctr++;
   }
   int maxQueueSize = 11;
-  int msgsQueuedIndex =
-      *params[KafkaProducerStandIn::PV::msgs_in_queue].index.get();
+  auto const msgsQueuedIndex{*params[KafkaProducerStandIn::PV::msgs_in_queue].index.get()};
+  auto const statusMsgIndex{*params[KafkaProducerStandIn::PV::con_msg].index.get()};
+  auto const conStatusIndex{*params[KafkaProducerStandIn::PV::con_status].index.get()};
+  auto const maxMsgSizeIndex{*params[KafkaProducerStandIn::PV::max_msg_size].index.get()};
   ON_CALL(prod, SetConStat(_, _))
       .WillByDefault(Invoke(&prod, &KafkaProducerStandIn::SetConStatParent));
-  prod.RegisterParamCallbackClass(plugin);
+  EXPECT_CALL(*plugin, setIntegerParam(Eq(msgsQueuedIndex), maxQueueSize))
+  .Times(AtLeast(1));
+  EXPECT_CALL(*plugin, setIntegerParam(Eq(conStatusIndex), _))
+  .Times(AtLeast(1));
+  EXPECT_CALL(*plugin, setIntegerParam(Eq(maxMsgSizeIndex), _))
+  .Times(AtLeast(1));
+  EXPECT_CALL(*plugin, setStringParam(Eq(statusMsgIndex), _)).Times(AtLeast(1));
+  prod.RegisterParamCallbackClass(plugin.get());
   prod.SetMessageQueueLength(maxQueueSize);
-  EXPECT_CALL(*plugin, setIntegerParam(_, _)).Times(AtLeast(0));
-  EXPECT_CALL(*plugin, setIntegerParam(Eq(msgsQueuedIndex), Eq(maxQueueSize)))
-      .Times(AtLeast(1));
   prod.StartThread();
   std::string msg("Some message");
   for (int i = 0; i < maxQueueSize; i++) {
@@ -256,7 +252,7 @@ TEST_F(KafkaProducerEnv, TooManyMessagesInQueue) {
       reinterpret_cast<const unsigned char *>(msg.c_str()), msg.size()));
   std::chrono::milliseconds sleepTime(int(prod.kafka_stats_interval * 1.5));
   std::this_thread::sleep_for(sleepTime);
-  Mock::VerifyAndClear(plugin);
+  Mock::VerifyAndClear(plugin.get());
 }
 
 TEST_F(KafkaProducerEnv, TopicChangeReconnect) {
