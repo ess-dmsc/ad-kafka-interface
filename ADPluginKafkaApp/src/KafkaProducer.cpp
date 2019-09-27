@@ -77,9 +77,9 @@ bool KafkaProducer::SetMaxMessageSize(size_t msgSize) {
   }
   RdKafka::Conf::ConfResult configResult1, configResult2;
   configResult1 =
-      conf->set("message.max.bytes", std::to_string(100000000), errstr);
+      conf->set("message.max.bytes", std::to_string(msgSize), errstr);
   configResult2 =
-      conf->set("message.copy.max.bytes", std::to_string(100000000), errstr);
+      conf->set("message.copy.max.bytes", std::to_string(msgSize), errstr);
   if (RdKafka::Conf::CONF_OK != configResult1 or
       RdKafka::Conf::CONF_OK != configResult2) {
     SetConStat(KafkaProducer::ConStat::ERROR,
@@ -94,6 +94,28 @@ bool KafkaProducer::SetMaxMessageSize(size_t msgSize) {
   return true;
 }
 
+bool KafkaProducer::SetMessageBufferSizeKbytes(size_t msgBufferSize) {
+  if (errorState or 0 == maxMessageBufferSizeKb) {
+    return false;
+  }
+  auto configResult =
+      conf->set("queue.buffering.max.kbytes", std::to_string(msgBufferSize), errstr);
+  if (RdKafka::Conf::CONF_OK != configResult) {
+    SetConStat(KafkaProducer::ConStat::ERROR,
+               "Unable to set new Kafka message buffer size.");
+    return false;
+  }
+  maxMessageBufferSizeKb = msgBufferSize;
+  setParam(paramCallback, paramsList[PV::msg_buffer_size], int(msgBufferSize));
+  ShutDownTopic();
+  ShutDownProducer();
+  MakeConnection();
+  return true;
+}
+
+size_t KafkaProducer::GetMessageBufferSizeKbytes() {
+  return maxMessageBufferSizeKb;
+}
 size_t KafkaProducer::GetMaxMessageSize() { return maxMessageSize; }
 
 bool KafkaProducer::SetMessageQueueLength(int queue) {
@@ -246,14 +268,26 @@ void KafkaProducer::InitRdKafka() {
   }
 
   configResult = conf->set("queue.buffering.max.messages",
-                           std::to_string(10000000), errstr);
+                           std::to_string(msgQueueSize), errstr);
   if (RdKafka::Conf::CONF_OK != configResult) {
     SetConStat(KafkaProducer::ConStat::ERROR, "Unable to set queue length.");
   }
   configResult = conf->set("queue.buffering.max.kbytes",
-                           std::to_string(2097151), errstr);
+                           std::to_string(maxMessageBufferSizeKb), errstr);
   if (RdKafka::Conf::CONF_OK != configResult) {
-    SetConStat(KafkaProducer::ConStat::ERROR, "Unable to set queue length.");
+    SetConStat(KafkaProducer::ConStat::ERROR, "Unable to set maximum buffer size.");
+  }
+  
+  configResult = conf->set("message.max.bytes",
+                           std::to_string(maxMessageSize), errstr);
+  if (RdKafka::Conf::CONF_OK != configResult) {
+    SetConStat(KafkaProducer::ConStat::ERROR, "Unable to set max message size.");
+  }
+  
+  configResult = conf->set("message.copy.max.bytes",
+                           std::to_string(maxMessageSize), errstr);
+  if (RdKafka::Conf::CONF_OK != configResult) {
+    SetConStat(KafkaProducer::ConStat::ERROR, "Unable to set max (copy) message size.");
   }
 }
 

@@ -141,6 +141,20 @@ public:
    * @return True on success and false on failure.
    */
   virtual bool SetMaxMessageSize(size_t msgSize);
+  
+  /** @brief Used to set the size of the Kafka message buffer in kb.
+   * Will destroy the current connection and do a re-connect
+   * using the new limit.
+   * @param[in] msgBufferSize New buffer size in kilo bytes.
+   * @return True on success and false on failure.
+   */
+  virtual bool SetMessageBufferSizeKbytes(size_t msgBufferSize);
+  
+  /** @brief The current Kafka message buffer size as stored by
+   * KafkaInterface::KafkaProducer.
+   * @return Kafka message buffer suze in kilo bytes.
+   */
+  virtual size_t GetMessageBufferSizeKbytes();
 
   /** @brief The maximum message size as stored by
    * KafkaInterface::KafkaProducer.
@@ -217,7 +231,8 @@ protected:
   bool doFlush{true};     /// @brief Should a flush attempt be made at disconnect?
   int flushTimeout{500}; /// @brief What is the timeout of the flush attempt?
   
-  size_t maxMessageSize{1000000}; /// @brief Stored maximum message size in bytes.
+  size_t maxMessageSize{10000000}; /// @brief Stored maximum message size in bytes.
+  size_t maxMessageBufferSizeKb{500000}; /// @brief Message buffer size in kilo bytes.
   int msgQueueSize;      /// @brief Stored maximum Kafka producer queue length.
 
   /** @brief Helper function for cleanly shutting down a topic.
@@ -349,6 +364,7 @@ protected:
     con_msg,
     msgs_in_queue,
     max_msg_size,
+    msg_buffer_size,
     count,
   };
 
@@ -358,6 +374,7 @@ protected:
       PV_param("KAFKA_CONNECTION_MESSAGE", asynParamOctet), // con_msg
       PV_param("KAFKA_UNSENT_PACKETS", asynParamInt32),     // msgs_in_queue
       PV_param("KAFKA_MAX_MSG_SIZE", asynParamInt32),       // max_msg_size
+    PV_param("KAFKA_MSG_BUFFER_SIZE", asynParamInt32),       // msg_buffer_size
   };
 };
 } // namespace KafkaInterface

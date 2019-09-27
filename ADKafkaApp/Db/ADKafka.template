@@ -13,14 +13,14 @@ record(longin, "$(P)$(R)CurrentMessageOffset_RBV") #Integer in from device
 {
     field(DTYP, "asynInt32")	#Data type
     field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_CURRENT_OFFSET")
-	field(SCAN, "I/O Intr")		#Update value on interrupt
+    field(SCAN, "I/O Intr")		#Update value on interrupt
 }
 
 record(longin, "$(P)$(R)KafkaMaxMessageSize_RBV") #Integer in from device
 {
     field(DTYP, "asynInt32")	#Data type
     field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_MAX_MSG_SIZE")
-	field(SCAN, "I/O Intr")		#Update value on interrupt
+    field(SCAN, "I/O Intr")		#Update value on interrupt
     field(EGU,  "bytes")
 }
 
@@ -80,7 +80,7 @@ record(stringout, "$(P)$(R)KafkaBrokerAddress")
 {
     field(DTYP, "asynOctetWrite")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_BROKER_ADDRESS")
-	field(PINI, "NO")
+    field(PINI, "NO")
 }
 
 record(stringin, "$(P)$(R)KafkaBrokerAddress_RBV")
@@ -94,21 +94,21 @@ record(stringout, "$(P)$(R)KafkaTopic")
 {
     field(DTYP, "asynOctetWrite")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_TOPIC")
-	field(PINI, "NO")
+    field(PINI, "NO")
 }
 
 record(stringin, "$(P)$(R)KafkaTopic_RBV")
 {
     field(DTYP, "asynOctetRead")
     field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_TOPIC")
-	field(SCAN, "I/O Intr")
+    field(SCAN, "I/O Intr")
 }
 
 record(stringout, "$(P)$(R)KafkaGroup")
 {
     field(DTYP, "asynOctetWrite")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_GROUP")
-	field(PINI, "NO")
+    field(PINI, "NO")
 }
 
 record(stringin, "$(P)$(R)KafkaGroup_RBV")
@@ -129,6 +129,21 @@ record(longin, "$(P)$(R)KafkaStatsIntervalTime_RBV") #Integer in from device
 {
     field(DTYP, "asynInt32")	#Data type
     field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_STATS_INT_MS")
-	field(SCAN, "I/O Intr")		#Update value on interrupt
+    field(SCAN, "I/O Intr")		#Update value on interrupt
     field(EGU,  "ms")
+}
+
+record(longout, "$(P)$(R)KafkaMessageBufferSize") #Integer in from device
+{
+    field(DTYP, "asynInt32")	#Data type
+    field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_MSG_BUFFER_SIZE")
+    field(EGU,  "kb")
+}
+
+record(longin, "$(P)$(R)KafkaMessageBufferSize_RBV") #Integer in from device
+{
+    field(DTYP, "asynInt32")	#Data type
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))KAFKA_MSG_BUFFER_SIZE")
+    field(SCAN, "I/O Intr")		#Update value on interrupt
+    field(EGU,  "kb")
 }
