@@ -108,7 +108,8 @@ protected:
   /** @brief Interrupt mask passed to NDPluginDriver.
    * @todo What does the interrupt mask actually do?
    */
-  static const int intMask{asynInt32ArrayMask | asynOctetMask | asynGenericPointerMask};
+  static const int intMask{asynInt32ArrayMask | asynOctetMask |
+                           asynGenericPointerMask};
 
   /** @brief Used to keep track of the lowest PV index in order to know which
    * write events should

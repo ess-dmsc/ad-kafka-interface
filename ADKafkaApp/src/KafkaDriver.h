@@ -8,10 +8,10 @@
 #pragma once
 
 #include <ADDriver.h>
+#include <atomic>
 #include <epicsEvent.h>
 #include <map>
 #include <string>
-#include <atomic>
 
 #include "KafkaConsumer.h"
 #include "ParamUtility.h"

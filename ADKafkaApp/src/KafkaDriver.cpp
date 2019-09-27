@@ -27,7 +27,9 @@ asynStatus KafkaDriver::writeOctet(asynUser *pasynUser, const char *value,
   const char *functionName = "writeOctet";
 
   status = getAddress(pasynUser, &addr);
-  if (status != asynSuccess) { return (status); }
+  if (status != asynSuccess) {
+    return (status);
+  }
 
   /* Set the parameter in the parameter library. */
   setStringParam(addr, function, reinterpret_cast<const char *>(value));
@@ -171,8 +173,9 @@ KafkaDriver::KafkaDriver(const char *portName, int maxBuffers, size_t maxMemory,
                          int priority, int stackSize, const char *brokerAddress,
                          const char *brokerTopic)
     // Invoke the base class constructor
-    : ADDriver(portName, 1, KafkaInterface::KafkaConsumer::GetNumberOfPVs() + PV::count, maxBuffers,
-               maxMemory, 0,
+    : ADDriver(portName, 1,
+               KafkaInterface::KafkaConsumer::GetNumberOfPVs() + PV::count,
+               maxBuffers, maxMemory, 0,
                0,    /* No interfaces beyond those set in ADDriver.cpp */
                0, 1, /* ASYN_CANBLOCK=0, ASYN_MULTIDEVICE=0, autoConnect=1 */
                priority, stackSize),
@@ -225,10 +228,11 @@ KafkaDriver::KafkaDriver(const char *portName, int maxBuffers, size_t maxMemory,
   }
 
   /* Create the thread that updates the images */
-  auto CreateThreadSuccess{epicsThreadCreate("ConsumeKafkaMsgsTask", epicsThreadPriorityMedium,
-                              epicsThreadGetStackSize(epicsThreadStackMedium),
-                              reinterpret_cast<EPICSTHREADFUNC>(consumeTaskC),
-                              this) != nullptr};
+  auto CreateThreadSuccess{
+      epicsThreadCreate("ConsumeKafkaMsgsTask", epicsThreadPriorityMedium,
+                        epicsThreadGetStackSize(epicsThreadStackMedium),
+                        reinterpret_cast<EPICSTHREADFUNC>(consumeTaskC),
+                        this) != nullptr};
   if (not CreateThreadSuccess) {
     printf("%s:%s epicsThreadCreate failure for image task\n", driverName,
            functionName);
@@ -315,11 +319,15 @@ void KafkaDriver::consumeTask() {
       this->lock();
 
       // If we get no image, go to start of loop
-    if (nullptr == fbImg) { continue; }
+      if (nullptr == fbImg) {
+        continue;
+      }
 
       // We can only know if there is any data in the NDArray at this point
-      if (pImage != nullptr) { pImage->release(); }
-    
+      if (pImage != nullptr) {
+        pImage->release();
+      }
+
       /// @todo Make sure that there is actual a free NDArray to which the data
       /// can be copied.
       DeSerializeData(this->pNDArrayPool,
@@ -331,7 +339,9 @@ void KafkaDriver::consumeTask() {
     setShutter(ADShutterClosed);
 
     // Make it possible to exit the loop again.
-    if (acquire == 0) { continue; }
+    if (acquire == 0) {
+      continue;
+    }
 
     setIntegerParam(ADStatus, ADStatusReadout);
     /* Call the callbacks to update any changes */
@@ -415,8 +425,8 @@ extern "C" int KafkaDriverConfigure(const char *portName, int maxBuffers,
                                     size_t maxMemory, int priority,
                                     int stackSize, const char *brokerAddrStr,
                                     const char *topicName) {
-  new KafkaDriver(portName, maxBuffers, maxMemory, priority,
-                            stackSize, brokerAddrStr, topicName);
+  new KafkaDriver(portName, maxBuffers, maxMemory, priority, stackSize,
+                  brokerAddrStr, topicName);
 
   return (asynSuccess);
 }

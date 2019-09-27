@@ -16,7 +16,8 @@ int KafkaProducer::GetNumberOfPVs() { return PV::count; }
 
 KafkaProducer::KafkaProducer(std::string const &broker, std::string topic,
                              int queueSize)
-    : msgQueueSize(queueSize), conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)),
+    : msgQueueSize(queueSize),
+      conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)),
       tconf(RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC)),
       topicName(std::move(topic)) {
   KafkaProducer::InitRdKafka();
@@ -25,9 +26,9 @@ KafkaProducer::KafkaProducer(std::string const &broker, std::string topic,
 }
 
 KafkaProducer::KafkaProducer(int queueSize)
-    : msgQueueSize(queueSize), conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)),
-      tconf(RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC))
-       {
+    : msgQueueSize(queueSize),
+      conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)),
+      tconf(RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC)) {
   KafkaProducer::InitRdKafka();
 }
 
@@ -98,8 +99,8 @@ bool KafkaProducer::SetMessageBufferSizeKbytes(size_t msgBufferSize) {
   if (errorState or 0 == maxMessageBufferSizeKb) {
     return false;
   }
-  auto configResult =
-      conf->set("queue.buffering.max.kbytes", std::to_string(msgBufferSize), errstr);
+  auto configResult = conf->set("queue.buffering.max.kbytes",
+                                std::to_string(msgBufferSize), errstr);
   if (RdKafka::Conf::CONF_OK != configResult) {
     SetConStat(KafkaProducer::ConStat::ERROR,
                "Unable to set new Kafka message buffer size.");
@@ -199,7 +200,8 @@ void KafkaProducer::event_cb(RdKafka::Event &event) {
   }
 }
 
-void KafkaProducer::SetConStat(KafkaProducer::ConStat stat, std::string const &msg) {
+void KafkaProducer::SetConStat(KafkaProducer::ConStat stat,
+                               std::string const &msg) {
   // Should we add some storage functionality here?
   setParam(paramCallback, paramsList.at(PV::con_status), int(stat));
   setParam(paramCallback, paramsList.at(PV::con_msg), msg);
@@ -275,19 +277,22 @@ void KafkaProducer::InitRdKafka() {
   configResult = conf->set("queue.buffering.max.kbytes",
                            std::to_string(maxMessageBufferSizeKb), errstr);
   if (RdKafka::Conf::CONF_OK != configResult) {
-    SetConStat(KafkaProducer::ConStat::ERROR, "Unable to set maximum buffer size.");
+    SetConStat(KafkaProducer::ConStat::ERROR,
+               "Unable to set maximum buffer size.");
   }
-  
-  configResult = conf->set("message.max.bytes",
-                           std::to_string(maxMessageSize), errstr);
+
+  configResult =
+      conf->set("message.max.bytes", std::to_string(maxMessageSize), errstr);
   if (RdKafka::Conf::CONF_OK != configResult) {
-    SetConStat(KafkaProducer::ConStat::ERROR, "Unable to set max message size.");
+    SetConStat(KafkaProducer::ConStat::ERROR,
+               "Unable to set max message size.");
   }
-  
+
   configResult = conf->set("message.copy.max.bytes",
                            std::to_string(maxMessageSize), errstr);
   if (RdKafka::Conf::CONF_OK != configResult) {
-    SetConStat(KafkaProducer::ConStat::ERROR, "Unable to set max (copy) message size.");
+    SetConStat(KafkaProducer::ConStat::ERROR,
+               "Unable to set max (copy) message size.");
   }
 }
 

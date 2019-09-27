@@ -56,7 +56,8 @@ public:
    * will store in its
    * buffer.
    */
-  KafkaProducer(std::string const &broker, std::string topic, int queueSize = 10);
+  KafkaProducer(std::string const &broker, std::string topic,
+                int queueSize = 10);
 
   /** @brief Simple consumer constructor which will not connect to a broker.
    * @note After calling the constructor, the rest of the instructions given in
@@ -141,7 +142,7 @@ public:
    * @return True on success and false on failure.
    */
   virtual bool SetMaxMessageSize(size_t msgSize);
-  
+
   /** @brief Used to set the size of the Kafka message buffer in kb.
    * Will destroy the current connection and do a re-connect
    * using the new limit.
@@ -149,7 +150,7 @@ public:
    * @return True on success and false on failure.
    */
   virtual bool SetMessageBufferSizeKbytes(size_t msgBufferSize);
-  
+
   /** @brief The current Kafka message buffer size as stored by
    * KafkaInterface::KafkaProducer.
    * @return Kafka message buffer suze in kilo bytes.
@@ -226,14 +227,16 @@ public:
   static int GetNumberOfPVs();
 
 protected:
-  bool
-  errorState{false}; /// @brief Set to true if librdkafka could not be initialized.
-  bool doFlush{true};     /// @brief Should a flush attempt be made at disconnect?
+  bool errorState{
+      false}; /// @brief Set to true if librdkafka could not be initialized.
+  bool doFlush{true}; /// @brief Should a flush attempt be made at disconnect?
   int flushTimeout{500}; /// @brief What is the timeout of the flush attempt?
-  
-  size_t maxMessageSize{10000000}; /// @brief Stored maximum message size in bytes.
-  size_t maxMessageBufferSizeKb{500000}; /// @brief Message buffer size in kilo bytes.
-  int msgQueueSize;      /// @brief Stored maximum Kafka producer queue length.
+
+  size_t maxMessageSize{
+      10000000}; /// @brief Stored maximum message size in bytes.
+  size_t maxMessageBufferSizeKb{
+      500000};      /// @brief Message buffer size in kilo bytes.
+  int msgQueueSize; /// @brief Stored maximum Kafka producer queue length.
 
   /** @brief Helper function for cleanly shutting down a topic.
    * Implements the flushing functionality.
@@ -294,7 +297,8 @@ protected:
    */
   virtual void ParseStatusString(std::string const &msg);
 
-  int kafka_stats_interval{500}; /// @brief Saved Kafka connection stats interval in ms.
+  int kafka_stats_interval{
+      500}; /// @brief Saved Kafka connection stats interval in ms.
 
   /// @brief Sleep time between poll()-calls. See
   /// KafkaProducer::ThreadFunction().
@@ -330,7 +334,7 @@ protected:
 
   /// @brief Pointer to Kafka producer in librdkafka.
   RdKafka::Producer *producer{nullptr};
-  
+
   /// @brief Stores the pointer to a librdkafka configruation object.
   std::unique_ptr<RdKafka::Conf> conf;
 
@@ -374,7 +378,7 @@ protected:
       PV_param("KAFKA_CONNECTION_MESSAGE", asynParamOctet), // con_msg
       PV_param("KAFKA_UNSENT_PACKETS", asynParamInt32),     // msgs_in_queue
       PV_param("KAFKA_MAX_MSG_SIZE", asynParamInt32),       // max_msg_size
-    PV_param("KAFKA_MSG_BUFFER_SIZE", asynParamInt32),       // msg_buffer_size
+      PV_param("KAFKA_MSG_BUFFER_SIZE", asynParamInt32),    // msg_buffer_size
   };
 };
 } // namespace KafkaInterface

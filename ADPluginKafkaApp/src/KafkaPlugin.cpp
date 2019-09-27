@@ -53,7 +53,9 @@ asynStatus KafkaPlugin::writeOctet(asynUser *pasynUser, const char *value,
   const char *functionName = "writeOctet";
 
   status = getAddress(pasynUser, &addr);
-  if (status != asynSuccess) { return (status); }
+  if (status != asynSuccess) {
+    return (status);
+  }
 
   /* Set the parameter in the parameter library. */
   setStringParam(addr, function, const_cast<char *>(value));
@@ -126,9 +128,8 @@ KafkaPlugin::KafkaPlugin(const char *portName, int queueSize,
                          const char *brokerTopic)
     // Invoke the base class constructor
     : NDPluginDriver(portName, queueSize, blockingCallbacks, NDArrayPort,
-                     NDArrayAddr, 1,
-                     2, maxMemory,
-                     intMask, intMask, 0, 1, priority, stackSize, 1),
+                     NDArrayAddr, 1, 2, maxMemory, intMask, intMask, 0, 1,
+                     priority, stackSize, 1),
       producer(brokerAddress, brokerTopic) {
 
   MIN_PARAM_INDEX = InitPvParams(this, paramsList);
@@ -197,4 +198,3 @@ extern "C" void KafkaPluginReg(void) {
 extern "C" {
 epicsExportRegistrar(KafkaPluginReg);
 }
-

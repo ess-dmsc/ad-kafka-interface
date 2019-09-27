@@ -92,7 +92,8 @@ public:
    * @param[in] groupId The group id of the consumer, see the documentation for
    * KafkaConsumer::GetGroupId().
    */
-  KafkaConsumer(std::string const &broker, std::string const &topic, std::string const &groupId);
+  KafkaConsumer(std::string const &broker, std::string const &topic,
+                std::string const &groupId);
 
   /** @brief Simple consumer constructor which will not connect to a broker.
    * @note After calling the constructor, the PV:s must be configured and
@@ -278,8 +279,8 @@ public:
 
 protected:
   /** @brief I set to tru if initialization of librdkafka fails. Only changed by
-  * KafkaConsumer::InitRdKafka().
-  */
+   * KafkaConsumer::InitRdKafka().
+   */
   bool errorState{false};
 
   /// @brief Used keep track of if consumption is currently halted.
@@ -289,11 +290,11 @@ protected:
 
   /** @brief Used to store the current message offset. Updated by
    * KafkaConsumer::WaitForPkg().
-  */
+   */
   std::int64_t topicOffset{RdKafka::Topic::OFFSET_STORED};
-  
+
   std::string
-  topicName; /// @brief Stores the current topic used by the consumer.
+      topicName; /// @brief Stores the current topic used by the consumer.
 
   /** @brief Used as a textual representation of the current state of the Kafka
    * broker connection.
@@ -356,7 +357,8 @@ protected:
    */
   virtual void ParseStatusString(std::string const &msg);
 
-  int kafka_stats_interval{500}; /// @brief Saved Kafka connection stats interval in ms.
+  int kafka_stats_interval{
+      500}; /// @brief Saved Kafka connection stats interval in ms.
 
   /** @brief The event callback function called by librdkafka for purposes of
    * getting connection
@@ -388,7 +390,7 @@ protected:
 
   /// @brief Stores the pointer to a librdkafka configruation object.
   std::unique_ptr<RdKafka::Conf> conf;
-  
+
   std::string brokerAddr; /// @brief Stores the current broker address used by
   /// the consumer.
 

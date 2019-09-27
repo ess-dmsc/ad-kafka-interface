@@ -18,10 +18,10 @@ void *KafkaMessage::GetDataPtr() { return msg->payload(); }
 
 size_t KafkaMessage::size() { return msg->len(); }
 
-KafkaConsumer::KafkaConsumer(std::string const &broker, std::string const &topic,
+KafkaConsumer::KafkaConsumer(std::string const &broker,
+                             std::string const &topic,
                              std::string const &groupId)
-    : topicName(topic),
-      conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)),
+    : topicName(topic), conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)),
       brokerAddr(broker) {
   KafkaConsumer::InitRdKafka(groupId);
   KafkaConsumer::SetBrokerAddr(broker);
@@ -46,7 +46,7 @@ void KafkaConsumer::InitRdKafka(std::string const &groupId) {
   if (nullptr == conf) {
     errorState = true;
     KafkaConsumer::SetConStat(KafkaConsumer::ConStat::ERROR,
-               "Can not create global conf object.");
+                              "Can not create global conf object.");
     return;
   }
 
@@ -54,7 +54,8 @@ void KafkaConsumer::InitRdKafka(std::string const &groupId) {
   configResult = conf->set("event_cb", this, errstr);
   if (RdKafka::Conf::CONF_OK != configResult) {
     errorState = true;
-    KafkaConsumer::SetConStat(KafkaConsumer::ConStat::ERROR, "Can not set event callback.");
+    KafkaConsumer::SetConStat(KafkaConsumer::ConStat::ERROR,
+                              "Can not set event callback.");
     return;
   }
 
@@ -62,17 +63,19 @@ void KafkaConsumer::InitRdKafka(std::string const &groupId) {
                            std::to_string(kafka_stats_interval), errstr);
   if (RdKafka::Conf::CONF_OK != configResult) {
     KafkaConsumer::SetConStat(KafkaConsumer::ConStat::ERROR,
-               "Unable to set statistics interval.");
+                              "Unable to set statistics interval.");
   }
 
   if (groupId.empty()) {
-    KafkaConsumer::SetConStat(KafkaConsumer::ConStat::ERROR, "Unable to set group id.");
+    KafkaConsumer::SetConStat(KafkaConsumer::ConStat::ERROR,
+                              "Unable to set group id.");
     errorState = true;
     return;
   }
   configResult = conf->set("group.id", groupId, errstr);
   if (RdKafka::Conf::CONF_OK != configResult) {
-    KafkaConsumer::SetConStat(KafkaConsumer::ConStat::ERROR, "Unable to set group id.");
+    KafkaConsumer::SetConStat(KafkaConsumer::ConStat::ERROR,
+                              "Unable to set group id.");
     errorState = true;
     return;
   }
