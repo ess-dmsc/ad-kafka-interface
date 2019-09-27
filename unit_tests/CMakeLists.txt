@@ -150,6 +150,9 @@ else()
     target_link_libraries(unit_tests gtest gmock_main xml sz busy calc seq ca dbCore ${ZLIB_LIBRARY} ${TIFF_LIBRARY} ${JPEG_LIBRARY} ${HDF5_LIBRARIES} normativeTypesCPP pvAccessCPP pvDataCPP pvDatabaseCPP adcore asyn Com ${LibRDKafka_LIBRARIES})
 endif()
 
-configure_file("someNDArray.data" "." COPYONLY)
+get_filename_component(TEST_DATA_PATH "someNDArray.data" DIRECTORY)
+target_compile_definitions(unit_tests
+    PRIVATE TEST_DATA_PATH="${CMAKE_CURRENT_SOURCE_DIR}/${TEST_DATA_PATH}/")
+
 
 add_test(TestAll unit_tests)

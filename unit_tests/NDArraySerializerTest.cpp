@@ -101,7 +101,8 @@ TEST_F(Serializer, SerializeTest) {
 class DeSerializer : public ::testing::Test {
 public:
   static void SetUpTestCase() {
-    std::ifstream inFile("someNDArray.data",
+    std::string DataFilePath{TEST_DATA_PATH};
+    std::ifstream inFile(DataFilePath + "someNDArray.data",
                          std::ifstream::in | std::ifstream::binary);
     inFile.seekg(0, inFile.end);
     fileSize = inFile.tellg();
