@@ -48,16 +48,15 @@ void KafkaPlugin::processCallbacks(NDArray *pArray) {
 asynStatus KafkaPlugin::writeOctet(asynUser *pasynUser, const char *value,
                                    size_t nChars, size_t *nActual) {
   int addr = 0;
-  int function = pasynUser->reason;
-  asynStatus status = asynSuccess;
+  int function{pasynUser->reason};
+  asynStatus status{asynSuccess};
   const char *functionName = "writeOctet";
 
   status = getAddress(pasynUser, &addr);
-  if (status != asynSuccess)
-    return (status);
+  if (status != asynSuccess) { return (status); }
 
   /* Set the parameter in the parameter library. */
-  status = setStringParam(addr, function, const_cast<char *>(value));
+  setStringParam(addr, function, const_cast<char *>(value));
 
   std::string tempStr;
   if (function == *paramsList.at(PV::kafka_addr).index) {
@@ -67,13 +66,13 @@ asynStatus KafkaPlugin::writeOctet(asynUser *pasynUser, const char *value,
     tempStr = std::string(value, nChars);
     producer.SetTopic(tempStr);
   } else if (function < MIN_PARAM_INDEX) {
-    status = NDPluginDriver::writeOctet(pasynUser, value, nChars, nActual);
+    NDPluginDriver::writeOctet(pasynUser, value, nChars, nActual);
   }
 
   // Do callbacks so higher layers see any changes
   status = callParamCallbacks(addr, addr);
 
-  if (status) {
+  if (status != 0) {
     epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize,
                   "%s:%s: status=%d, function=%d, value=%s", driverName,
                   functionName, status, function, value);
@@ -88,12 +87,12 @@ asynStatus KafkaPlugin::writeOctet(asynUser *pasynUser, const char *value,
 }
 
 asynStatus KafkaPlugin::writeInt32(asynUser *pasynUser, epicsInt32 value) {
-  const int function = pasynUser->reason;
-  asynStatus status = asynSuccess;
+  const int function{pasynUser->reason};
+  asynStatus status{asynSuccess};
   static const char *functionName = "writeInt32";
 
   /* Set the parameter in the parameter library. */
-  status = setIntegerParam(function, value);
+  setIntegerParam(function, value);
 
   if (function == *paramsList[stats_time].index) {
     producer.SetStatsTimeMS(value);
@@ -101,20 +100,22 @@ asynStatus KafkaPlugin::writeInt32(asynUser *pasynUser, epicsInt32 value) {
     producer.SetMessageQueueLength(value);
   } else {
     /* If this parameter belongs to a base class call its method */
-    if (function < MIN_PARAM_INDEX)
-      status = NDPluginDriver::writeInt32(pasynUser, value);
+    if (function < MIN_PARAM_INDEX) {
+      NDPluginDriver::writeInt32(pasynUser, value);
+    }
   }
 
   /* Do callbacks so higher layers see any changes */
   status = callParamCallbacks();
 
-  if (status)
+  if (status != 0) {
     epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize,
                   "%s:%s: status=%d, function=%d, value=%d", driverName,
                   functionName, status, function, value);
-  else
+  } else {
     asynPrint(pasynUser, ASYN_TRACEIO_DRIVER, "%s:%s: function=%d, value=%d\n",
               driverName, functionName, function, value);
+  }
   return status;
 }
 
@@ -153,15 +154,13 @@ KafkaPlugin::KafkaPlugin(const char *portName, int queueSize,
   connectToArrayPort();
 }
 
-KafkaPlugin::~KafkaPlugin() {}
-
 // Configuration routine.  Called directly, or from the iocsh function
 extern "C" int KafkaPluginConfigure(const char *portName, int queueSize,
                                     int blockingCallbacks,
                                     const char *NDArrayPort, int NDArrayAddr,
                                     size_t maxMemory, const char *brokerAddress,
                                     const char *topic) {
-  KafkaPlugin *pPlugin =
+  auto *pPlugin =
       new KafkaPlugin(portName, queueSize, blockingCallbacks, NDArrayPort,
                       NDArrayAddr, maxMemory, 0, 0, brokerAddress, topic);
 

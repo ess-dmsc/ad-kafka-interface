@@ -14,11 +14,11 @@ namespace KafkaInterface {
 
 int KafkaProducer::GetNumberOfPVs() { return PV::count; }
 
-KafkaProducer::KafkaProducer(std::string const &broker, std::string const &topic,
+KafkaProducer::KafkaProducer(std::string const &broker, std::string topic,
                              int queueSize)
     : msgQueueSize(queueSize), conf(RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)),
       tconf(RdKafka::Conf::create(RdKafka::Conf::CONF_TOPIC)),
-      topicName(topic) {
+      topicName(std::move(topic)) {
   KafkaProducer::InitRdKafka();
   KafkaProducer::SetBrokerAddr(broker);
   KafkaProducer::MakeConnection();
@@ -184,7 +184,7 @@ void KafkaProducer::event_cb(RdKafka::Event &event) {
   }
 }
 
-void KafkaProducer::SetConStat(KafkaProducer::ConStat stat, std::string msg) {
+void KafkaProducer::SetConStat(KafkaProducer::ConStat stat, std::string const &msg) {
   // Should we add some storage functionality here?
   setParam(paramCallback, paramsList.at(PV::con_status), int(stat));
   setParam(paramCallback, paramsList.at(PV::con_msg), msg);
@@ -287,7 +287,7 @@ bool KafkaProducer::SetStatsTimeMS(int time) {
 int KafkaProducer::GetStatsTimeMS() { return kafka_stats_interval; }
 
 bool KafkaProducer::SetTopic(std::string const &topicName) {
-  if (errorState or 0 == topicName.size()) {
+  if (errorState or topicName.empty()) {
     return false;
   }
   KafkaProducer::topicName = topicName;

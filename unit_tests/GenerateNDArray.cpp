@@ -45,8 +45,6 @@ NDArrayGenerator::NDArrayGenerator() : sendPool(new NDArrayPool(nullptr, 0)) {
   eng = std::default_random_engine(r());
 }
 
-NDArrayGenerator::~NDArrayGenerator() {}
-
 std::string NDArrayGenerator::RandomString(size_t length) {
   auto randchar = []() -> char {
     const char charset[] = "0123456789 "

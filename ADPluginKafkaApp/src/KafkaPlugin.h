@@ -69,7 +69,7 @@ public:
               const char *brokerTopic);
 
   /// @brief Destructor, currently empty.
-  ~KafkaPlugin();
+  ~KafkaPlugin() = default;
 
   /** @brief Called when new data from the areaDetector is available.
    * Based on a implementation in one of the standard plugins. Calls

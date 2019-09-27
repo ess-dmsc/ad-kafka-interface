@@ -17,7 +17,7 @@ NDArraySerializer::NDArraySerializer(const flatbuffers::uoffset_t bufferSize)
 void NDArraySerializer::SerializeData(NDArray &pArray,
                                       unsigned char *&bufferPtr,
                                       size_t &bufferSize) {
-  NDArrayInfo ndInfo;
+  NDArrayInfo ndInfo{};
   pArray.getInfo(&ndInfo);
 
   // Required to not have a memory leak

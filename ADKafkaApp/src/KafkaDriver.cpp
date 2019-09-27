@@ -27,12 +27,10 @@ asynStatus KafkaDriver::writeOctet(asynUser *pasynUser, const char *value,
   const char *functionName = "writeOctet";
 
   status = getAddress(pasynUser, &addr);
-  if (status != asynSuccess)
-    return (status);
+  if (status != asynSuccess) { return (status); }
 
   /* Set the parameter in the parameter library. */
-  status =
-      setStringParam(addr, function, reinterpret_cast<const char *>(value));
+  setStringParam(addr, function, reinterpret_cast<const char *>(value));
 
   if (function == *paramsList.at(PV::kafka_addr).index) {
     consumer.SetBrokerAddr(std::string(value, nChars));
@@ -41,7 +39,7 @@ asynStatus KafkaDriver::writeOctet(asynUser *pasynUser, const char *value,
   } else if (function == *paramsList.at(PV::kafka_group).index) {
     consumer.SetGroupId(std::string(value, nChars));
   } else if (function < MIN_PARAM_INDEX) {
-    status = ADDriver::writeOctet(pasynUser, value, nChars, nActual);
+    ADDriver::writeOctet(pasynUser, value, nChars, nActual);
   }
 
   // Do callbacks so higher layers see any changes
@@ -49,7 +47,7 @@ asynStatus KafkaDriver::writeOctet(asynUser *pasynUser, const char *value,
 
   /// @todo Part of the EPICS message logging system, should be expanded or
   /// removed
-  if (status) {
+  if (status != 0) {
     epicsSnprintf(pasynUser->errorMessage, pasynUser->errorMessageSize,
                   "%s:%s: status=%d, function=%d, value=%s", driverName,
                   functionName, status, function, value);
@@ -75,10 +73,10 @@ asynStatus KafkaDriver::writeInt32(asynUser *pasynUser, epicsInt32 value) {
   getIntegerParam(ADAcquire, &acquiring);
   getIntegerParam(ADImageMode, &imageMode);
   if (function == ADAcquire) {
-    if (value && !acquiring) {
+    if (value != 0 and acquiring == 0) {
       setStringParam(ADStatusMessage, "Acquiring data");
     }
-    if (!value && acquiring) {
+    if (value == 0 and acquiring != 0) {
       setStringParam(ADStatusMessage, "Acquisition stopped");
       if (imageMode == ADImageContinuous) {
         setIntegerParam(ADStatus, ADStatusIdle);
@@ -130,39 +128,41 @@ asynStatus KafkaDriver::writeInt32(asynUser *pasynUser, epicsInt32 value) {
 
   /* For a real detector this is where the parameter is sent to the hardware */
   if (function == ADAcquire) {
-    if (value && !acquiring) {
+    if (value != 0 and acquiring == 0) {
       /* Send an event to wake up the consumer task.
        * It won't actually start generating new images until we release the lock
        * below */
       epicsEventSignal(startEventId_);
     }
-    if (!value && acquiring) {
+    if (value == 0 and acquiring != 0) {
       /* This was a command to stop acquisition */
       /* Send the stop event */
       epicsEventSignal(stopEventId_);
     }
   } else {
     /* If this parameter belongs to a base class call its method */
-    if (function < MIN_PARAM_INDEX)
+    if (function < MIN_PARAM_INDEX) {
       status = ADDriver::writeInt32(pasynUser, value);
+    }
   }
 
   /* Do callbacks so higher layers see any changes */
   callParamCallbacks();
 
-  if (status)
+  if (status != 0) {
     asynPrint(pasynUser, ASYN_TRACE_ERROR,
               "%s:writeInt32 error, status=%d function=%d, value=%d\n",
               driverName, status, function, value);
-  else
+  } else {
     asynPrint(pasynUser, ASYN_TRACEIO_DRIVER,
               "%s:writeInt32: function=%d, value=%d\n", driverName, function,
               value);
+  }
   return status;
 }
 
 static void consumeTaskC(void *drvPvt) {
-  KafkaDriver *pPvt = reinterpret_cast<KafkaDriver *>(drvPvt);
+  auto *pPvt = reinterpret_cast<KafkaDriver *>(drvPvt);
 
   pPvt->consumeTask();
 }
@@ -171,7 +171,7 @@ KafkaDriver::KafkaDriver(const char *portName, int maxBuffers, size_t maxMemory,
                          int priority, int stackSize, const char *brokerAddress,
                          const char *brokerTopic)
     // Invoke the base class constructor
-    : ADDriver(portName, 1, consumer.GetNumberOfPVs() + PV::count, maxBuffers,
+    : ADDriver(portName, 1, KafkaInterface::KafkaConsumer::GetNumberOfPVs() + PV::count, maxBuffers,
                maxMemory, 0,
                0,    /* No interfaces beyond those set in ADDriver.cpp */
                0, 1, /* ASYN_CANBLOCK=0, ASYN_MULTIDEVICE=0, autoConnect=1 */
@@ -179,23 +179,23 @@ KafkaDriver::KafkaDriver(const char *portName, int maxBuffers, size_t maxMemory,
       consumer(brokerAddress, brokerTopic, asynPortDriver::portName) {
 
   const char *functionName = "KafkaDriver";
-  int status = asynStatus::asynSuccess;
+  int status{asynStatus::asynSuccess};
   usedOffsetSetting = OffsetSetting::Stored;
   startEventId_ = epicsEventCreate(epicsEventEmpty);
-  if (!startEventId_) {
+  if (startEventId_ == nullptr) {
     printf("%s:%s epicsEventCreate failure for start event\n", driverName,
            functionName);
     return;
   }
   stopEventId_ = epicsEventCreate(epicsEventEmpty);
-  if (!stopEventId_) {
+  if (stopEventId_ == nullptr) {
     printf("%s:%s epicsEventCreate failure for stop event\n", driverName,
            functionName);
     return;
   }
 
   threadExitEventId_ = epicsEventCreate(epicsEventEmpty);
-  if (!threadExitEventId_) {
+  if (threadExitEventId_ == nullptr) {
     printf("%s:%s epicsEventCreate failure for stop event\n", driverName,
            functionName);
     return;
@@ -219,17 +219,17 @@ KafkaDriver::KafkaDriver(const char *portName, int maxBuffers, size_t maxMemory,
   // Array callbacks are required to send data to plugins
   setIntegerParam(NDArrayCallbacks, 1);
 
-  if (status) {
+  if (status != 0) {
     printf("%s: unable to set camera parameters\n", functionName);
     return;
   }
 
   /* Create the thread that updates the images */
-  status = (epicsThreadCreate("ConsumeKafkaMsgsTask", epicsThreadPriorityMedium,
+  auto CreateThreadSuccess{epicsThreadCreate("ConsumeKafkaMsgsTask", epicsThreadPriorityMedium,
                               epicsThreadGetStackSize(epicsThreadStackMedium),
                               reinterpret_cast<EPICSTHREADFUNC>(consumeTaskC),
-                              this) == nullptr);
-  if (status) {
+                              this) != nullptr};
+  if (not CreateThreadSuccess) {
     printf("%s:%s epicsThreadCreate failure for image task\n", driverName,
            functionName);
     return;
@@ -237,12 +237,12 @@ KafkaDriver::KafkaDriver(const char *portName, int maxBuffers, size_t maxMemory,
 }
 
 void KafkaDriver::consumeTask() {
-  int status = asynSuccess;
+  int status{asynSuccess};
   int numImages, numImagesCounter;
   int imageMode;
   int arrayCallbacks;
-  int acquire = 0;
-  NDArray *pImage = nullptr;
+  int acquire{0};
+  NDArray *pImage{nullptr};
   double acquirePeriod;
   const char *functionName = "consumeTask";
   double startWaitTimeout;
@@ -253,7 +253,7 @@ void KafkaDriver::consumeTask() {
     /* If we are not acquiring then wait for a semaphore that is given when
      * acquisition is
      * started */
-    if (!acquire) {
+    if (acquire == 0) {
       /* Release the lock while we wait for an event that says acquire has
        * started, then lock
        * again */
@@ -261,7 +261,6 @@ void KafkaDriver::consumeTask() {
                 "%s:%s: waiting for acquire to start\n", driverName,
                 functionName);
       this->unlock();
-      status = asynStatus::asynTimeout;
       startWaitTimeout = consumer.GetStatsTimeMS() / 1000.0;
       consumer.StopConsumption();
       // Loop waiting for start acquisition event
@@ -316,13 +315,11 @@ void KafkaDriver::consumeTask() {
       this->lock();
 
       // If we get no image, go to start of loop
-      if (nullptr == fbImg)
-        continue;
+    if (nullptr == fbImg) { continue; }
 
       // We can only know if there is any data in the NDArray at this point
-      if (pImage) {
-        pImage->release();
-      }
+      if (pImage != nullptr) { pImage->release(); }
+    
       /// @todo Make sure that there is actual a free NDArray to which the data
       /// can be copied.
       DeSerializeData(this->pNDArrayPool,
@@ -334,8 +331,7 @@ void KafkaDriver::consumeTask() {
     setShutter(ADShutterClosed);
 
     // Make it possible to exit the loop again.
-    if (acquire == 0)
-      continue;
+    if (acquire == 0) { continue; }
 
     setIntegerParam(ADStatus, ADStatusReadout);
     /* Call the callbacks to update any changes */
@@ -419,8 +415,7 @@ extern "C" int KafkaDriverConfigure(const char *portName, int maxBuffers,
                                     size_t maxMemory, int priority,
                                     int stackSize, const char *brokerAddrStr,
                                     const char *topicName) {
-  KafkaDriver *pDriver = nullptr;
-  pDriver = new KafkaDriver(portName, maxBuffers, maxMemory, priority,
+  new KafkaDriver(portName, maxBuffers, maxMemory, priority,
                             stackSize, brokerAddrStr, topicName);
 
   return (asynSuccess);

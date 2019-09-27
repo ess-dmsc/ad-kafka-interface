@@ -56,7 +56,7 @@ public:
    * will store in its
    * buffer.
    */
-  KafkaProducer(std::string const &broker, std::string const &topic, int queueSize = 10);
+  KafkaProducer(std::string const &broker, std::string topic, int queueSize = 10);
 
   /** @brief Simple consumer constructor which will not connect to a broker.
    * @note After calling the constructor, the rest of the instructions given in
@@ -267,7 +267,7 @@ protected:
    * system. Can not
    * be more than 40 characters.
    */
-  virtual void SetConStat(ConStat stat, std::string msg);
+  virtual void SetConStat(ConStat stat, std::string const &msg);
 
   /** @brief Parses JSON status string from Kafka system and updates PV:s.
    * Uses jsoncpp to parse the status string and extracts current connection

@@ -11,6 +11,7 @@
 #include <epicsEvent.h>
 #include <map>
 #include <string>
+#include <atomic>
 
 #include "KafkaConsumer.h"
 #include "ParamUtility.h"
@@ -191,5 +192,5 @@ protected:
 
   /// @brief The consumeTask() function will keep running as long as this
   /// variable is set to true.
-  bool keepThreadAlive;
+  std::atomic_bool keepThreadAlive{false};
 };
