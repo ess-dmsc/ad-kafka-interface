@@ -32,7 +32,7 @@ public:
    */
   explicit KafkaMessage(RdKafka::Message *msg);
   /// @brief De-allocates the stored RdKafka::Message.
-  ~KafkaMessage();
+  ~KafkaMessage() = default;
   /** @brief Returns the pointer to the data stored in the RdKafka::message.
    * @return The pointer returned by this member function is still owned by the
    * class and the data
@@ -104,7 +104,7 @@ public:
    * @param[in] groupId The group id of the consumer, see the documentation for
    * KafkaConsumer::GetGroupId().
    */
-  KafkaConsumer(std::string const &groupId);
+  explicit KafkaConsumer(std::string const &groupId);
 
   /** @brief Disconnect topic and deletes dynamically allocated objects.
    */
@@ -224,7 +224,7 @@ public:
    * @param[in] groupId The new group id to be used.
    * @return True if successfull, false otherwise.
    */
-  virtual bool SetGroupId(std::string groupId);
+  virtual bool SetGroupId(std::string const &groupId);
 
   /** @brief Returns the group name/id stored by the KafkaConsumer.
    * Does not gurantee that  the returned string is the configured group
@@ -314,7 +314,7 @@ protected:
    * system. Can not
    * be more than 40 characters.
    */
-  virtual void SetConStat(ConStat stat, std::string msg);
+  virtual void SetConStat(ConStat stat, std::string const &msg);
 
   /** @brief Allocates the broker configuration object and sets some
    * configurations to their
@@ -324,7 +324,7 @@ protected:
    * are not correctly
    * initialized at this point. This should probably be changed.
    */
-  virtual void InitRdKafka(std::string groupId);
+  void InitRdKafka(std::string const &groupId);
 
   /** @brief Helper function which recreates a broker connection.
    * Attempts to close the current broker connection and create a new one based
@@ -354,7 +354,7 @@ protected:
    * relevant PVs containing
    * the number of packets in the buffer and connection status.
    */
-  virtual void ParseStatusString(std::string msg);
+  virtual void ParseStatusString(std::string const &msg);
 
   int kafka_stats_interval{500}; /// @brief Saved Kafka connection stats interval in ms.
 
@@ -418,4 +418,4 @@ protected:
       PV_param("KAFKA_CURRENT_OFFSET", asynParamInt32),     // msg_offset
   };
 };
-}
+} // namespace KafkaInterface

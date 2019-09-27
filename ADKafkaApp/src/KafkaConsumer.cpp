@@ -14,8 +14,6 @@ int KafkaConsumer::GetNumberOfPVs() { return PV::count; }
 
 KafkaMessage::KafkaMessage(RdKafka::Message *msg) : msg(msg) {}
 
-KafkaMessage::~KafkaMessage() {}
-
 void *KafkaMessage::GetDataPtr() { return msg->payload(); }
 
 size_t KafkaMessage::size() { return msg->len(); }
@@ -44,10 +42,10 @@ KafkaConsumer::~KafkaConsumer() {
   }
 }
 
-void KafkaConsumer::InitRdKafka(std::string groupId) {
-  if (nullptr == conf.get()) {
+void KafkaConsumer::InitRdKafka(std::string const &groupId) {
+  if (nullptr == conf) {
     errorState = true;
-    SetConStat(KafkaConsumer::ConStat::ERROR,
+    KafkaConsumer::SetConStat(KafkaConsumer::ConStat::ERROR,
                "Can not create global conf object.");
     return;
   }
@@ -56,25 +54,25 @@ void KafkaConsumer::InitRdKafka(std::string groupId) {
   configResult = conf->set("event_cb", this, errstr);
   if (RdKafka::Conf::CONF_OK != configResult) {
     errorState = true;
-    SetConStat(KafkaConsumer::ConStat::ERROR, "Can not set event callback.");
+    KafkaConsumer::SetConStat(KafkaConsumer::ConStat::ERROR, "Can not set event callback.");
     return;
   }
 
   configResult = conf->set("statistics.interval.ms",
                            std::to_string(kafka_stats_interval), errstr);
   if (RdKafka::Conf::CONF_OK != configResult) {
-    SetConStat(KafkaConsumer::ConStat::ERROR,
+    KafkaConsumer::SetConStat(KafkaConsumer::ConStat::ERROR,
                "Unable to set statistics interval.");
   }
 
-  if (groupId.size() == 0) {
-    SetConStat(KafkaConsumer::ConStat::ERROR, "Unable to set group id.");
+  if (groupId.empty()) {
+    KafkaConsumer::SetConStat(KafkaConsumer::ConStat::ERROR, "Unable to set group id.");
     errorState = true;
     return;
   }
   configResult = conf->set("group.id", groupId, errstr);
   if (RdKafka::Conf::CONF_OK != configResult) {
-    SetConStat(KafkaConsumer::ConStat::ERROR, "Unable to set group id.");
+    KafkaConsumer::SetConStat(KafkaConsumer::ConStat::ERROR, "Unable to set group id.");
     errorState = true;
     return;
   }
@@ -102,7 +100,7 @@ std::string KafkaConsumer::GetTopic() { return topicName; }
 std::string KafkaConsumer::GetBrokerAddr() { return brokerAddr; }
 
 std::unique_ptr<KafkaMessage> KafkaConsumer::WaitForPkg(int timeout) {
-  if (nullptr != consumer and topicName.size() > 0) {
+  if (nullptr != consumer and not topicName.empty()) {
     RdKafka::Message *msg = consumer->consume(timeout);
     if (msg->err() == RdKafka::ERR_NO_ERROR) {
       topicOffset = msg->offset();
@@ -151,7 +149,7 @@ void KafkaConsumer::event_cb(RdKafka::Event &event) {
   }
 }
 
-void KafkaConsumer::ParseStatusString(std::string msg) {
+void KafkaConsumer::ParseStatusString(std::string const &msg) {
   /// @todo We should probably extract some more stats from the JSON message
   bool parseSuccess = reader.parse(msg, root);
   if (not parseSuccess) {
@@ -159,7 +157,7 @@ void KafkaConsumer::ParseStatusString(std::string msg) {
     return;
   }
   brokers = root["brokers"];
-  if (brokers.isNull() or brokers.size() == 0) {
+  if (brokers.isNull() or brokers.empty()) {
     SetConStat(KafkaConsumer::ConStat::ERROR, "Status msg.: No brokers.");
   } else {
     KafkaConsumer::ConStat tempStat = KafkaConsumer::ConStat::DISCONNECTED;
@@ -178,7 +176,7 @@ void KafkaConsumer::ParseStatusString(std::string msg) {
 std::int64_t KafkaConsumer::GetCurrentOffset() { return topicOffset; }
 
 bool KafkaConsumer::UpdateTopic() {
-  if (nullptr != consumer and topicName.size() > 0) {
+  if (nullptr != consumer and not topicName.empty()) {
     consumer->unassign();
     std::vector<RdKafka::TopicPartition *> topics;
     topics.push_back(
@@ -222,7 +220,7 @@ bool KafkaConsumer::MakeConnection() {
     delete consumer;
     consumer = nullptr;
   }
-  if (brokerAddr.size() > 0) {
+  if (not brokerAddr.empty()) {
     consumer = RdKafka::KafkaConsumer::create(conf.get(), errstr);
     if (nullptr == consumer) {
       SetConStat(KafkaConsumer::ConStat::ERROR, "Unable to create consumer.");
@@ -234,7 +232,7 @@ bool KafkaConsumer::MakeConnection() {
 }
 
 bool KafkaConsumer::SetTopic(std::string const &topicName) {
-  if (errorState or 0 == topicName.size()) {
+  if (errorState or topicName.empty()) {
     return false;
   }
   KafkaConsumer::topicName = topicName;
@@ -243,7 +241,7 @@ bool KafkaConsumer::SetTopic(std::string const &topicName) {
 }
 
 bool KafkaConsumer::SetBrokerAddr(std::string const &brokerAddr) {
-  if (errorState or brokerAddr.size() == 0) {
+  if (errorState or brokerAddr.empty()) {
     return false;
   }
   RdKafka::Conf::ConfResult cRes;
@@ -259,8 +257,8 @@ bool KafkaConsumer::SetBrokerAddr(std::string const &brokerAddr) {
 
 std::string KafkaConsumer::GetGroupId() { return groupName; }
 
-bool KafkaConsumer::SetGroupId(std::string groupId) {
-  if (errorState or groupId.size() == 0) {
+bool KafkaConsumer::SetGroupId(std::string const &groupId) {
+  if (errorState or groupId.empty()) {
     return false;
   }
   RdKafka::Conf::ConfResult cRes;
@@ -274,7 +272,7 @@ bool KafkaConsumer::SetGroupId(std::string groupId) {
   return true;
 }
 
-void KafkaConsumer::SetConStat(ConStat stat, std::string msg) {
+void KafkaConsumer::SetConStat(ConStat stat, std::string const &msg) {
   setParam(paramCallback, paramsList[PV::con_status], static_cast<int>(stat));
   setParam(paramCallback, paramsList[PV::con_msg], msg);
 }
@@ -307,4 +305,4 @@ int KafkaConsumer::GetStatsTimeMS() { return kafka_stats_interval; }
 int KafkaConsumer::GetOffsetPVIndex() {
   return *paramsList[PV::msg_offset].index;
 }
-}
+} // namespace KafkaInterface

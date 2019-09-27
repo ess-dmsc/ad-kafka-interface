@@ -327,14 +327,14 @@ void KafkaDriver::consumeTask() {
       /// can be copied.
       DeSerializeData(this->pNDArrayPool,
                       reinterpret_cast<unsigned char *>(fbImg->GetDataPtr()),
-                      fbImg->size(), pImage);
+                      pImage);
     }
 
     /* Close the shutter */
     setShutter(ADShutterClosed);
 
     // Make it possible to exit the loop again.
-    if (!acquire)
+    if (acquire == 0)
       continue;
 
     setIntegerParam(ADStatus, ADStatusReadout);
@@ -350,7 +350,7 @@ void KafkaDriver::consumeTask() {
 
     // If callbacks are active, do them
     getIntegerParam(NDArrayCallbacks, &arrayCallbacks);
-    if (arrayCallbacks) {
+    if (arrayCallbacks != 0) {
       /* Call the NDArray callback */
       /* Must release the lock here, or we can get into a deadlock, because we
        * can
@@ -383,7 +383,7 @@ void KafkaDriver::consumeTask() {
     /* Call the callbacks to update any changes */
     callParamCallbacks();
 
-    if (acquire) {
+    if (acquire != 0) {
       setIntegerParam(ADStatus, ADStatusWaiting);
       callParamCallbacks();
       status = epicsEventTryWait(stopEventId_);

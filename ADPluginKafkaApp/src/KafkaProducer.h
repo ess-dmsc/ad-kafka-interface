@@ -277,7 +277,7 @@ protected:
    * information is then used to update the relevant PV:s.
    * @param[in] msg JSON status message obtained from the Kafka producer system.
    */
-  virtual void ParseStatusString(std::string msg);
+  virtual void ParseStatusString(std::string const &msg);
 
   int kafka_stats_interval{500}; /// @brief Saved Kafka connection stats interval in ms.
 
@@ -297,7 +297,7 @@ protected:
    * instead starts the
    * Kafka producer system that will attempt to connect to a broker.
    */
-  virtual void InitRdKafka();
+  void InitRdKafka();
 
   /** @brief Helper function which recreates a broker connection.
    * Attempts to close the current broker connection and create a new one based
@@ -360,4 +360,4 @@ protected:
       PV_param("KAFKA_MAX_MSG_SIZE", asynParamInt32),       // max_msg_size
   };
 };
-}
+} // namespace KafkaInterface

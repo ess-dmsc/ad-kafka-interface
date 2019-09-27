@@ -190,7 +190,7 @@ void KafkaProducer::SetConStat(KafkaProducer::ConStat stat, std::string msg) {
   setParam(paramCallback, paramsList.at(PV::con_msg), msg);
 }
 
-void KafkaProducer::ParseStatusString(std::string msg) {
+void KafkaProducer::ParseStatusString(std::string const &msg) {
   /// @todo We should probably extract some more stats from the JSON message
   bool parseSuccess = reader.parse(msg, root);
   if (not parseSuccess) {
@@ -199,7 +199,7 @@ void KafkaProducer::ParseStatusString(std::string msg) {
   }
   brokers = root["brokers"]; // Contains broker information, including
                              // connection state
-  if (brokers.isNull() or brokers.size() == 0) {
+  if (brokers.isNull() or brokers.empty()) {
     SetConStat(KafkaProducer::ConStat::ERROR, "Status msg.: No brokers.");
   } else {
     KafkaProducer::ConStat tempStat = KafkaProducer::ConStat::DISCONNECTED;
@@ -315,7 +315,7 @@ bool KafkaProducer::SetTopic(std::string const &topicName) {
 std::string KafkaProducer::GetTopic() { return topicName; }
 
 bool KafkaProducer::SetBrokerAddr(std::string const &brokerAddr) {
-  if (errorState or brokerAddr.size() == 0) {
+  if (errorState or brokerAddr.empty()) {
     return false;
   }
   RdKafka::Conf::ConfResult cRes;
@@ -344,13 +344,13 @@ bool KafkaProducer::MakeConnection() {
   // This code could probably be improved somewhat.
   std::lock_guard<std::mutex> lock(brokerMutex);
   if (nullptr == producer and nullptr == topic) {
-    if (brokerAddr.size() > 0) {
+    if (not brokerAddr.empty()) {
       producer = RdKafka::Producer::create(conf.get(), errstr);
       if (nullptr == producer) {
         SetConStat(KafkaProducer::ConStat::ERROR, "Unable to create producer.");
         return false;
       }
-      if (topicName.size() != 0) {
+      if (not topicName.empty()) {
         topic =
             RdKafka::Topic::create(producer, topicName, tconf.get(), errstr);
         if (nullptr == topic) {
@@ -365,7 +365,7 @@ bool KafkaProducer::MakeConnection() {
       return false;
     }
   } else if (nullptr != producer and nullptr == topic) {
-    if (topicName.size() != 0) {
+    if (not topicName.empty()) {
       topic = RdKafka::Topic::create(producer, topicName, tconf.get(), errstr);
       if (nullptr == topic) {
         SetConStat(KafkaProducer::ConStat::ERROR, "Unable to create topic.");
@@ -423,4 +423,4 @@ void KafkaProducer::RegisterParamCallbackClass(asynNDArrayDriver *ptr) {
 
   setParam(paramCallback, paramsList[PV::max_msg_size], int(maxMessageSize));
 }
-}
+} // namespace KafkaInterface

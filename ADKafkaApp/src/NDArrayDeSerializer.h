@@ -30,4 +30,4 @@
  * longer needed.
  */
 void DeSerializeData(NDArrayPool *pNDArrayPool, const unsigned char *bufferPtr,
-                     const size_t size, NDArray *&pArray);
+                     NDArray *&pArray);

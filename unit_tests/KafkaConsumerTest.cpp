@@ -30,7 +30,7 @@ public:
   bool MakeConnectionParent() {
     return KafkaInterface::KafkaConsumer::MakeConnection();
   };
-  MOCK_METHOD1(ParseStatusString, void(std::string));
+  MOCK_METHOD1(ParseStatusString, void(std::string const&));
   MOCK_METHOD0(MakeConnection, bool(void));
   MOCK_METHOD0(UpdateTopic, bool(void));
   MOCK_METHOD2(SetConStat, void(KafkaConsumerStandIn::ConStat, std::string));

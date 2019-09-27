@@ -183,7 +183,7 @@ TEST_F(Serializer, SerializeDeserializeTest) {
           unsigned char *bufferPtr = nullptr;
           size_t bufferSize;
           ser.SerializeData(*sendArr, bufferPtr, bufferSize);
-          DeSerializeData(recvPool, bufferPtr, bufferSize, recvArr);
+          DeSerializeData(recvPool, bufferPtr, recvArr);
           CompareDataTypes(sendArr, recvArr);
           CompareSizeAndDims(sendArr, recvArr);
           CompareTimeStamps(sendArr, recvArr);
