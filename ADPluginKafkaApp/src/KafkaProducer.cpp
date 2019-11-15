@@ -221,12 +221,11 @@ void KafkaProducer::ParseStatusString(std::string const &msg) {
   } else {
     KafkaProducer::ConStat tempStat = KafkaProducer::ConStat::DISCONNECTED;
     std::string statString = "Brokers down. Attempting reconnection.";
-    for (auto b : brokers) {
-      if ("UP" == b["state"].asString()) {
-        tempStat = KafkaProducer::ConStat::CONNECTED;
-        statString = "No errors.";
-        break;
-      }
+    if (std::any_of(brokers.begin(), brokers.end(), [](Json::Value const &CBrkr){
+      return "UP" == CBrkr["state"].asString();
+    })) {
+      tempStat = KafkaProducer::ConStat::CONNECTED;
+      statString = "No errors.";
     }
     SetConStat(tempStat, statString);
   }
