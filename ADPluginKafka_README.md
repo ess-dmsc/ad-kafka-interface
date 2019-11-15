@@ -6,7 +6,10 @@ This plugin has been developed primarily for use with the **ESS EPICS Environmen
 
 For communicating with the Kafka broker, the C++ version of `librdkafka` is used. The source code for this library can be downloaded from [https://github.com/edenhill/librdkafka](https://github.com/edenhill/librdkafka). At least version 0.9.4 of `librdkafka` is required for all the features to work though earlier versions will also compile.
 
-To simplify data handling, the plugin uses flatbuffers ([https://github.com/google/flatbuffers](https://github.com/google/flatbuffers)) for data serialisation. `librdkafka` produces statistics messages in JSON and these are parsed using `jsoncpp` ([https://github.com/open-source-parsers/jsoncpp](https://github.com/open-source-parsers/jsoncpp)).
+To simplify data handling, the plugin uses flatbuffers ([https://github.com/google/flatbuffers](https://github.com/google/flatbuffers)) for data serialisation. To simplify building of this project, tha flatbuffers source code has been included in this repository. Read the file *flatbuffers_LICENSE.txt* for the flatbuffers license.
+
+`librdkafka` produces statistics messages in JSON and these are parsed using `jsoncpp` ([https://github.com/open-source-parsers/jsoncpp](https://github.com/open-source-parsers/jsoncpp)). To simplify building of this project, the `jsoncpp` source code has been included in this project. The license of this library can be found in the file *jsoncpp_LICENSE.txt*.
+
 In order to run the demo of the plugin in the `startup` (or `iocs`) directory, the module `ADSimDetector` is required as it contains features for running a simulated areaDetector.
 
 ## Compiling and running the example
