@@ -87,9 +87,9 @@ int InitPvParams(asynNDArrType *driverPtr, std::vector<PV_param> &paramList) {
 /** @brief Overloaded function used to set PV string values.
  * Implemented as a template in order to minimise casting. Should probably be
  * modified to only
- * accept types which inherits from asynPortDriver. Note that if the type of the
+ * accept types which inherit from asynPortDriver. Note that if the type of the
  * PV is not
- * asynParamOctet this function will call std::arbort() which quits the
+ * asynParamOctet this function will call std::abort() which quits the
  * application. This might not
  * be the best choice.
  * @param[in] driverPtr Pointer to the instance of the class which calls this
@@ -120,9 +120,9 @@ asynStatus setParam(asynNDArrType *driverPtr, const PV_param &param,
 /** @brief Overloaded function used to set PV integer values.
  * Implemented as a template in order to minimise casting. Should probably be
  * modified to only
- * accept types which inherits from asynPortDriver. Note that if the type of the
+ * accept types which inherit from asynPortDriver. Note that if the type of the
  * PV is not
- * asynParamInt32 this function will call std::arbort() which quits the
+ * asynParamInt32 this function will call std::abort() which quits the
  * application. This might not
  * be the best choice.
  * @param[in] driverPtr Pointer to the instance of the class which calls this
