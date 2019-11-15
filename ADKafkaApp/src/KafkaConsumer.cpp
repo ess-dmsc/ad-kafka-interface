@@ -165,9 +165,10 @@ void KafkaConsumer::ParseStatusString(std::string const &msg) {
   } else {
     KafkaConsumer::ConStat tempStat = KafkaConsumer::ConStat::DISCONNECTED;
     std::string statString = "Brokers down. Attempting reconnection.";
-    if (std::any_of(brokers.begin(), brokers.end(), [](Json::Value const &CBrkr){
-      return "UP" == CBrkr["state"].asString();
-    })) {
+    if (std::any_of(brokers.begin(), brokers.end(),
+                    [](Json::Value const &CBrkr) {
+                      return "UP" == CBrkr["state"].asString();
+                    })) {
       tempStat = KafkaConsumer::ConStat::CONNECTED;
       statString = "No errors.";
     }
