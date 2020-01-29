@@ -5,7 +5,7 @@ This repository contains two separate projects which facilitates the transmissio
 * [An EPICS areaDetector driver](ADKafka_README.md) which acts as a Kafka consumer and makes NDArray data received from the broker available to the IOC.
 * [An EPICS areaDetector plugin](ADPluginKafka_README.md) which connects to an areaDetector and serializes NDArray data it receives and sends it to a Kafka broker.
 
-Apache Kafka is an open-source platform for handling streaming data one or more data brokers in order to maximize throughput and reliability. More information on Apache Kafka can be found at [the website of that project.](https://kafka.apache.org/intro)
+Apache Kafka is an open-source platform for handling streaming data using or more data brokers in order to maximize throughput and reliability. More information on Apache Kafka can be found at [the website of that project.](https://kafka.apache.org/intro)
 
 For serializing and de-serializing the areaDetector (NDArray) data, [Google FlatBuffers](https://github.com/google/flatbuffers) is used. Serializing data using FlatBuffers is fast with a relatively small memory overhead while being easier to use than C-structs.
 
