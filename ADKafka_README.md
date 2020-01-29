@@ -11,10 +11,10 @@ To simplify data handling, the plugin uses flatbuffers ([https://github.com/goog
 ## Compiling and running the example
 The steps shown here worked on the development machine but has been tested nowhere else.
 
-1. Copy the `m-epics-ADKafka` directory to your `$(EPICS_MODULES_PATH)/areaDetector` directory.
-2. Modify the files `Makefile` and `start_epics` in the `m-epics-ADKafka/iocs/ADKafkaIOC/iocBoot/iocADKafka` directory to reflect the current platform.
-3. Change (`cd`) to the `m-epics-ADKafka` directory and compile by running `make`.
-4. Modify the `m-epics-ADKafka/iocs/ADKafkaIOC/iocBoot/iocADKafka/st.cmd` file to use the address of your Kafka broker.
+1. Copy the `ADKafka` directory to your `$(EPICS_MODULES_PATH)/areaDetector` directory.
+2. Modify the files `Makefile` and `start_epics` in the `ADKafka/iocs/ADKafkaIOC/iocBoot/iocADKafka` directory to reflect the current platform.
+3. Change (`cd`) to the `ADKafka` directory and compile by running `make`.
+4. Modify the `ADKafka/iocs/ADKafkaIOC/iocBoot/iocADKafka/st.cmd` file to use the address of your Kafka broker.
 5. Run `sh start_epics` from that directory.
 
 ## Process variables (PVs)
