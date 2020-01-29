@@ -2,8 +2,6 @@
 An EPICS areaDetector plugin which sends areaDetector data serialised using flatbuffers to a Kafka broker. The plugin is in a state which should make it useful (ignoring unknown bugs). Several suggestions on improvements are listed last in this document however.
 
 ## Requirements
-This plugin has been developed primarily for use with the **ESS EPICS Environment** (EEE) used at ESS in Lund. Make files for building the module when using a regular EPICS installation are included but have received very little testing.
-
 For communicating with the Kafka broker, the C++ version of `librdkafka` is used. The source code for this library can be downloaded from [https://github.com/edenhill/librdkafka](https://github.com/edenhill/librdkafka). At least version 0.9.4 of `librdkafka` is required for all the features to work though earlier versions will also compile.
 
 To simplify data handling, the plugin uses flatbuffers ([https://github.com/google/flatbuffers](https://github.com/google/flatbuffers)) for data serialisation. To simplify building of this project, tha flatbuffers source code has been included in this repository. Read the file *flatbuffers_LICENSE.txt* for the flatbuffers license.
@@ -13,24 +11,6 @@ To simplify data handling, the plugin uses flatbuffers ([https://github.com/goog
 In order to run the demo of the plugin in the `startup` (or `iocs`) directory, the module `ADSimDetector` is required as it contains features for running a simulated areaDetector.
 
 ## Compiling and running the example
-There are currently two sets of make files provided with the repository. One for use with the ESS EPICS Environment and one for use with a standard EPICS installation.
-
-### ESS EPICS Environment
-If the ESS EPICS Environment is available, the *EEEmakefile* should be used as an input to gnumake:
-
-* `cd` to the `m-epics-ADPluginKafka` directory.
-* Run gnumake (`make -f EEEmakefile`).
-* Install using gnumake (`sudo -E make -f EEEmakefile install`).
-
-Note that the EEE make file assumes that librdkafka is installed in the standard location (i.e. `/usr/local/`). If this is not the case, the file `EEEmakefile` will have to be modified so that the variables `LIBRDKAFKA_LIB_PATH` and `LIBRDKAFKA_INC_PATH`  point to the locations of the library and header files.
-
-#### Running an example IOC using the ESS EPICS Environment
-A simple example illustrating how the plugin works is provided in the `m-epics-ADPluginKafka/startup` directory. When the plugin is installed:
-
-* `cd` to `m-epics-ADPluginKafka/startup`.
-* Run the startup script: `iocsh -r ADPluginKafka,1.0.0-BETA -c "requireSnippet(ADPluginKafka_demo.cmd)"`.
-
-### Compiling and running the driver in a standard EPICS installation
 The steps shown here worked on the development machine but has been tested nowhere else.
 
 1. Copy the `m-epics-ADPluginKafka` directory to your `$(EPICS_MODULES_PATH)/areaDetector` directory.

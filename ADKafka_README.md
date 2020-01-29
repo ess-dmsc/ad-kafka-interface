@@ -2,8 +2,6 @@
 An EPICS areaDetector driver which consumes NDArray data serialised using flatbuffers from a Kafka broker. Basic functionality of the driver works but some bugs related to the setting of PVs have been encountered in testing.
 
 ## Requirements
-The `GNUmakefile` used to build this plugin is only compatible with the **ESS EPICS Environment** (EEE) used at ESS in Lund. Make files for building the module when using a regular EPICS installation exist but have received limited testing.
-
 For communicating with the Kafka broker, the C++ version of `librdkafka` is used. The source code for this library can be downloaded from [https://github.com/edenhill/librdkafka](https://github.com/edenhill/librdkafka). At least version 0.9.4 of `librdkafka` is required for all the features to work though earlier versions will also compile.
 
 To simplify data handling, the plugin uses flatbuffers ([https://github.com/google/flatbuffers](https://github.com/google/flatbuffers)) for data serialisation. To simplify building of this project, tha flatbuffers source code has been included in this repository. Read the file *flatbuffers_LICENSE.txt* for the flatbuffers license.
@@ -11,24 +9,6 @@ To simplify data handling, the plugin uses flatbuffers ([https://github.com/goog
 `librdkafka` produces statistics messages in JSON and these are parsed using `jsoncpp` ([https://github.com/open-source-parsers/jsoncpp](https://github.com/open-source-parsers/jsoncpp)). To simplify building of this project, the `jsoncpp` source code has been included in this project. The license of this library can be found in the file *jsoncpp_LICENSE.txt*.
 
 ## Compiling and running the example
-There are currently two sets of make files provided with the repository. One for use with the ESS EPICS Environment and one for use with a standard EPICS installation.
-
-### ESS EPICS Environment
-If the ESS EPICS Environment is available, the *EEEmakefile* should be used as an input to gnumake:
-
-* `cd` to the `m-epics-ADKafka` directory.
-* Run gnumake (`make -f EEEmakefile`).
-* Install using gnumake (`sudo -E make -f EEEmakefile install`).
-
-Note that the EEE make file assumes that librdkafka is installed in the standard location (i.e. `/usr/local/`). If this is not the case, the file `EEEmakefile` will have to be modified so that the variables `LIBRDKAFKA_LIB_PATH` and `LIBRDKAFKA_INC_PATH`  point to the locations of the library and header files.
-
-#### Running an example IOC using the ESS EPICS Environment
-A simple example illustrating how the plugin works is provided in the `m-epics-ADKafka/startup` directory. When the plugin is installed:
-
-* `cd` to `m-epics-ADKafka/startup`.
-* Run the startup script: `iocsh -r ADKafka,1.0.0-BETA -c "requireSnippet(ADKafka_demo.cmd)"`.
-
-### Compiling and running the driver in a standard EPICS installation
 The steps shown here worked on the development machine but has been tested nowhere else.
 
 1. Copy the `m-epics-ADKafka` directory to your `$(EPICS_MODULES_PATH)/areaDetector` directory.
