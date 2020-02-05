@@ -13,12 +13,13 @@ In order to run the demo of the plugin in the `startup` (or `iocs`) directory, t
 ## Compiling and running the example
 The steps shown here worked on the development machine but has been tested nowhere else.
 
-1. Copy the `ADPluginKafka` directory to your `$(EPICS_MODULES_PATH)/areaDetector` directory.
-2. Set the variable `SIMDET` in the file `ADPluginKafka/iocs/ADPluginKafkaIOC/configure/RELEASE` to point to the location of `ADSimDetector` in your EPICS installation.
-3. Modify the files `Makefile` and `start_epics` in the `ADPluginKafka/iocs/ADPluginKafkaIOC/iocBoot/iocADPluginKafka` directory to reflect the current platform.
-4. Change (`cd`) to the `ADPluginKafka` directory and compile by running `make`.
-5. Modify the `ADPluginKafka/iocs/ADPluginKafkaIOC/iocBoot/iocADPluginKafka/st.cmd` file to use the address of your Kafka broker.
-6. Run `sh start_epics` from that directory.
+1. Copy the _ADPluginKafka_ directory to your _$(EPICS_MODULES_PATH)/areaDetector_ directory.
+2. Set the variable `SIMDET` in the file _ADPluginKafka/iocs/ADPluginKafkaIOC/configure/RELEASE_ to point to the location of _ADSimDetector_ in your EPICS installation.
+3. Modify the file _ADPluginKafka/configure/RELEASE.local_ such that `EPICS_MODULES_PATH` and `SUPPORT` points to the directory of you EPICS modules.
+4. Modify the files _Makefile_ and _start_epics_ in the _ADPluginKafka/iocs/ADPluginKafkaIOC/iocBoot/iocADPluginKafka_ directory to reflect the current platform.
+5. Change (`cd`) to the _ADPluginKafka_ directory and compile by running `make`.
+6. Modify the _ADPluginKafka/iocs/ADPluginKafkaIOC/iocBoot/iocADPluginKafka/st.cmd_ file to use the address of your Kafka broker.
+7. Run `sh start_epics` from that directory.
 
 
 ## Process variables (PV:s)

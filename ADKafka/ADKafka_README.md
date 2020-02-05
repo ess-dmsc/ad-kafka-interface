@@ -13,9 +13,10 @@ The steps shown here worked on the development machine but has been tested nowhe
 
 1. Copy the `ADKafka` directory to your `$(EPICS_MODULES_PATH)/areaDetector` directory.
 2. Modify the files `Makefile` and `start_epics` in the `ADKafka/iocs/ADKafkaIOC/iocBoot/iocADKafka` directory to reflect the current platform.
-3. Change (`cd`) to the `ADKafka` directory and compile by running `make`.
-4. Modify the `ADKafka/iocs/ADKafkaIOC/iocBoot/iocADKafka/st.cmd` file to use the address of your Kafka broker.
-5. Run `sh start_epics` from that directory.
+3. Modify the file _ADPluginKafka/configure/RELEASE.local_ such that `EPICS_MODULES_PATH` and `SUPPORT` points to the directory of you EPICS modules.
+4. Change (`cd`) to the `ADKafka` directory and compile by running `make`.
+5. Modify the `ADKafka/iocs/ADKafkaIOC/iocBoot/iocADKafka/st.cmd` file to use the address of your Kafka broker.
+6. Run `sh start_epics` from that directory.
 
 ## Process variables (PVs)
 This plugin provides a few extra process variables besides the ones provided through inheritance from `NDPluginDriver`. These are:
