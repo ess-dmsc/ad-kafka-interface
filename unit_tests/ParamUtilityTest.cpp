@@ -30,6 +30,7 @@ public:
   MOCK_METHOD2(setStringParam, asynStatus(int, const char *));
   MOCK_METHOD2(setIntegerParam, asynStatus(int, int));
   MOCK_METHOD3(createParam, asynStatus(const char *, asynParamType, int *));
+  MOCK_METHOD1(processCallbacks, void(NDArray*));
 };
 
 /// @brief A testing fixture used for setting up unit tests.

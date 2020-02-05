@@ -1,17 +1,10 @@
-cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 add_definitions(-std=c++11 -pthread) #-v = verbose
 
-set(CMAKE_CXX_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
-set(CMAKE_C_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
-
 enable_testing()
 
-if (CMAKE_VERSION VERSION_LESS 3.2)
-    set(UPDATE_DISCONNECTED_IF_AVAILABLE "")
-else()
-    set(UPDATE_DISCONNECTED_IF_AVAILABLE "UPDATE_DISCONNECTED 1")
-endif()
+set(UPDATE_DISCONNECTED_IF_AVAILABLE "UPDATE_DISCONNECTED 1")
 
 include(DownloadProject)
 download_project(PROJ                googletest
@@ -26,37 +19,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
 
-# When using CMake 2.8.11 or later, header path dependencies
-# are automatically added to the gtest and gmock targets.
-# For earlier CMake versions, we have to explicitly add the
-# required directories to the header search path ourselves.
-if (CMAKE_VERSION VERSION_LESS 2.8.11)
-    include_directories("${gtest_SOURCE_DIR}/include"
-                        "${gmock_SOURCE_DIR}/include")
-endif()
-
-
-file(GLOB TEST_FILES "./*.cpp")
-
-set(plugin_SRC "../m-epics-ADPluginKafka/ADPluginKafkaApp/src/")
-set(driver_SRC "../m-epics-ADKafka/ADKafkaApp/src/")
-
-file(GLOB PLUGIN_SRC_FILES "${plugin_SRC}*.cpp")
-
-file(GLOB DRIVER_SRC_FILES "${driver_SRC}*.cpp")
-
-# The file jsoncpp.cpp is present in both EPICS modules. Remove it from one of them to build the unit tests.
-FOREACH(item ${DRIVER_SRC_FILES})
-  IF(${item} MATCHES "jsoncpp.cpp")
-    LIST(REMOVE_ITEM DRIVER_SRC_FILES ${item})
-  ENDIF(${item} MATCHES "jsoncpp.cpp")
-ENDFOREACH(item)
-
 find_package(LibRDKafka)
-
-find_path(flatbuffers_INC NAMES flatbuffers/flatbuffers.h PATHS /usr/local/include /opt/dm_group/usr/include)
-
-include_directories(${plugin_SRC} ${driver_SRC} ${LibRDKafka_INCLUDE_DIR} ${flatbuffers_INC} ".")
 
 if (NOT DEFINED ENV{EPICS_BASE})
     message(FATAL_ERROR "Missing environment variable \"EPICS_BASE\".")
@@ -96,7 +59,82 @@ endif()
 
 include_directories("$ENV{EPICS_BASE}/include")
 
-add_executable(unit_tests ${TEST_FILES} ${PLUGIN_SRC_FILES} ${DRIVER_SRC_FILES})
+set(Common_SRC
+  jsoncpp.cpp
+)
+
+set(Common_INC
+  base.h
+  flatbuffers.h
+  json.h
+  stl_emulation.h
+  NDArray_schema_generated.h
+  ParamUtility.h
+)
+
+list(TRANSFORM Common_SRC PREPEND "../ADKafka/ADKafkaApp/src/")
+list(TRANSFORM Common_INC PREPEND "../ADKafka/ADKafkaApp/src/")
+
+add_library(Common OBJECT ${Common_SRC} ${Common_INC})
+
+set(Driver_SRC
+  KafkaConsumer.cpp
+  KafkaDriver.cpp
+  NDArrayDeSerializer.cpp
+)
+
+set(Driver_INC
+  KafkaConsumer.h
+  KafkaDriver.h
+  NDArrayDeSerializer.h
+)
+
+list(TRANSFORM Driver_SRC PREPEND "../ADKafka/ADKafkaApp/src/")
+list(TRANSFORM Driver_INC PREPEND "../ADKafka/ADKafkaApp/src/")
+
+add_library(Driver OBJECT ${Driver_SRC} ${Driver_INC})
+target_include_directories(Driver PRIVATE ${LibRDKafka_INCLUDE_DIR})
+
+set(Plugin_SRC
+  KafkaProducer.cpp
+  KafkaPlugin.cpp
+  NDArraySerializer.cpp
+)
+
+set(Plugin_INC
+  KafkaProducer.h
+  KafkaPlugin.h
+  NDArraySerializer.h
+)
+
+list(TRANSFORM Plugin_SRC PREPEND "../ADPluginKafka/ADPluginKafkaApp/src/")
+list(TRANSFORM Plugin_INC PREPEND "../ADPluginKafka/ADPluginKafkaApp/src/")
+
+add_library(Plugin OBJECT ${Plugin_SRC} ${Plugin_INC})
+target_include_directories(Plugin PRIVATE ${LibRDKafka_INCLUDE_DIR})
+
+set(Test_SRC
+  RunTests.cpp
+  GenerateNDArray.cpp
+  KafkaConsumerTest.cpp
+  KafkaDriverTest.cpp
+  KafkaPluginTest.cpp
+  KafkaProducerTest.cpp
+  NDArraySerializerTest.cpp
+  ParamUtilityTest.cpp
+  PortName.cpp
+  $<TARGET_OBJECTS:Driver>
+  $<TARGET_OBJECTS:Plugin>
+  $<TARGET_OBJECTS:Common>
+)
+
+set(Test_INC
+  GenerateNDArray.h
+  PortName.h
+)
+
+add_executable(unit_tests ${Test_SRC} ${Test_INC})
+target_include_directories(unit_tests PRIVATE "../ADPluginKafka/ADPluginKafkaApp/src/" "../ADKafka/ADKafkaApp/src/" ${LibRDKafka_INCLUDE_DIR})
 
 if (${APPLE})
     target_link_libraries(unit_tests gtest gmock_main NDPlugin ADBase asyn Com ${LibRDKafka_LIBRARIES})
@@ -104,11 +142,9 @@ else()
     target_link_libraries(unit_tests gtest gmock_main xml sz busy calc seq ca dbCore ${ZLIB_LIBRARY} ${TIFF_LIBRARY} ${JPEG_LIBRARY} ${HDF5_LIBRARIES} normativeTypesCPP pvAccessCPP pvDataCPP pvDatabaseCPP adcore asyn Com ${LibRDKafka_LIBRARIES})
 endif()
 
-configure_file("someNDArray.data" "." COPYONLY)
+get_filename_component(TEST_DATA_PATH "someNDArray.data" DIRECTORY)
+target_compile_definitions(unit_tests
+    PRIVATE TEST_DATA_PATH="${CMAKE_CURRENT_SOURCE_DIR}/${TEST_DATA_PATH}/")
+
 
 add_test(TestAll unit_tests)
-
-include(CodeCoverage)
-
-SETUP_TARGET_FOR_COVERAGE_COBERTURA(xml_coverage unit_tests coverage)
-SETUP_TARGET_FOR_COVERAGE(html_coverage unit_tests coverage)

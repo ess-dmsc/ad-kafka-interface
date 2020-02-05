@@ -54,7 +54,7 @@ public:
 
   virtual void SetUp() {
     arrGen = new NDArrayGenerator();
-    recvPool = new NDArrayPool(1, 0);
+    recvPool = new NDArrayPool(nullptr, 0);
   };
 
   virtual void TearDown() {
@@ -101,7 +101,8 @@ TEST_F(Serializer, SerializeTest) {
 class DeSerializer : public ::testing::Test {
 public:
   static void SetUpTestCase() {
-    std::ifstream inFile("someNDArray.data",
+    std::string DataFilePath{TEST_DATA_PATH};
+    std::ifstream inFile(DataFilePath + "someNDArray.data",
                          std::ifstream::in | std::ifstream::binary);
     inFile.seekg(0, inFile.end);
     fileSize = inFile.tellg();
@@ -182,7 +183,7 @@ TEST_F(Serializer, SerializeDeserializeTest) {
           unsigned char *bufferPtr = nullptr;
           size_t bufferSize;
           ser.SerializeData(*sendArr, bufferPtr, bufferSize);
-          DeSerializeData(recvPool, bufferPtr, bufferSize, recvArr);
+          DeSerializeData(recvPool, bufferPtr, recvArr);
           CompareDataTypes(sendArr, recvArr);
           CompareSizeAndDims(sendArr, recvArr);
           CompareTimeStamps(sendArr, recvArr);

@@ -18,7 +18,7 @@
 class NDArrayGenerator {
 public:
   NDArrayGenerator();
-  ~NDArrayGenerator();
+  ~NDArrayGenerator() = default;
 
   NDArray *GenerateNDArray(size_t numAttr, size_t numElem, int dims,
                            NDDataType_t dType);
