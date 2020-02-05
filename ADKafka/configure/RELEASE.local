@@ -1,0 +1,13 @@
+#RELEASE Location of external products
+# Run "gnumake clean uninstall install" in the application
+# top directory each time this file is changed.
+
+#EPICS_MODULES_PATH := /opt/epics/modules
+#SUPPORT=${EPICS_MODULES_PATH}
+
+#ASYN := $(EPICS_MODULES_PATH)/asyn
+#AREA_DETECTOR := $(EPICS_MODULES_PATH)/areaDetector
+
+#EPICS_BASE := /opt/epics/base-3.15.5
+
+#ADCORE=$(AREA_DETECTOR)/ADcore

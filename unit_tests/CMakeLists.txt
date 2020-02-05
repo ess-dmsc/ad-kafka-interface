@@ -19,14 +19,6 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
 
-
-# The file jsoncpp.cpp is present in both EPICS modules. Remove it from one of them to build the unit tests.
-# FOREACH(item ${DRIVER_SRC_FILES})
-#   IF(${item} MATCHES "jsoncpp.cpp")
-#     LIST(REMOVE_ITEM DRIVER_SRC_FILES ${item})
-#   ENDIF(${item} MATCHES "jsoncpp.cpp")
-# ENDFOREACH(item)
-
 find_package(LibRDKafka)
 
 if (NOT DEFINED ENV{EPICS_BASE})
@@ -80,8 +72,8 @@ set(Common_INC
   ParamUtility.h
 )
 
-list(TRANSFORM Common_SRC PREPEND "../ADKafkaApp/src/")
-list(TRANSFORM Common_INC PREPEND "../ADKafkaApp/src/")
+list(TRANSFORM Common_SRC PREPEND "../ADKafka/ADKafkaApp/src/")
+list(TRANSFORM Common_INC PREPEND "../ADKafka/ADKafkaApp/src/")
 
 add_library(Common OBJECT ${Common_SRC} ${Common_INC})
 
@@ -97,8 +89,8 @@ set(Driver_INC
   NDArrayDeSerializer.h
 )
 
-list(TRANSFORM Driver_SRC PREPEND "../ADKafkaApp/src/")
-list(TRANSFORM Driver_INC PREPEND "../ADKafkaApp/src/")
+list(TRANSFORM Driver_SRC PREPEND "../ADKafka/ADKafkaApp/src/")
+list(TRANSFORM Driver_INC PREPEND "../ADKafka/ADKafkaApp/src/")
 
 add_library(Driver OBJECT ${Driver_SRC} ${Driver_INC})
 target_include_directories(Driver PRIVATE ${LibRDKafka_INCLUDE_DIR})
@@ -115,8 +107,8 @@ set(Plugin_INC
   NDArraySerializer.h
 )
 
-list(TRANSFORM Plugin_SRC PREPEND "../ADPluginKafkaApp/src/")
-list(TRANSFORM Plugin_INC PREPEND "../ADPluginKafkaApp/src/")
+list(TRANSFORM Plugin_SRC PREPEND "../ADPluginKafka/ADPluginKafkaApp/src/")
+list(TRANSFORM Plugin_INC PREPEND "../ADPluginKafka/ADPluginKafkaApp/src/")
 
 add_library(Plugin OBJECT ${Plugin_SRC} ${Plugin_INC})
 target_include_directories(Plugin PRIVATE ${LibRDKafka_INCLUDE_DIR})
@@ -142,7 +134,7 @@ set(Test_INC
 )
 
 add_executable(unit_tests ${Test_SRC} ${Test_INC})
-target_include_directories(unit_tests PRIVATE "../ADPluginKafkaApp/src/" "../ADKafkaApp/src/" ${LibRDKafka_INCLUDE_DIR})
+target_include_directories(unit_tests PRIVATE "../ADPluginKafka/ADPluginKafkaApp/src/" "../ADKafka/ADKafkaApp/src/" ${LibRDKafka_INCLUDE_DIR})
 
 if (${APPLE})
     target_link_libraries(unit_tests gtest gmock_main NDPlugin ADBase asyn Com ${LibRDKafka_LIBRARIES})
