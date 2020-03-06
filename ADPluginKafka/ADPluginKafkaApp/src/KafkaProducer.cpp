@@ -9,6 +9,7 @@
 #include <chrono>
 #include <ciso646>
 #include <cstdlib>
+#include <algorithm>
 
 namespace KafkaInterface {
 
