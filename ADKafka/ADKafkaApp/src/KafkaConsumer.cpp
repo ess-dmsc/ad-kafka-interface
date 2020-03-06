@@ -7,6 +7,7 @@
 
 #include "KafkaConsumer.h"
 #include <ciso646>
+#include <algorithm>
 
 namespace KafkaInterface {
 
