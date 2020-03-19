@@ -1,15 +1,16 @@
 .DS_Store
 O.*/
-/m-epics-AD*Kafka/db/
-/m-epics-AD*Kafka/lib/
-/m-epics-AD*Kafka/dbd/
-/m-epics-AD*Kafka/include/
-/m-epics-AD*Kafka/builddir/
-/m-epics-AD*Kafka/iocs/AD*KafkaIOC/bin
-/m-epics-AD*Kafka/iocs/AD*KafkaIOC/dbd
-/m-epics-AD*Kafka/iocs/AD*KafkaIOC/iocBoot/iocAD*Kafka/envPaths
-/m-epics-AD*Kafka/iocs/AD*KafkaIOC/iocBoot/iocAD*Kafka/dllPath.bat
-/m-epics-AD*Kafka/iocs/AD*KafkaIOC/iocBoot/iocAD*Kafka/cdCommands
+/AD*Kafka/db/
+/AD*Kafka/lib/
+/AD*Kafka/bin/
+/AD*Kafka/dbd/
+/AD*Kafka/include/
+/AD*Kafka/builddir/
+/AD*Kafka/iocs/AD*KafkaIOC/bin
+/AD*Kafka/iocs/AD*KafkaIOC/dbd
+/AD*Kafka/iocs/AD*KafkaIOC/iocBoot/iocAD*Kafka/envPaths
+/AD*Kafka/iocs/AD*KafkaIOC/iocBoot/iocAD*Kafka/dllPath.bat
+/AD*Kafka/iocs/AD*KafkaIOC/iocBoot/iocAD*Kafka/cdCommands
 
 /build/
 /KafkaInterface.xcodeproj/*
