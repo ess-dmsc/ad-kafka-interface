@@ -10,12 +10,12 @@
 #include <epicsTime.h>
 #include <iocsh.h>
 
-#include "KafkaDriver.h"
-#include "NDArrayDeSerializer.h"
 #include <asynDriver.h>
 #include <cassert>
 #include <ciso646>
 #include <epicsExport.h>
+#include "KafkaDriver.h"
+#include "NDArrayDeSerializer.h"
 
 static const char *driverName = "KafkaDriver";
 
@@ -228,11 +228,11 @@ KafkaDriver::KafkaDriver(const char *portName, int maxBuffers, size_t maxMemory,
   }
 
   /* Create the thread that updates the images */
-  auto CreateThreadSuccess{
+  auto CreateThreadSuccess = (
       epicsThreadCreate("ConsumeKafkaMsgsTask", epicsThreadPriorityMedium,
                         epicsThreadGetStackSize(epicsThreadStackMedium),
                         reinterpret_cast<EPICSTHREADFUNC>(consumeTaskC),
-                        this) != nullptr};
+                        this) != nullptr );
   if (not CreateThreadSuccess) {
     printf("%s:%s epicsThreadCreate failure for image task\n", driverName,
            functionName);
