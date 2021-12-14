@@ -66,7 +66,6 @@ record(mbbo, "$(P)$(R)StartMessageOffset") #Multi bit binary input
    field(TWVL, "2")
    field(THST, "End")
    field(THVL, "3")
-   field(SCAN, "I/O Intr")
 }
 
 record(stringin, "$(P)$(R)ConnectionMessage_RBV")
